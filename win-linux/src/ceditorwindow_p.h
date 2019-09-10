@@ -256,8 +256,10 @@ public:
 
     void onFullScreen(bool apply)
     {
-        if ( apply == panel()->windowState().testFlag(Qt::WindowFullScreen) )
-            return;
+        qDebug() << "on full screen: " << apply;
+
+//        if ( apply == panel()->windowState().testFlag(Qt::WindowFullScreen) )
+//            return;
 
         auto _break_demonstration = [&] {
             CAscExecCommandJS * pCommand = new CAscExecCommandJS;
@@ -271,20 +273,23 @@ public:
         CTabPanel * _fs_widget = panel();
         static QMetaObject::Connection cefConnection;
         if (!apply) {
-            _break_demonstration();
+//            _break_demonstration();
 
-            window->show(false);
+//            window->show(false);
 
-            _fs_widget->showNormal();
-            window->m_pMainPanel->layout()->addWidget(_fs_widget);
-            window->recalculatePlaces();
+            _fs_widget->setWindowFlag(Qt::Window, false);
+            _fs_widget->show();
 
-            disconnect(cefConnection);
+//            window->m_pMainPanel->layout()->addWidget(_fs_widget);
+//            window->recalculatePlaces();
+
+//            disconnect(cefConnection);
         } else {
-            QPoint pt = _fs_widget->mapToGlobal(_fs_widget->pos());
-#ifdef _WIN32
+//            QPoint pt = _fs_widget->mapToGlobal(_fs_widget->pos());
+
             _fs_widget->clearMask();
             _fs_widget->setWindowIcon(Utils::appIcon());
+#ifdef _WIN32
             _fs_widget->setParent(nullptr);
             window->hide();
 #else
@@ -295,21 +300,20 @@ public:
 //                    m_dataFullScreen->parent->hide();
 //                }
 #endif
+            _fs_widget->setWindowFlag(Qt::Window);
             _fs_widget->showFullScreen();
             _fs_widget->cef()->focus();
 
-            cefConnection = connect(_fs_widget->view(), &QCefView::closeWidget, [=](QCloseEvent * e){
-                _break_demonstration();
-
-                e->ignore();
-                window->closeWindow();
-            });
+//            cefConnection = connect(_fs_widget->view(), &QCefView::closeWidget, [=](QCloseEvent * e){
+//                _break_demonstration();
+//                e->ignore();
+//                window->closeWindow();
+//            });
 
 #ifdef _WIN32
             _fs_widget->setGeometry(QApplication::desktop()->screenGeometry(pt));
             _fs_widget->setWindowState(Qt::WindowFullScreen);                       // fullscreen widget clears that flag after changing geometry
 #else
-
 //            QRect _scr_rect = QApplication::desktop()->screenGeometry(pt);
 //            fsWidget->setGeometry(QRect(QPoint(0,0), _scr_rect.size()));
 #endif
