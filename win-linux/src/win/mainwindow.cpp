@@ -58,6 +58,8 @@
 #include <QSettings>
 #include <QDebug>
 
+#include "bordeless.hpp"
+
 #ifdef _UPDMODULE
   #include "3dparty/WinSparkle/include/winsparkle.h"
   #include "win/cnotifications.h"
@@ -71,6 +73,8 @@ Q_GUI_EXPORT HICON qt_pixmapToWinHICON(const QPixmap &);
 
 typedef BOOL (__stdcall *AdjustWindowRectExForDpiW)(LPRECT lpRect, DWORD dwStyle, BOOL bMenu, DWORD dwExStyle, UINT dpi);
 AdjustWindowRectExForDpiW dpi_adjustWindowRectEx = NULL;
+
+unique_handle g_handle;
 
 
 CMainWindow::CMainWindow(QRect& rect) :
@@ -114,22 +118,29 @@ CMainWindow::CMainWindow(QRect& rect) :
     wcx.hIcon = qt_pixmapToWinHICON(QSysInfo::windowsVersion() == QSysInfo::WV_XP ?
                                         icon.pixmap(icon.availableSizes().first()) : icon.pixmap(QSize(32,32)) );
 
-    if ( FAILED( RegisterClassExW( &wcx ) ) )
-        throw std::runtime_error( "Couldn't register window class" );
+//    if ( FAILED( RegisterClassExW( &wcx ) ) )
+//        throw std::runtime_error( "Couldn't register window class" );
 
-    hWnd = CreateWindow( WINDOW_CLASS_NAME, QString(WINDOW_NAME).toStdWString().c_str(), static_cast<DWORD>(WindowBase::Style::windowed),
-                            _window_rect.x(), _window_rect.y(), _window_rect.width(), _window_rect.height(), 0, 0, hInstance, nullptr );
-    if ( !hWnd )
-        throw std::runtime_error( "couldn't create window because of reasons" );
+//    hWnd = CreateWindow( WINDOW_CLASS_NAME, QString(WINDOW_NAME).toStdWString().c_str(), static_cast<DWORD>(WindowBase::Style::windowed),
+//                            _window_rect.x(), _window_rect.y(), _window_rect.width(), _window_rect.height(), 0, 0, hInstance, nullptr );
+//    if ( !hWnd )
+//        throw std::runtime_error( "couldn't create window because of reasons" );
 
-    SetWindowLongPtr( hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>( this ) );
+//    SetWindowLongPtr( hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>( this ) );
+
+    g_handle = {borderless::create_window(&CMainWindow::WndProcB, this)};
+    hWnd = g_handle.get();
+
+    ::ShowWindow(g_handle.get(), SW_SHOW);
+    set_borderless(true);
+    set_borderless_shadow(true);
 
     m_pWinPanel = new CWinPanel(this);
 
     m_pMainPanel = new CMainPanelImpl(m_pWinPanel, true, m_dpiRatio);
     m_pMainPanel->setStyleSheet(AscAppManager::getWindowStylesheets(m_dpiRatio));
     m_pMainPanel->updateScaling(m_dpiRatio);
-    m_pMainPanel->goStart();
+//    m_pMainPanel->goStart();
 
 //    SetWindowPos(HWND(m_pWinPanel->winId()), NULL, 0, 0, _window_rect.width(), _window_rect.height(), SWP_FRAMECHANGED);
     setMinimumSize( MAIN_WINDOW_MIN_WIDTH*m_dpiRatio, MAIN_WINDOW_MIN_HEIGHT*m_dpiRatio );
@@ -141,6 +152,7 @@ CMainWindow::CMainWindow(QRect& rect) :
     QObject::connect(&AscAppManager::getInstance().commonEvents(), &CEventDriver::onModalDialog, bind(&CMainWindow::slot_modalDialog, this, _1, _2));
 
     m_pWinPanel->show();
+    adjustGeometry();
 
     HMODULE _lib = ::LoadLibrary(L"user32.dll");
     dpi_adjustWindowRectEx = reinterpret_cast<AdjustWindowRectExForDpiW>(GetProcAddress(_lib, "AdjustWindowRectExForDpi"));
@@ -543,10 +555,156 @@ qDebug() << "WM_CLOSE";
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
+auto CALLBACK CMainWindow::WndProcB(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) noexcept -> LRESULT {
+    if (msg == WM_NCCREATE) {
+        auto userdata = reinterpret_cast<CREATESTRUCTW*>(lparam)->lpCreateParams;
+        // store window instance pointer in window user data
+        ::SetWindowLongPtrW(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(userdata));
+    }
+
+    if (auto window_ptr = reinterpret_cast<CMainWindow *>(::GetWindowLongPtrW(hwnd, GWLP_USERDATA))) {
+        auto& window = *window_ptr;
+
+        switch (msg) {
+            case WM_NCCALCSIZE: {
+                if (wparam == TRUE && window.b_borderless) {
+                    auto& params = *reinterpret_cast<NCCALCSIZE_PARAMS*>(lparam);
+                    borderless::adjust_maximized_client_rect(hwnd, params.rgrc[0]);
+
+//                    QRect rc1{QPoint(params.rgrc[0].left,params.rgrc[0].top), QPoint(params.rgrc[0].right, params.rgrc[0].bottom)};
+//                    QRect rc2{QPoint(params.rgrc[1].left,params.rgrc[1].top), QPoint(params.rgrc[1].right, params.rgrc[1].bottom)};
+//                    QRect rc3{QPoint(params.rgrc[2].left,params.rgrc[2].top), QPoint(params.rgrc[2].right, params.rgrc[2].bottom)};
+
+                    return 0;
+                }
+                break;
+            }
+            case WM_NCHITTEST: {
+                // When we have no border or title bar, we need to perform our
+                // own hit testing to allow resizing and moving.
+                if (window.b_borderless) {
+                    return borderless::hit_test(hwnd, POINT{GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam)});
+                }
+                break;
+            }
+            case WM_NCACTIVATE: {
+//                window.adjustGeometry();
+                if (!borderless::composition_enabled()) {
+                    // Prevents window frame reappearing on window activation
+                    // in "basic" theme, where no aero shadow is present.
+                    return 1;
+                }
+                break;
+            }
+
+//            case WM_SIZING:
+//                RedrawWindow(hwnd, NULL, NULL, RDW_INVALIDATE | RDW_NOERASE | RDW_INTERNALPAINT);
+//                break;
+
+            case WM_PAINT: {
+                PAINTSTRUCT ps;
+                BeginPaint(hwnd, &ps);
+
+                RECT ClientRect;
+                GetClientRect(hwnd, &ClientRect);
+//                RECT BorderRect = { BORDERWIDTH, BORDERWIDTH, ClientRect.right - BORDERWIDTH - BORDERWIDTH, ClientRect.bottom - BORDERWIDTH - BORDERWIDTH },
+//                     TitleRect = { BORDERWIDTH, BORDERWIDTH, ClientRect.right - BORDERWIDTH - BORDERWIDTH, TITLEBARWIDTH };
+
+                HBRUSH BorderBrush = CreateSolidBrush(WINDOW_BACKGROUND_COLOR);
+                FillRect(ps.hdc, &ClientRect, BorderBrush);
+//                FillRect(ps.hdc, &BorderRect, GetSysColorBrush(2));
+//                FillRect(ps.hdc, &TitleRect, GetSysColorBrush(1));
+                DeleteObject(BorderBrush);
+
+                EndPaint(hwnd, &ps);
+                return 0; }
+
+            case WM_ERASEBKGND: {
+                return TRUE; }
+
+//            case WM_GETMINMAXINFO: {
+//                window.adjustGeometry();
+//                break;}
+
+            case WM_SIZE:
+                if ( !window.closed && window.m_pWinPanel) {
+                    if (wparam == SIZE_MINIMIZED) {
+//                        window->m_pMainPanel->applyMainWindowState(Qt::WindowMinimized);
+                    } else {
+                        if ( IsWindowVisible(hwnd) ) {
+//                            if ( isWindowDocked(hWnd) ) {
+//                                RECT lpWindowRect;
+//                                GetWindowRect(hWnd, &lpWindowRect);
+//                                QRect rc{QPoint(lpWindowRect.left, lpWindowRect.top), QPoint(lpWindowRect.right, lpWindowRect.bottom)};
+
+//                                qDebug() << "window docked: " << rc;
+
+//                            } else {
+//                                qDebug() << "window undocked";
+//                            }
+
+//                            uchar dpi_ratio = Utils::getScreenDpiRatioByHWND(int(hWnd));
+//                            qDebug() << ++count << "WM_SIZE: " << dpi_ratio << "," << window->m_dpiRatio;
+//                            if ( dpi_ratio != window->m_dpiRatio )
+//                                window->setScreenScalingFactor(dpi_ratio);
+
+//                            if ( wParam == SIZE_MAXIMIZED )
+//                                window->m_pMainPanel->applyMainWindowState(Qt::WindowMaximized);  else
+//                                window->m_pMainPanel->applyMainWindowState(Qt::WindowNoState);
+                        }
+
+                        window.adjustGeometry();
+                    }
+                }
+                break;
+
+            case WM_CLOSE: {
+                ::DestroyWindow(hwnd);
+                return 0;
+            }
+
+            case WM_DESTROY: {
+                PostQuitMessage(0);
+                return 0;
+            }
+        }
+    }
+
+    return ::DefWindowProcW(hwnd, msg, wparam, lparam);
+}
+
+void CMainWindow::set_borderless(bool enabled) {
+    borderless::Style new_style = enabled ? borderless::select_borderless_style() : borderless::Style::windowed;
+    borderless::Style old_style = static_cast<borderless::Style>(::GetWindowLongPtrW(g_handle.get(), GWL_STYLE));
+
+    if (new_style != old_style) {
+        b_borderless = enabled;
+
+        ::SetWindowLongPtrW(g_handle.get(), GWL_STYLE, static_cast<LONG>(new_style));
+
+        // when switching between borderless and windowed, restore appropriate shadow state
+        borderless::set_shadow(g_handle.get(), b_borderless_shadow && (new_style != borderless::Style::windowed));
+
+        // redraw frame
+        ::SetWindowPos(g_handle.get(), nullptr, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE);
+        ::ShowWindow(g_handle.get(), SW_SHOW);
+    }
+}
+
+void CMainWindow::set_borderless_shadow(bool enabled) {
+    if (b_borderless) {
+        b_borderless_shadow = enabled;
+        borderless::set_shadow(g_handle.get(), enabled);
+    }
+}
+
+
+
 void CMainWindow::toggleBorderless(bool showmax)
 {
     if ( visible )
     {
+        qDebug() << "чтобы не было мерцания. перерисовку при неактивном окне - перекроем";
         // чтобы не было мерцания. перерисовку при "неактивном окне" - перекроем
         LONG newStyle = borderless ?
                     long(WindowBase::Style::aero_borderless) : long(WindowBase::Style::windowed)/* & ~WS_CAPTION*/;
@@ -679,12 +837,12 @@ void CMainWindow::adjustGeometry()
                             clientRect.right - 2 * border_size, clientRect.bottom - 2 * border_size);
     }
 
-    HRGN hRgn = CreateRectRgn(nMaxOffsetX, nMaxOffsetY,
-                                lpWindowRect.right - lpWindowRect.left - nMaxOffsetX,
-                                lpWindowRect.bottom - lpWindowRect.top - nMaxOffsetY);
+//    HRGN hRgn = CreateRectRgn(nMaxOffsetX, nMaxOffsetY,
+//                                lpWindowRect.right - lpWindowRect.left - nMaxOffsetX,
+//                                lpWindowRect.bottom - lpWindowRect.top - nMaxOffsetY);
 
-    SetWindowRgn(hWnd, hRgn, TRUE);
-    DeleteObject(hRgn);
+//    SetWindowRgn(hWnd, hRgn, TRUE);
+//    DeleteObject(hRgn);
 }
 
 void CMainWindow::setScreenScalingFactor(uchar factor)

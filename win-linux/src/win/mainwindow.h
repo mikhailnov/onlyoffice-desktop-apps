@@ -53,6 +53,13 @@ public:
     explicit CMainWindow(QRect&);
     ~CMainWindow();
     static LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
+
+    static auto CALLBACK WndProcB(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) noexcept -> LRESULT;
+    auto set_borderless(bool enabled) -> void;
+    auto set_borderless_shadow(bool enabled) -> void;
+    bool b_borderless = false; // is the window currently borderless
+    bool b_borderless_shadow = false; // should the window display a native aero shadow while borderless
+
     void show(bool);
     void hide();
     bool isVisible();

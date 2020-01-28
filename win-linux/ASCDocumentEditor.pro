@@ -8,7 +8,8 @@ INCLUDEPATH += $$PWD/src/prop \
 
 HEADERS += \
     src/prop/defines_p.h \
-    src/prop/version_p.h
+    src/prop/version_p.h \
+    src/win/bordeless.hpp
 
 SOURCES += \
     src/prop/csplash.cpp \
