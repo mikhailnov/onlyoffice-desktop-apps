@@ -39,6 +39,8 @@
 
 #include <functional>
 
+#define CAPTURED_WINDOW_CURSOR_OFFSET_X     180
+#define CAPTURED_WINDOW_CURSOR_OFFSET_Y     15
 
 Q_GUI_EXPORT HICON qt_pixmapToWinHICON(const QPixmap &);
 
@@ -71,10 +73,8 @@ CSingleWindowPlatform::CSingleWindowPlatform(const QRect& rect, const QString& t
         throw std::runtime_error("couldn't create window because of reasons");
 
     SetWindowLongPtr(m_hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
-    setMinimumSize(MAIN_WINDOW_MIN_WIDTH * m_dpiRatio, MAIN_WINDOW_MIN_HEIGHT * m_dpiRatio);
 
     m_pWinPanel = new CWinPanel(m_hWnd);
-    m_winRect = rect;
 
     m_modalSlotConnection = QObject::connect(&AscAppManager::getInstance().commonEvents(), &CEventDriver::onModalDialog,
                                                 bind(&CSingleWindowPlatform::slot_modalDialog, this, std::placeholders::_1, std::placeholders::_2));
@@ -102,6 +102,15 @@ LRESULT CALLBACK CSingleWindowPlatform::WndProc(HWND hWnd, UINT message, WPARAM 
         return DefWindowProc(hWnd, message, wParam, lParam);
 
     switch ( message ) {
+    case WM_DPICHANGED:
+        if ( !WindowHelper::isLeftButtonPressed() ) {
+            uint dpi_ratio = Utils::getScreenDpiRatioByHWND(int(hWnd));
+
+            if ( dpi_ratio != window->m_dpiRatio ) {
+                window->onDpiChanged(static_cast<int>(dpi_ratio), static_cast<int>(window->m_dpiRatio));
+            }
+        }
+        break;
     case WM_KEYDOWN: {
         if ( wParam != VK_TAB )
             return DefWindowProc(hWnd, message, wParam, lParam);
@@ -112,8 +121,18 @@ LRESULT CALLBACK CSingleWindowPlatform::WndProc(HWND hWnd, UINT message, WPARAM 
 
     // ALT + SPACE or F10 system menu
     case WM_SYSCOMMAND: {
-        if ( wParam == SC_KEYMENU ) {
+        if (  GET_SC_WPARAM(wParam) == SC_KEYMENU ) {
             return 0;
+        } else
+        if ( GET_SC_WPARAM(wParam) == SC_SIZE ) {
+            window->setMinimumSize(MAIN_WINDOW_MIN_WIDTH * window->m_dpiRatio, MAIN_WINDOW_MIN_HEIGHT * window->m_dpiRatio);
+            break;
+        } else
+        if (GET_SC_WPARAM(wParam) == SC_RESTORE) {
+//            if ( !WindowHelper::isLeftButtonPressed() ) {
+                WindowHelper::correctWindowMinimumSize(hWnd);
+
+            break;
         }
 
         return DefWindowProc( hWnd, message, wParam, lParam );
@@ -122,9 +141,10 @@ LRESULT CALLBACK CSingleWindowPlatform::WndProc(HWND hWnd, UINT message, WPARAM 
     case WM_ACTIVATE: {
         static bool is_mainwindow_prev;
         is_mainwindow_prev = false;
-        if ( !IsWindowEnabled(hWnd) && window->m_modalHwnd > 0 && window->m_modalHwnd != hWnd )
+        if ( !IsWindowEnabled(hWnd) && window->m_modalHwnd && window->m_modalHwnd != hWnd )
         {
             if ( LOWORD(wParam) != WA_INACTIVE ) {
+                SetActiveWindow(window->m_modalHwnd);
                 SetWindowPos(hWnd, window->m_modalHwnd, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
                 return 0;
             }
@@ -247,7 +267,7 @@ LRESULT CALLBACK CSingleWindowPlatform::WndProc(HWND hWnd, UINT message, WPARAM 
     }
 
     case WM_SIZE:
-        if ( !window->m_closed ) {
+        if ( !window->m_skipSizing && !window->m_closed ) {
             window->onSizeEvent(wParam);
         }
 
@@ -259,17 +279,21 @@ LRESULT CALLBACK CSingleWindowPlatform::WndProc(HWND hWnd, UINT message, WPARAM 
 
         return TRUE;}
 
+    case WM_ENTERSIZEMOVE: {
+        WindowHelper::correctWindowMinimumSize(hWnd);
+        WINDOWPLACEMENT wp{sizeof(WINDOWPLACEMENT)};
+        if ( GetWindowPlacement(hWnd, &wp) ) {
+            MONITORINFO info{sizeof(MONITORINFO)};
+            GetMonitorInfo(MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY), &info);
+
+            window->m_moveNormalRect = QRect{QPoint{wp.rcNormalPosition.left - info.rcMonitor.left, wp.rcNormalPosition.top - info.rcMonitor.top},
+                                                QSize{wp.rcNormalPosition.right - wp.rcNormalPosition.left, wp.rcNormalPosition.bottom - wp.rcNormalPosition.top}};
+        }
+        break;}
+
     case WM_EXITSIZEMOVE: {
-        uchar dpi_ratio = Utils::getScreenDpiRatioByHWND(int(hWnd));
-
-        if ( dpi_ratio != window->m_dpiRatio )
-            window->setScreenScalingFactor(dpi_ratio);
-
-        RECT lpWindowRect;
-        GetWindowRect(hWnd, &lpWindowRect);
-        window->m_winRect.setCoords(lpWindowRect.left, lpWindowRect.top, lpWindowRect.right, lpWindowRect.bottom);
-
-        break;
+        window->onExitSizeMove();
+        return 0;
     }
 
     case WM_NCACTIVATE:
@@ -377,6 +401,13 @@ bool CSingleWindowPlatform::visible()
     return m_visible;
 }
 
+void CSingleWindowPlatform::bringToTop()
+{
+    SetForegroundWindow(m_hWnd);
+    SetFocus(m_hWnd);
+    SetActiveWindow(m_hWnd);
+}
+
 void CSingleWindowPlatform::applyWindowState(Qt::WindowState s)
 {
     m_buttonMaximize->setProperty("class", s == Qt::WindowMaximized ? "min" : "normal") ;
@@ -393,6 +424,18 @@ void CSingleWindowPlatform::onSizeEvent(int type)
         else applyWindowState(Qt::WindowNoState);
 
         adjustGeometry();
+    }
+}
+
+void CSingleWindowPlatform::onExitSizeMove()
+{
+    setMinimumSize(0, 0);
+    int dpi_ratio = Utils::getScreenDpiRatioByHWND(int(m_hWnd));
+
+    if ( dpi_ratio != m_dpiRatio ) {
+        if ( WindowHelper::isWindowSystemDocked(m_hWnd) )
+            onDpiChanged(dpi_ratio, m_dpiRatio);
+        else setScreenScalingFactor(dpi_ratio);
     }
 }
 
@@ -413,7 +456,7 @@ void CSingleWindowPlatform::adjustGeometry()
              lTestH = 480;
 
         RECT wrect{0,0,lTestW,lTestH};
-        AdjustWindowRectEx(&wrect, (GetWindowStyle(m_hWnd) & ~WS_DLGFRAME), FALSE, 0);
+        Utils::adjustWindowRect(m_hWnd, m_dpiRatio, &wrect);
 
         if (0 > wrect.left) nMaxOffsetX = -wrect.left;
         if (0 > wrect.top)  nMaxOffsetY = -wrect.top;
@@ -451,21 +494,39 @@ void CSingleWindowPlatform::onMaximizeEvent()
     ShowWindow(m_hWnd, IsZoomed(m_hWnd) ? SW_RESTORE : SW_MAXIMIZE);
 }
 
-void CSingleWindowPlatform::onScreenScalingFactor(uint f)
+void CSingleWindowPlatform::setScreenScalingFactor(int f)
 {
-    setMinimumSize(MAIN_WINDOW_MIN_WIDTH * f, MAIN_WINDOW_MIN_HEIGHT * f);
+    bool _is_up = f > m_dpiRatio;
+    CSingleWindowBase::setScreenScalingFactor(f);
 
-    RECT lpWindowRect;
-    GetWindowRect(m_hWnd, &lpWindowRect);
+    if ( !WindowHelper::isWindowSystemDocked(m_hWnd) ) {
+        m_skipSizing = true;
 
-    unsigned _new_width = lpWindowRect.right - lpWindowRect.left,
-            _new_height = lpWindowRect.bottom - lpWindowRect.top;
+        WINDOWPLACEMENT wp{sizeof(WINDOWPLACEMENT)};
+        if ( GetWindowPlacement(m_hWnd, &wp) ) {
+            if ( wp.showCmd == SW_MAXIMIZE ) {
+                MONITORINFO info{sizeof(MONITORINFO)};
+                GetMonitorInfo(MonitorFromWindow(m_hWnd, MONITOR_DEFAULTTOPRIMARY), &info);
 
-    if ( f > m_dpiRatio )
-        _new_width *= 2, _new_height *= 2;
-    else _new_width /= 2, _new_height /= 2;
+                m_moveNormalRect = _is_up ? QRect{m_moveNormalRect.topLeft() * 2, m_moveNormalRect.size() * 2} :
+                                                QRect{m_moveNormalRect.topLeft() / 2, m_moveNormalRect.size() / 2};
 
-    SetWindowPos(m_hWnd, NULL, 0, 0, _new_width, _new_height, SWP_NOMOVE | SWP_NOZORDER);
+                wp.rcNormalPosition.left = info.rcMonitor.left + m_moveNormalRect.left();
+                wp.rcNormalPosition.top = info.rcMonitor.top + m_moveNormalRect.top();
+                wp.rcNormalPosition.right = wp.rcNormalPosition.left + m_moveNormalRect.width();
+                wp.rcNormalPosition.bottom = wp.rcNormalPosition.top + m_moveNormalRect.height();
+
+                SetWindowPlacement(m_hWnd, &wp);
+            } else {
+                QRect source_rect = QRect{QPoint(wp.rcNormalPosition.left, wp.rcNormalPosition.top),QPoint(wp.rcNormalPosition.right,wp.rcNormalPosition.bottom)},
+                    dest_rect = _is_up ? QRect{source_rect.translated(-source_rect.width()/2,0).topLeft(), source_rect.size()*2} :
+                                                QRect{source_rect.translated(source_rect.width()/4,0).topLeft(), source_rect.size()/2};
+
+                SetWindowPos(m_hWnd, NULL, dest_rect.left(), dest_rect.top(), dest_rect.width(), dest_rect.height(), SWP_NOZORDER);
+            }
+        }
+        m_skipSizing = false;
+    }
 }
 
 Qt::WindowState CSingleWindowPlatform::windowState()
@@ -490,9 +551,12 @@ void CSingleWindowPlatform::setWindowTitle(const QString& title)
     SetWindowText(m_hWnd, title.toStdWString().c_str());
 }
 
-const QRect& CSingleWindowPlatform::geometry() const
+QRect CSingleWindowPlatform::geometry() const
 {
-    return m_winRect;
+    WINDOWPLACEMENT wp; wp.length = sizeof(WINDOWPLACEMENT);
+    GetWindowPlacement(m_hWnd, &wp);
+
+    return QRect{QPoint(wp.rcNormalPosition.left, wp.rcNormalPosition.top), QPoint(wp.rcNormalPosition.right, wp.rcNormalPosition.bottom)};
 }
 
 void CSingleWindowPlatform::activateWindow()
@@ -500,17 +564,27 @@ void CSingleWindowPlatform::activateWindow()
     SetActiveWindow(m_hWnd);
 }
 
-void CSingleWindowPlatform::slot_modalDialog(bool status, size_t h)
+void CSingleWindowPlatform::slot_modalDialog(bool status, HWND h)
 {
-    EnableWindow(m_hWnd, status ? FALSE : TRUE);
-    m_modalHwnd = (HWND)h;
+    if ( h != m_hWnd ) {
+        EnableWindow(m_hWnd, status ? FALSE : TRUE);
+        m_modalHwnd = h;
+    } else m_modalHwnd = nullptr;
+
 }
 
 void CSingleWindowPlatform::captureMouse()
 {
-    POINT cursor{0};
+    POINT cursor{0,0};
     if ( GetCursorPos(&cursor) ) {
-        SetWindowPos(m_hWnd, 0, cursor.x - 300, cursor.y - 15, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+        QRect _g{geometry()};
+
+        int _window_offset_x;
+        if ( cursor.x - _g.x() < dpiCorrectValue(CAPTURED_WINDOW_CURSOR_OFFSET_X) ) _window_offset_x = dpiCorrectValue(CAPTURED_WINDOW_CURSOR_OFFSET_X);
+        else if ( cursor.x > _g.right() - dpiCorrectValue(150) ) _window_offset_x = _g.right() - dpiCorrectValue(150);
+        else _window_offset_x = cursor.x - _g.x();
+
+        SetWindowPos(m_hWnd, nullptr, cursor.x - _window_offset_x, cursor.y - dpiCorrectValue(CAPTURED_WINDOW_CURSOR_OFFSET_Y), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 
         ReleaseCapture();
         PostMessage(m_hWnd, WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(cursor.x, cursor.y));

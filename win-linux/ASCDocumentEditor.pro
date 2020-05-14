@@ -1,5 +1,6 @@
 
 TARGET = DesktopEditors
+DESTDIR = $$PWD
 
 include(defaults.pri)
 
@@ -12,7 +13,7 @@ HEADERS += \
     src/win/bordeless.hpp
 
 SOURCES += \
-    src/prop/csplash.cpp \
+    src/prop/csplash_p.cpp \
     src/prop/cmainpanelimpl.cpp \
     src/prop/cascapplicationmanagerwrapper_private.h \
     src/prop/utils.cpp

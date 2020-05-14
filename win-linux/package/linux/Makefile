@@ -136,6 +136,9 @@ else
 	DESKTOP_FILES += common/usr/share/applications/$(IMAGEVIEWER_EXEC).desktop
 	DESKTOP_FILES += common/usr/share/applications/$(VIDEOPLAYER_EXEC).desktop
 	SYMLINK += common/usr/bin/$(COMPANY_NAME_LOW)
+	DEB_DEPS += common/usr/share/flyfm/templates/desktopeditors.docx.desktop
+	DEB_DEPS += common/usr/share/flyfm/templates/desktopeditors.xlsx.desktop
+	DEB_DEPS += common/usr/share/flyfm/templates/desktopeditors.pptx.desktop
 endif
 LINUX_DEPS += $(BIN_FILES)
 LINUX_DEPS += $(DESKTOP_FILES)
@@ -147,7 +150,9 @@ DEB_DEPS += deb/debian/postinst
 DEB_DEPS += deb/debian/postrm
 DEB_DEPS += deb/debian/prerm
 DEB_DEPS += deb/debian/rules
+DEB_DEPS += deb/debian/$(PACKAGE_NAME).dirs
 DEB_DEPS += deb/debian/$(PACKAGE_NAME).install
+DEB_DEPS += deb/debian/$(PACKAGE_NAME).links
 
 INSTALLER_DEPENDENCY += desktopeditor
 
@@ -220,6 +225,7 @@ installer: $(INSTALLER)
 
 clean:
 	rm -rfv \
+		common/etc \
 		common/opt \
 		$(LINUX_DEPS) \
 		$(DEB_DEPS) \
@@ -393,9 +399,11 @@ common/usr/share/applications/$(IMAGEVIEWER_EXEC).desktop : common/usr/share/app
 common/usr/share/applications/$(VIDEOPLAYER_EXEC).desktop : common/usr/share/applications/videoplayer.desktop.m4 common/usr/share/applications/variables.m4
 common/usr/bin/desktopeditors : common/usr/bin/$(DESKTOPEDITORS_EXEC)
 common/usr/bin/$(COMPANY_NAME_LOW) : common/usr/bin/$(DESKTOPEDITORS_EXEC)
+deb/debian/$(PACKAGE_NAME).dirs : deb/debian/package.dirs.m4
 deb/debian/$(PACKAGE_NAME).install : deb/debian/package.install.m4
+deb/debian/$(PACKAGE_NAME).links : deb/debian/package.links.m4
 
-$(BIN_FILES) $(DESKTOP_FILES) deb/debian/$(PACKAGE_NAME).install :
+$(BIN_FILES) $(DESKTOP_FILES) deb/debian/$(PACKAGE_NAME).dirs deb/debian/$(PACKAGE_NAME).install deb/debian/$(PACKAGE_NAME).links :
 	m4 -I'common/usr/share/applications' $(M4_PARAMS) $< > $@
 
 $(SYMLINK) :

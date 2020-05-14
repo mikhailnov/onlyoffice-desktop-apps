@@ -28,13 +28,11 @@ include($$CORE_ROOT_DIR/Common/base.pri)
 
 INCLUDEPATH += \
     $$BASEEDITORS_PATH/lib/include \
-    $$BASEEDITORS_PATH/lib/qcefview \
+    $$BASEEDITORS_PATH/lib/qt_wrapper/include \
     $$CORE_ROOT_DIR/DesktopEditor \
     $$CORE_ROOT_DIR/Common
 
 HEADERS += \
-    $$BASEEDITORS_PATH/lib/qcefview/qcefview.h \
-    $$BASEEDITORS_PATH/lib/qcefview/qcefview_media.h \
     $$PWD/src/asctabwidget.h \
     $$PWD/src/version.h \
     $$PWD/src/defines.h \
@@ -61,7 +59,6 @@ HEADERS += \
     $$PWD/src/ctabundockevent.h \
     $$PWD/src/cmainwindowbase.h \
     $$PWD/src/ctabpanel.h \
-    $$PWD/src/cdpichecker.h \
     $$PWD/src/csinglewindowbase.h \
     $$PWD/src/ceditorwindow.h \
     $$PWD/src/ccefeventsgate.h \
@@ -77,8 +74,7 @@ HEADERS += \
 #    src/casclabel.h
 
 SOURCES += \
-    $$BASEEDITORS_PATH/lib/qcefview/qcefview.cpp \
-    $$BASEEDITORS_PATH/lib/qcefview/qcefview_media.cpp \
+    $$PWD/src/csplash.cpp \
     $$PWD/src/main.cpp \
     $$PWD/src/asctabwidget.cpp\
     $$PWD/src/cdownloadwidget.cpp \
@@ -112,6 +108,7 @@ SOURCES += \
 #    src/casclabel.cpp
 
 RESOURCES += $$PWD/resources.qrc
+DEFINES += COPYRIGHT_YEAR=$${CURRENT_YEAR}
 
 isEqual(QT_MAJOR_VERSION, 5) {
     lessThan(QT_MINOR_VERSION, 10) {
@@ -130,11 +127,14 @@ ENV_PRODUCT_VERSION = $$(PRODUCT_VERSION)
 PLATFORM_BUILD=$$CORE_BUILDS_PLATFORM_PREFIX
 
 # cef
-core_windows:LIBS += -L$$CORE_3DPARTY_PATH/cef/$$PLATFORM_BUILD/build -llibcef
+core_windows {
+    PLATFORM_BUILD_FULL = $$PLATFORM_BUILD
+    build_xp:PLATFORM_BUILD_FULL=$$join(PLATFORM_BUILD_FULL, PLATFORM_BUILD_FULL, "", "_xp")
+    LIBS += -L$$CORE_3DPARTY_PATH/cef/$$PLATFORM_BUILD_FULL/build -llibcef
+}
 core_linux:LIBS += -L$$CORE_3DPARTY_PATH/cef/$$PLATFORM_BUILD/build -lcef
 
-# core
-ADD_DEPENDENCY(PdfReader, PdfWriter, DjVuFile, XpsFile, HtmlRenderer, UnicodeConverter, hunspell, ooxmlsignature, kernel, graphics, videoplayer, ascdocumentscore)
+ADD_DEPENDENCY(PdfReader, PdfWriter, DjVuFile, XpsFile, HtmlRenderer, UnicodeConverter, hunspell, ooxmlsignature, kernel, graphics, videoplayer, ascdocumentscore, qtascdocumentscore)
 
 core_linux {
     QT += network x11extras
@@ -145,11 +145,13 @@ core_linux {
 
     HEADERS += $$PWD/src/linux/cmainwindow.h \
                 $$PWD/src/linux/cx11decoration.h \
+                $$PWD/src/linux/gtk_addon.h \
                 $$PWD/src/linux/csinglewindow.h \
                 $$PWD/src/linux/csinglewindowplatform.h \
                 $$PWD/src/linux/singleapplication.h
     SOURCES += $$PWD/src/linux/cmainwindow.cpp \
                 $$PWD/src/linux/cx11decoration.cpp \
+                $$PWD/src/linux/gtk_addon.cpp \
                 $$PWD/src/linux/cx11caption.cpp \
                 $$PWD/src/linux/csinglewindow.cpp \
                 $$PWD/src/linux/csinglewindowplatform.cpp \
@@ -159,7 +161,7 @@ core_linux {
     SOURCES += $$PWD/src/linux/cdialogopenssl.cpp
 
     CONFIG += link_pkgconfig
-    PKGCONFIG += glib-2.0 gdk-2.0 atk cairo gtk+-unix-print-2.0
+    PKGCONFIG += glib-2.0 gtk+-3.0 atk
     LIBS += -lX11
 
     LIBS += $$CORE_3DPARTY_PATH/icu/$$PLATFORM_BUILD/build/libicuuc.so.58
@@ -222,8 +224,8 @@ core_windows {
 #            -lOpenGL32
 }
 
-core_release:DESTDIR = $$PWD/build
-core_debug:DESTDIR = $$PWD/build/debug
+core_release:DESTDIR = $$DESTDIR/build
+core_debug:DESTDIR = $$DESTDIR/build/debug
 
 !isEmpty(OO_BUILD_BRANDING) {
     DESTDIR = $$DESTDIR/$$OO_BUILD_BRANDING

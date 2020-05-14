@@ -38,6 +38,7 @@
 #include "cfiledialog.h"
 #include "defines.h"
 #include "utils.h"
+#include "cfilechecker.h"
 
 #include <QDir>
 #include <QDebug>
@@ -103,16 +104,29 @@ namespace CEditorTools
                 _list = pData->get_IsMultiselect() ? dialog.modalOpenPlugins(Utils::lastPath(LOCAL_PATH_OPEN)) :
                                                      dialog.modalOpenPlugin(Utils::lastPath(LOCAL_PATH_OPEN));
             } else
-                if ( _filter == "image" || _filter == "images" ) {
-                    _list = pData->get_IsMultiselect() ? dialog.modalOpenImages(Utils::lastPath(LOCAL_PATH_OPEN)) :
-                                                         dialog.modalOpenImage(Utils::lastPath(LOCAL_PATH_OPEN));
-                } else
-                    if ( _filter == "any" || _filter == "*.*" ) {
-                        _list = dialog.modalOpenAny(Utils::lastPath(LOCAL_PATH_OPEN), pData->get_IsMultiselect());
-                    } else {
-                        QString _sel_filter;
-                        _list = dialog.modalOpen(Utils::lastPath(LOCAL_PATH_OPEN), _filter, &_sel_filter, pData->get_IsMultiselect());
-                    }
+            if ( _filter == "image" || _filter == "images" ) {
+                _list = pData->get_IsMultiselect() ? dialog.modalOpenImages(Utils::lastPath(LOCAL_PATH_OPEN)) :
+                                                        dialog.modalOpenImage(Utils::lastPath(LOCAL_PATH_OPEN));
+            } else
+            if ( _filter == "word" ) {
+                _list = dialog.modalOpenDocuments(Utils::lastPath(LOCAL_PATH_OPEN), pData->get_IsMultiselect());
+            } else
+            if ( _filter == "cell" ) {
+                _list = dialog.modalOpenSpreadsheets(Utils::lastPath(LOCAL_PATH_OPEN), pData->get_IsMultiselect());
+            } else
+            if ( _filter == "slide" ) {
+                _list = dialog.modalOpenPresentations(Utils::lastPath(LOCAL_PATH_OPEN), pData->get_IsMultiselect());
+            } else
+            if ( _filter == "video" || _filter == "audio" ) {
+                _list = dialog.modalOpenMedia(_filter, Utils::lastPath(LOCAL_PATH_OPEN), pData->get_IsMultiselect());
+            } else
+            if ( _filter == "any" || _filter == "*.*" ) {
+                _list = dialog.modalOpenAny(Utils::lastPath(LOCAL_PATH_OPEN), pData->get_IsMultiselect());
+            } else {
+                QString _sel_filter;
+                _list = dialog.modalOpen(Utils::lastPath(LOCAL_PATH_OPEN), _filter, &_sel_filter, pData->get_IsMultiselect());
+            }
+
 
             if ( !_list.isEmpty() ) {
                 Utils::keepLastPath(LOCAL_PATH_OPEN, QFileInfo(_list.at(0)).absolutePath());
@@ -148,5 +162,53 @@ namespace CEditorTools
         }
 
         return _path;
+    }
+
+    auto createEditorPanel(const COpenOptions& opts, const QRect& rect) -> CTabPanel *
+    {
+        CTabPanel * panel = CTabPanel::createEditorPanel();
+        panel->setGeometry(rect);
+
+        bool result = true;
+        if (opts.type == etLocalFile) {
+//            pView->openLocalFile(opts.wurl, file_format);
+            result = false;
+        } else
+        if (opts.type == etRecoveryFile) {
+//            res_open = pView->openRecoverFile(opts.id);
+            result = false;
+        } else
+        if (opts.type == etRecentFile) {
+//            res_open = pView->openRecentFile(opts.id);
+            result = false;
+        } else
+        if (opts.type == etNewFile) {
+//            pView->createLocalFile(opts.format, opts.name.toStdWString());
+            result = false;
+        } else {
+            panel->cef()->load(opts.wurl);
+        }
+
+        if (result) {
+            CAscTabData * data = new CAscTabData(opts.name);
+            data->setUrl(opts.wurl);
+            data->setIsLocal( opts.type == etLocalFile || opts.type == etNewFile ||
+                           (opts.type == etRecentFile && !CExistanceController::isFileRemote(opts.url)) );
+
+            if ( !data->isLocal() ) {
+                QRegularExpression re("ascdesktop:\\/\\/compare");
+                QRegularExpressionMatch match = re.match(QString::fromStdWString(data->url()));
+                if ( match.hasMatch() ) {
+                     data->setIsLocal(true);
+                }
+            }
+
+            panel->setData(data);
+
+        } else {
+            delete panel, panel = nullptr;
+        }
+
+        return panel;
     }
 }

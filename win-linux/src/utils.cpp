@@ -49,7 +49,7 @@
 #include <regex>
 
 #include "cascapplicationmanagerwrapper.h"
-#include "cdpichecker.h"
+#include "qdpichecker.h"
 
 #ifdef _WIN32
 #include "shlobj.h"
@@ -62,6 +62,29 @@ typedef HRESULT (__stdcall *SetCurrentProcessExplicitAppUserModelIDProc)(PCWSTR 
 #include <QDebug>
 extern QStringList g_cmdArgs;
 
+namespace InputArgs {
+    auto contains(const QString& param) -> bool {
+        auto iter = std::find_if(begin(g_cmdArgs), end(g_cmdArgs),
+            [&param](const QString& s) {
+                return s.startsWith(param);
+        });
+
+        return iter != end(g_cmdArgs);
+    }
+
+    auto get_arg_value(const QString& param) -> QString {
+        QRegularExpression _re("^" + param + "[=|:]([\\w\\\":\\\\/]+)", QRegularExpression::CaseInsensitiveOption);
+
+        for (const auto& item: g_cmdArgs) {
+            QRegularExpressionMatch _match = _re.match(item);
+            if ( _match.hasMatch() )
+                return _match.captured(1);
+        }
+
+        return QString();
+    }
+}
+
 QStringList * Utils::getInputFiles(const QStringList& inlist)
 {
     QStringList * _ret_files_list = nullptr;
@@ -73,7 +96,7 @@ QStringList * Utils::getInputFiles(const QStringList& inlist)
         while (i.hasNext()) {
             QString arg = i.next();
 
-            if ( arg.startsWith("--new:") )
+            if ( arg.startsWith("--new:") || arg.startsWith("--new=") )
                 _ret_files_list->append( arg );
             else {
                 QFileInfo info( arg );
@@ -148,7 +171,7 @@ QRect Utils::getScreenGeometry(const QPoint& leftTop)
 #else
     POINT lt{leftTop.x(), leftTop.y()};
     MONITORINFO mi{sizeof(MONITORINFO)};
-    ::GetMonitorInfo(::MonitorFromPoint(lt, MONITOR_DEFAULTTONEAREST), &mi);
+    ::GetMonitorInfo(::MonitorFromPoint(lt, MONITOR_DEFAULTTOPRIMARY), &mi);
 
     return QRect(QPoint(mi.rcWork.left, mi.rcWork.top), QPoint(mi.rcWork.right, mi.rcWork.bottom));
 #endif
@@ -346,7 +369,7 @@ unsigned Utils::getScreenDpiRatioByWidget(QWidget* wid)
     if (!pDpiCheckerBase)
         return 1;
 
-    CDpiChecker * pDpiChecker = (CDpiChecker *)pDpiCheckerBase;
+    QDpiChecker * pDpiChecker = (QDpiChecker *)pDpiCheckerBase;
     unsigned int nDpiX = 0;
     unsigned int nDpiY = 0;
     int nRet = pDpiChecker->GetWidgetDpi(wid, &nDpiX, &nDpiY);
@@ -478,7 +501,131 @@ wstring Utils::systemUserName()
 #endif
 }
 
-bool Utils::appArgsContains(const QString& a)
+wstring Utils::appUserName()
 {
-    return g_cmdArgs.contains(a);
+    GET_REGISTRY_USER(_reg_user)
+
+    QString data = QByteArray::fromBase64(_reg_user.value("appdata").toByteArray());
+    if (!data.isEmpty()) {
+        QRegularExpression _re("username\\\":\\\"(.+?)\\\"");
+        QRegularExpressionMatch _match = _re.match(data);
+        if ( _match.hasMatch() )
+            return _match.captured(1).toStdWString();
+    }
+
+    return systemUserName();
+}
+
+#ifdef Q_OS_WIN
+#include <windowsx.h>
+void Utils::adjustWindowRect(HWND handle, int dpiratio, LPRECT rect)
+{
+    typedef BOOL (__stdcall *AdjustWindowRectExForDpiW)(LPRECT lpRect, DWORD dwStyle, BOOL bMenu, DWORD dwExStyle, UINT dpi);
+
+    static AdjustWindowRectExForDpiW _adjustWindowRectEx = NULL;
+    static bool _is_read = false;
+    if ( !_is_read && !_adjustWindowRectEx ) {
+        HMODULE _lib = ::LoadLibrary(L"user32.dll");
+        _adjustWindowRectEx = reinterpret_cast<AdjustWindowRectExForDpiW>(GetProcAddress(_lib, "AdjustWindowRectExForDpi"));
+        FreeLibrary(_lib);
+
+        _is_read = true;
+    }
+
+    if ( _adjustWindowRectEx != NULL ) {
+        _adjustWindowRectEx(rect, (GetWindowStyle(handle) & ~WS_DLGFRAME), FALSE, 0, 96*dpiratio);
+    } else AdjustWindowRectEx(rect, (GetWindowStyle(handle) & ~WS_DLGFRAME), FALSE, 0);
+}
+#endif
+
+namespace WindowHelper {
+#ifdef Q_OS_LINUX
+    CParentDisable::CParentDisable(QWidget* parent)
+    {
+        disable(parent);
+    }
+
+    CParentDisable::~CParentDisable()
+    {
+        if (m_pChild)
+            m_pChild->deleteLater();
+    }
+
+    void CParentDisable::disable(QWidget* parent)
+    {
+        if (parent) {
+            if (QCefView::IsSupportLayers())
+            {
+                m_pChild = new QWidget(parent);
+            }
+            else
+            {
+                QWindow * win = new QWindow;
+                win->setOpacity(1);
+                m_pChild = QWidget::createWindowContainer(win, parent);
+            }
+
+            m_pChild->setMouseTracking(true);
+            m_pChild->setGeometry(0, 0, parent->width(), parent->height());
+            m_pChild->setStyleSheet("background-color: rgba(255,0,0,0)");
+            m_pChild->setAttribute(Qt::WA_NoSystemBackground);
+            m_pChild->setAttribute(Qt::WA_TranslucentBackground);
+            m_pChild->show();
+        }
+    }
+
+    void CParentDisable::enable()
+    {
+        if ( m_pChild ) {
+            m_pChild->deleteLater();
+            m_pChild = nullptr;
+        }
+    }
+#else
+    auto isLeftButtonPressed() -> bool {
+        return (::GetKeyState(VK_LBUTTON) & 0x8000) != 0;
+    }
+
+    auto isWindowSystemDocked(HWND handle) -> bool {
+        RECT windowrect;
+        WINDOWPLACEMENT wp; wp.length = sizeof(WINDOWPLACEMENT);
+        if ( GetWindowRect(handle, &windowrect) && GetWindowPlacement(handle, &wp) && wp.showCmd == SW_SHOWNORMAL ) {
+            return (wp.rcNormalPosition.right - wp.rcNormalPosition.left != windowrect.right - windowrect.left) ||
+                        (wp.rcNormalPosition.bottom - wp.rcNormalPosition.top != windowrect.bottom - windowrect.top);
+        }
+
+        return false;
+    }
+
+    auto correctWindowMinimumSize(HWND handle) -> void {
+        WINDOWPLACEMENT wp; wp.length = sizeof(WINDOWPLACEMENT);
+        if ( GetWindowPlacement(handle, &wp) ) {
+            int dpi_ratio = Utils::getScreenDpiRatioByHWND((int)handle);
+            QSize _min_windowsize{MAIN_WINDOW_MIN_WIDTH * dpi_ratio,MAIN_WINDOW_MIN_HEIGHT * dpi_ratio};
+            QRect windowRect{QPoint(wp.rcNormalPosition.left, wp.rcNormalPosition.top),
+                                    QPoint(wp.rcNormalPosition.right, wp.rcNormalPosition.bottom)};
+
+            if ( windowRect.width() < _min_windowsize.width() ||
+                    windowRect.height() < _min_windowsize.height() )
+            {
+//                if ( windowRect.width() < _min_windowsize.width() )
+                    wp.rcNormalPosition.right = wp.rcNormalPosition.left + _min_windowsize.width();
+
+//                if ( windowRect.height() < _min_windowsize.height() )
+                    wp.rcNormalPosition.bottom = wp.rcNormalPosition.top + _min_windowsize.height();
+
+                SetWindowPlacement(handle, &wp);
+            }
+        }
+    }
+
+    auto correctModalOrder(HWND windowhandle, HWND modalhandle) -> void
+    {
+        if ( !IsWindowEnabled(windowhandle) && modalhandle && modalhandle != windowhandle ) {
+            SetActiveWindow(modalhandle);
+            SetWindowPos(windowhandle, modalhandle, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+        }
+    }
+
+#endif
 }

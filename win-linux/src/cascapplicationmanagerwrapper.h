@@ -33,7 +33,7 @@
 #ifndef CASCAPPLICATIONMANAGERWRAPPER
 #define CASCAPPLICATIONMANAGERWRAPPER
 
-#include "applicationmanager.h"
+#include "qascapplicationmanager.h"
 #include <QObject>
 #include <QMutex>
 #include <vector>
@@ -79,7 +79,7 @@ struct sWinTag {
 class CAscApplicationManagerWrapper;
 typedef CAscApplicationManagerWrapper AscAppManager;
 
-class CAscApplicationManagerWrapper : public QObject, public CAscApplicationManager, CCefEventsTransformer
+class CAscApplicationManagerWrapper : public QObject, public QAscApplicationManager, CCefEventsTransformer
 {
     Q_OBJECT
 
@@ -112,8 +112,6 @@ private:
     ~CAscApplicationManagerWrapper();
 
     void StartSaveDialog(const std::wstring& sName, unsigned int nId);
-    void OnNeedCheckKeyboard();
-    int  GetPlatformKeyboardLayout();
     bool processCommonEvent(NSEditorApi::CAscCefMenuEvent *);
     void broadcastEvent(NSEditorApi::CAscCefMenuEvent *);
     bool applySettings(const wstring& wstrjson);
@@ -153,11 +151,12 @@ public:
     static void             editorWindowMoving(const size_t, const QPoint&);
     static uint             countMainWindow();
     static CMainWindow *    topWindow();
+    static const CEditorWindow *  editorWindowFromHandle(size_t);
     static void             sendCommandTo(QCefView * target, const QString& cmd, const QString& args = "");
     static void             sendCommandTo(CCefView * target, const wstring& cmd, const wstring& args = L"");
 
     static void             sendEvent(int type, void * data);
-    static QString          getWindowStylesheets(uint);
+    static QString          getWindowStylesheets(int);
     static bool             canAppClose();
     static QCefView *       createViewer(QWidget * parent);
     static QString          newFileName(int format);
@@ -179,9 +178,6 @@ public:
 private:
     class CAscApplicationManagerWrapper_Private;
     std::unique_ptr<CAscApplicationManagerWrapper_Private> m_private;
-
-protected:
-    virtual CAscDpiChecker* InitDpiChecker();
 };
 
 #endif // QASCAPPLICATIONMANAGER

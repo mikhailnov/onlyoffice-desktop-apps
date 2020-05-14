@@ -55,14 +55,19 @@ public:
 
     bool holdView(int id) const override;
     bool holdView(const wstring& portal) const;
-    void show(bool maximaized, bool capturemouse = false);
+    void undock(bool maximized = false);
     int closeWindow();
     CTabPanel * mainView() const;
     CTabPanel * releaseEditorView() const;
     QString documentName() const;
     bool closed() const;
+    AscEditorType editorType() const;
 
     void setReporterMode(bool);
+private:
+    QString m_css;
+    bool m_restoreMaximized = false;
+
 private:
     CEditorWindow(const QRect&, const QString&, QWidget *);
     QWidget * createMainPanel(QWidget * parent);
@@ -75,8 +80,11 @@ protected:
     void onMinimizeEvent() override;
     void onMaximizeEvent() override;
     void onSizeEvent(int) override;
-    void onScreenScalingFactor(uint) override;
     void onMoveEvent(const QRect&) override;
+    void onExitSizeMove() override;
+    void onDpiChanged(int,int) override;
+
+    void setScreenScalingFactor(int) override;
 
     void onLocalFileSaveAs(void *);
 

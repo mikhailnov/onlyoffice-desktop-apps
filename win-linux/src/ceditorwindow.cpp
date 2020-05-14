@@ -50,32 +50,6 @@
 
 #include "ceditorwindow_p.h"
 
-QString g_css =
-        "#mainPanel{background-color:#aa5252;}"
-        "#box-title-tools{background-color:#f1f1f1;}"
-        "#box-title-tools[editor=word]{background-color:" TAB_COLOR_DOCUMENT ";}"
-        "#box-title-tools[editor=cell]{background-color:" TAB_COLOR_SPREADSHEET ";}"
-        "#box-title-tools[editor=slide]{background-color:" TAB_COLOR_PRESENTATION ";}"
-        "QPushButton[act=tool]:hover{background-color:rgba(0,0,0,20%)}"
-        "QPushButton#toolButtonClose:hover{background-color:#d42b2b;}"
-        "QPushButton#toolButtonClose:pressed{background-color:#d75050;}"
-        "#labelTitle{color:#444;font-size:11px;}"
-        "#iconuser{color:#fff;font-size:11px;}"
-        "#mainPanel[window=pretty] QPushButton[act=tool]:hover{background-color:rgba(255,255,255,20%)}"
-        "#mainPanel[window=pretty] QPushButton#toolButtonMinimize,"
-        "#mainPanel[window=pretty] QPushButton#toolButtonClose {background-image:url(:/minclose_light.png);}"
-        "#mainPanel[window=pretty] QPushButton#toolButtonClose:hover{background-color:#d42b2b;}"
-        "#mainPanel[window=pretty] QPushButton#toolButtonMaximize{background-image:url(:/max_light.png);}"
-        "#mainPanel[window=pretty] #labelTitle{color:#fff;}"
-        "#mainPanel[zoom=\"2x\"] #toolButtonMinimize,#mainPanel[zoom=\"2x\"] #toolButtonClose,"
-        "#mainPanel[zoom=\"2x\"] #toolButtonMaximize{padding: 10px 24px 14px;}"
-        "#mainPanel[zoom=\"2x\"] #iconuser,"
-        "#mainPanel[zoom=\"2x\"] #labelTitle{font-size:24px;}"
-        "#mainPanel[zoom=\"2x\"][window=pretty] QPushButton#toolButtonMinimize,"
-        "#mainPanel[zoom=\"2x\"][window=pretty] QPushButton#toolButtonClose {background-image:url(:/minclose_light_2x.png);}"
-        "#mainPanel[zoom=\"2x\"][window=pretty] QPushButton#toolButtonMaximize{background-image:url(:/max_light_2x.png);}";
-
-
 CEditorWindow::CEditorWindow()
     : CSingleWindowPlatform(QRect(100, 100, 900, 800), "Desktop Editor", nullptr)
 {
@@ -86,21 +60,12 @@ CEditorWindow::CEditorWindow(const QRect& rect, CTabPanel* panel)
     , d_ptr(new CEditorWindowPrivate(this))
 {
     d_ptr.get()->init(panel);
+    m_css = {prepare_editor_css(d_ptr->canExtendTitle() ? panel->data()->contentType() : etUndefined)};
 
 #ifdef Q_OS_LINUX
     setObjectName("editorWindow");
     m_pMainPanel = createMainPanel(this);
     setCentralWidget(m_pMainPanel);
-
-    QString background = "#editorWindow{background-color:";
-    switch (panel->data()->contentType()) {
-    case etDocument: background.append(TAB_COLOR_DOCUMENT";}"); break;
-    case etPresentation: background.append(TAB_COLOR_PRESENTATION";}"); break;
-    case etSpreadsheet: background.append(TAB_COLOR_SPREADSHEET";}"); break;
-    default:break;
-    }
-
-    setStyleSheet(background);
 
     if ( !CX11Decoration::isDecorated() ) {
         CX11Decoration::setTitleWidget(m_boxTitleBtns);
@@ -160,14 +125,19 @@ bool CEditorWindow::holdView(const wstring& portal) const
     return qobject_cast<CTabPanel *>(m_pMainView)->data()->url().find(portal) != wstring::npos;
 }
 
-void CEditorWindow::show(bool maximaized, bool capturemouse)
+void CEditorWindow::undock(bool maximized)
 {
-    CSingleWindowPlatform::show(maximaized);
-
-#ifdef Q_OS_WIN
-    if ( !maximaized && capturemouse )
-        CSingleWindowPlatform::captureMouse();
+#ifdef Q_OS_LINUX
+    maximized = false;
+#else
+    if ( maximized ) {
+        m_restoreMaximized = true;
+        maximized = false;
+    }
 #endif
+
+    CSingleWindowPlatform::show(maximized);
+    CSingleWindowPlatform::captureMouse();
 }
 
 int CEditorWindow::closeWindow()
@@ -181,7 +151,7 @@ int CEditorWindow::closeWindow()
         if (windowState() == Qt::WindowMinimized)
             setWindowState(Qt::WindowNoState);
 
-        activateWindow();
+        bringToTop();
 
         CMessage mess(handle(), CMessageOpts::moButtons::mbYesDefNoCancel);
 //            modal_res = mess.warning(getSaveMessage().arg(m_pTabs->titleByIndex(index)));
@@ -243,43 +213,26 @@ QWidget * CEditorWindow::createMainPanel(QWidget * parent, const QString& title,
 //    centralWidget->setObjectName("centralWidget");
 //    centralWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    m_boxTitleBtns = new QWidget(mainPanel);
-    m_boxTitleBtns->setObjectName("box-title-tools");
-    m_boxTitleBtns->setFixedHeight(TOOLBTN_HEIGHT * m_dpiRatio);
-
-    if ( !d_ptr->canExtendTitle() )
-        mainGridLayout->addWidget(m_boxTitleBtns);
-    else {
-        switch (d_ptr->panel()->data()->contentType()) {
-        case etDocument: m_boxTitleBtns->setProperty("editor","word"); break;
-        case etPresentation: m_boxTitleBtns->setProperty("editor","slide"); break;
-        case etSpreadsheet: m_boxTitleBtns->setProperty("editor","cell"); break;
-        }
-
-        mainPanel->setProperty("window", "pretty");
-    }
-
     if ( m_dpiRatio > 1 )
         mainPanel->setProperty("zoom", "2x");
 
-    mainPanel->setStyleSheet(g_css);
+    QString css(AscAppManager::getWindowStylesheets(m_dpiRatio));
+    css.append(m_css);
+    mainPanel->setStyleSheet(css);
 
-    QHBoxLayout * layoutBtns = new QHBoxLayout(m_boxTitleBtns);
-    layoutBtns->setContentsMargins(0,0,0,0);
-    layoutBtns->setSpacing(1*m_dpiRatio);
-
-    layoutBtns->addStretch();
-    layoutBtns->addWidget(m_labelTitle);
-    layoutBtns->addStretch();
-
-    if ( d_ptr->canExtendTitle() )
-        layoutBtns->addWidget(d_ptr.get()->iconUser());
-    else m_labelTitle->setText("ONLYOFFICE");
+    if ( !d_ptr->canExtendTitle() ) {
+        mainGridLayout->addWidget(m_boxTitleBtns);
+        m_labelTitle->setText(APP_TITLE);
+    } else {
+        mainPanel->setProperty("window", "pretty");
+        m_boxTitleBtns->setParent(mainPanel);
+        m_boxTitleBtns->layout()->addWidget(d_ptr.get()->iconUser());
+    }
 
     if ( custom ) {
-        layoutBtns->addWidget(m_buttonMinimize);
-        layoutBtns->addWidget(m_buttonMaximize);
-        layoutBtns->addWidget(m_buttonClose);
+        m_boxTitleBtns->layout()->addWidget(m_buttonMinimize);
+        m_boxTitleBtns->layout()->addWidget(m_buttonMaximize);
+        m_boxTitleBtns->layout()->addWidget(m_buttonClose);
 
 //        m_boxTitleBtns->setFixedSize(282*m_dpiRatio, TOOLBTN_HEIGHT*m_dpiRatio);
 
@@ -314,7 +267,8 @@ QWidget * CEditorWindow::createMainPanel(QWidget * parent, const QString& title,
 
 //    mainGridLayout->addWidget(centralWidget);
     d_ptr.get()->onScreenScalingFactor(m_dpiRatio);
-    mainGridLayout->addWidget(m_pMainView);
+    mainGridLayout->addWidget(m_pMainView, 1, 0);
+    mainGridLayout->setRowStretch(1,1);
     return mainPanel;
 }
 
@@ -355,25 +309,39 @@ void CEditorWindow::onMoveEvent(const QRect& rect)
         AscAppManager::editorWindowMoving((size_t)handle(), QPoint(pt.x,pt.y));
     }
 #else
+    AscAppManager::editorWindowMoving((size_t)handle(), QCursor::pos());
 #endif
 }
 
-void CEditorWindow::onScreenScalingFactor(uint newfactor)
+void CEditorWindow::onExitSizeMove()
 {
-    CSingleWindowPlatform::onScreenScalingFactor(newfactor);
+    CSingleWindowPlatform::onExitSizeMove();
+
+    if ( m_restoreMaximized ) {
+        m_restoreMaximized = false;
+        CSingleWindowPlatform::show(true);
+    }
+}
+
+void CEditorWindow::onDpiChanged(int newfactor, int prevfactor)
+{
+//    CSingleWindowPlatform::onDpiChanged(newfactor, prevfactor);
+    setScreenScalingFactor(newfactor);
+}
+
+void CEditorWindow::setScreenScalingFactor(int newfactor)
+{
+    CSingleWindowPlatform::setScreenScalingFactor(newfactor);
 
     m_pMainPanel->setProperty("zoom", newfactor > 1 ? "2x": "1x");
 
     QString css(AscAppManager::getWindowStylesheets(newfactor));
-    css.append(g_css);
+    css.append(m_css);
     m_pMainPanel->setStyleSheet(css);
 
-    m_boxTitleBtns->layout()->setSpacing(1 * newfactor);
-    m_boxTitleBtns->setFixedHeight(TOOLBTN_HEIGHT * newfactor);
 
     d_ptr.get()->onScreenScalingFactor(newfactor);
 
-    m_dpiRatio = newfactor;
     adjustGeometry();
     recalculatePlaces();
 }
@@ -385,6 +353,11 @@ void CEditorWindow::recalculatePlaces()
     int windowW = m_pMainPanel->width(),
         windowH = m_pMainPanel->height(),
         captionH = TITLE_HEIGHT * m_dpiRatio;
+
+    if (!QCefView::IsSupportLayers())
+    {
+        d_ptr->panel()->view()->SetCaptionMaskSize(TITLE_HEIGHT * m_dpiRatio);
+    }
 
 //    int contentH = windowH - captionH;
 //    if ( contentH < 1 ) contentH = 1;
@@ -401,7 +374,7 @@ void CEditorWindow::recalculatePlaces()
     m_boxTitleBtns->setGeometry(nCaptionL, 0, windowW - nCaptionL, captionH);
 #else
     int cbw = CX11Decoration::customWindowBorderWith()*m_dpiRatio;
-    m_boxTitleBtns->setGeometry(nCaptionL, cbw, windowW - nCaptionL - cbw, captionH);
+    m_boxTitleBtns->setGeometry(cbw, cbw, windowW - cbw * 2, captionH);
 #endif
 //    m_boxTitleBtns->move(windowW - m_boxTitleBtns->width() + cbw, cbw);
 //    m_pMainView->setGeometry(0, captionH, windowW, windowH - captionH);
@@ -422,10 +395,6 @@ void CEditorWindow::setReporterMode(bool apply)
         int windowW = m_pMainPanel->width(),
             windowH = m_pMainPanel->height(),
             captionH = TITLE_HEIGHT * m_dpiRatio;
-
-        QRegion reg(0, captionH, windowW, windowH - captionH);
-        m_pMainView->clearMask();
-        m_pMainView->setMask(reg);
     }
 
     d_ptr->isReporterMode = apply;
@@ -505,4 +474,9 @@ QString CEditorWindow::documentName() const
 bool CEditorWindow::closed() const
 {
     return d_ptr.get()->panel()->data()->closed();
+}
+
+AscEditorType CEditorWindow::editorType() const
+{
+    return d_ptr.get()->panel()->data()->contentType();
 }

@@ -57,6 +57,7 @@ public:
     bool isMaximized() const;
     void sendSertificate(int viewid);
     QWidget * handle() const;
+    void bringToTop() const override;
 
 protected:
     void closeEvent(QCloseEvent *);
@@ -65,6 +66,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *);
     void mousePressEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
+    void captureMouse(int tabindex) override;
 
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
@@ -78,6 +80,7 @@ signals:
 public slots:
     void slot_windowChangeState(Qt::WindowState);
     void slot_windowClose();
+    void slot_modalDialog(bool status, WId h);
 };
 
 #endif // CMAINWINDOW_H

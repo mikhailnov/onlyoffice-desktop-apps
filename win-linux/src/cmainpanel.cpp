@@ -211,6 +211,7 @@ CMainPanel::CMainPanel(QWidget *parent, bool isCustomWindow, uchar dpi_ratio)
 
     m_pMainWidget = (QWidget *)pMainWidget;
     m_pTabs->m_pMainButton = m_pButtonMain;
+    m_pTabs->m_pMainWidget = m_pMainWidget;
 
 //    m_pMainWidget->setVisible(false);
 
@@ -227,7 +228,7 @@ CMainPanel::CMainPanel(QWidget *parent, bool isCustomWindow, uchar dpi_ratio)
     QString params = QString("lang=%1&username=%3&location=%2")
                         .arg(CLangater::getCurrentLangCode(), Utils::systemLocationCode());
     wstring wparams = params.toStdWString();
-    wstring user_name = Utils::systemUserName();
+    wstring user_name = Utils::appUserName();
 
     wparams.replace(wparams.find(L"%3"), 2, user_name);
     AscAppManager::getInstance().InitAdditionalEditorParams(wparams);
@@ -364,8 +365,9 @@ void CMainPanel::pushButtonMainClicked()
     if (m_pTabs->isActive()) {
         m_pTabs->activate(false);
         m_pMainWidget->setHidden(false);
+        m_pTabs->setFocusedView();
 
-        ((QCefView *)m_pMainWidget)->GetCefView()->focus();
+        ((QCefView *)m_pMainWidget)->setFocusToCef();
         onTabChanged(m_pTabs->currentIndex());
     }
 }
@@ -377,12 +379,11 @@ void CMainPanel::toggleButtonMain(bool toggle, bool delay)
             if ( state ) {
                 m_pTabs->activate(false);
                 m_pMainWidget->setHidden(false);
-
-                ((QCefView *)m_pMainWidget)->GetCefView()->focus();
+//                m_pTabs->setFocusedView();
+//                ((QCefView *)m_pMainWidget)->setFocusToCef();
             } else {
                 m_pTabs->activate(true);
                 m_pMainWidget->setHidden(true);
-
                 m_pTabs->setFocusedView();
             }
 
@@ -401,7 +402,7 @@ void CMainPanel::focus() {
     if (m_pTabs->isActive()) {
         m_pTabs->setFocusedView();
     } else {
-        ((QCefView *)m_pMainWidget)->GetCefView()->focus();
+        ((QCefView *)m_pMainWidget)->setFocusToCef();
     }
 }
 
@@ -486,6 +487,7 @@ void CMainPanel::onTabCloseRequest(int index)
 {
     if ( !m_closeAct.isEmpty() ) return;
 
+    onFullScreen(-1, false);
     if ( m_pTabs->isProcessed(index) ) {
         return;
     } else {
@@ -557,14 +559,23 @@ void CMainPanel::onPortalLogout(wstring portal)
 
 void CMainPanel::onCloudDocumentOpen(std::wstring url, int id, bool select)
 {
-//    qDebug() << "on document open: " << url;
     COpenOptions opts = {url};
     opts.id = id;
 
-    m_pTabs->openCloudDocument(opts, select, true);
+    int _index = m_pTabs->openCloudDocument(opts, select, true);
+    if ( !(_index < 0) ) {
+        if ( select )
+            toggleButtonMain(false, true);
 
-    if ( select )
-        toggleButtonMain(false, true);
+        CAscTabData& _panel = *(m_pTabs->panel(_index)->data());
+        QRegularExpression re("ascdesktop:\\/\\/compare");
+        QRegularExpressionMatch match = re.match(QString::fromStdWString(_panel.url()));
+
+        if (match.hasMatch()) {
+             _panel.setIsLocal(true);
+             _panel.setUrl("");
+        }
+    }
 }
 
 //void CMainPanel::onLocalFileOpen(const QString& inpath)
@@ -726,6 +737,9 @@ void CMainPanel::onFileLocation(int uid, QString param)
             }
 
             if ( !(_tab_index < 0) ) {
+                if (m_mainWindowState == Qt::WindowMinimized)
+                    emit mainWindowChangeState(Qt::WindowNoState);
+
                 toggleButtonMain(false, true);
                 m_pTabs->setCurrentIndex(_tab_index);
             }
@@ -793,6 +807,10 @@ void CMainPanel::onDocumentName(void * data)
     onTabChanged(m_pTabs->currentIndex());
 
     RELEASEINTERFACE(pData);
+}
+
+void CMainPanel::onEditorConfig(int, std::wstring cfg)
+{
 }
 
 void CMainPanel::onWebAppsFeatures(int id, wstring opts)
@@ -880,7 +898,7 @@ void CMainPanel::onDocumentFragmented(int id, bool isfragmented)
     if ( !(index < 0) ) {
             int _answer = MODAL_RESULT_NO;
             if ( isfragmented ) {
-                static const bool _skip_user_warning = !Utils::appArgsContains("--warning-doc-fragmented");
+                static const bool _skip_user_warning = !InputArgs::contains("--warning-doc-fragmented");
                 if ( _skip_user_warning ) {
                     m_pTabs->panel(index)->cef()->Apply(new CAscMenuEvent(ASC_MENU_EVENT_TYPE_ENCRYPTED_CLOUD_BUILD));
                     return;
@@ -951,11 +969,13 @@ void CMainPanel::loadStartPage()
 {
     GET_REGISTRY_USER(_reg_user);
 
+    QString data_path;
 #if defined(QT_DEBUG)
-    QString data_path = _reg_user.value("startpage").value<QString>();
-#else
-    QString data_path = qApp->applicationDirPath() + "/index.html";
+    data_path = _reg_user.value("startpage").value<QString>();
 #endif
+
+    if (data_path.isEmpty())
+        data_path = qApp->applicationDirPath() + "/index.html";
 
     QString additional = "?waitingloader=yes&lang=" + CLangater::getCurrentLangCode();
 
@@ -983,6 +1003,10 @@ void CMainPanel::onDocumentPrint(void * opts)
         printInProcess = true; else
         return;
 
+#ifdef Q_OS_LINUX
+    WindowHelper::CParentDisable disabler(qobject_cast<QWidget*>(parent()));
+#endif
+
     CAscPrintEnd * pData = (CAscPrintEnd *)opts;
     CCefView * pView = AscAppManager::getInstance().GetViewById(pData->get_Id());
 
@@ -1000,7 +1024,7 @@ void CMainPanel::onDocumentPrint(void * opts)
         printer->setFromTo(1, pagesCount);
 
 #ifdef _WIN32
-        CPrintDialogWinWrapper wrapper(printer, (HWND)parentWidget()->winId());
+        CPrintDialogWinWrapper wrapper(printer, TOP_NATIVE_WINDOW_HANDLE);
         QPrintDialog * dialog = wrapper.q_dialog();
 #else
         QPrintDialog * dialog =  new QPrintDialog(printer, this);

@@ -84,6 +84,12 @@ public:
     QRect windowRect() const;
     bool isMaximized() const;
     HWND handle() const;
+    void bringToTop() const override;
+
+#if (QT_VERSION < QT_VERSION_CHECK(5, 10, 0))
+    // because of QTBUG-67211
+    bool pointInTabs(const QPoint& pt) const override;
+#endif
 
 #ifdef _UPDMODULE
     static void checkUpdates();
@@ -92,13 +98,15 @@ public:
 
 private:
     void captureMouse(int tabindex) override;
-    void setScreenScalingFactor(uchar);
+    void setScreenScalingFactor(int);
     void doClose();
 
     void slot_windowChangeState(Qt::WindowState);
     void slot_windowClose();
     void slot_mainPageReady();
-    void slot_modalDialog(bool, size_t);
+    void slot_modalDialog(bool, HWND);
+
+    friend auto refresh_window_scaling_factor(CMainWindow * window) -> void;
 
 #ifdef _UPDMODULE
     static void updateFound();
@@ -112,6 +120,7 @@ public:
 private:
     bool closed;
     bool visible;
+    bool skipsizing = false;
 
     bool borderless;
     bool borderlessResizeable;
@@ -121,10 +130,10 @@ private:
     WindowBase::CWindowGeometry minimumSize;
     WindowBase::CWindowGeometry maximumSize;
 
-    uchar m_dpiRatio;
+    int m_dpiRatio;
     HWND m_modalHwnd;
 
-    RECT m_moveNormalRect{0};
+    QRect m_moveNormalRect;
 };
 
 #endif

@@ -35,8 +35,52 @@
 #include "cwindowbase.h"
 #include "ccefeventsgate.h"
 
+#include <QLayout>
 #include <QVariant>
 #include <QDebug>
+
+auto ellipsis_text_(const QWidget * widget, const QString& str, Qt::TextElideMode mode = Qt::ElideRight) -> QString {
+    QMargins _margins = widget->contentsMargins();
+    int _padding = _margins.left() + _margins.right();
+    int _width = widget->maximumWidth() != QWIDGETSIZE_MAX ? widget->maximumWidth() : widget->width();
+    QFontMetrics _metrics(widget->font());
+
+    return _metrics.elidedText(str, mode, _width - _padding - 1);
+}
+
+CElipsisLabel::CElipsisLabel(QWidget *parent, Qt::WindowFlags f)
+    : QLabel(parent, f)
+{}
+
+CElipsisLabel::CElipsisLabel(const QString &text, QWidget *parent)
+    : QLabel(text, parent)
+    , orig_text(text)
+{
+//    QString elt = elipsis_text(this, text, Qt::ElideMiddle);
+//    setText(elt);
+}
+
+void CElipsisLabel::resizeEvent(QResizeEvent *event)
+{
+    if ( event->size().width() != event->oldSize().width() ) {
+        QString elt = ellipsis_text_(this, orig_text, elide_mode);
+        QLabel::setText(elt);
+    }
+}
+
+auto CElipsisLabel::setText(const QString& text) -> void
+{
+    orig_text = text;
+
+    QString elt = ellipsis_text_(this, text, elide_mode);
+    QLabel::setText(elt);
+}
+
+auto CElipsisLabel::setEllipsisMode(Qt::TextElideMode mode) -> void
+{
+    elide_mode = mode;
+}
+
 
 CSingleWindowBase::CSingleWindowBase()
 {
@@ -57,7 +101,7 @@ CSingleWindowBase::~CSingleWindowBase()
 //        m_pButtonMaximize->deleteLater();
 //        m_pButtonMaximize = nullptr;
 //    }
-    qDebug() << "destroy base single window";
+//    qDebug() << "destroy base single window";
 }
 
 CSingleWindowBase::CSingleWindowBase(QRect& rect)
@@ -87,7 +131,10 @@ void CSingleWindowBase::setScreenScalingFactor(int f)
         m_buttonMaximize->setFixedSize(small_btn_size);
         m_buttonClose->setFixedSize(small_btn_size);
 
-        onScreenScalingFactor(f);
+        m_boxTitleBtns->setFixedHeight(TOOLBTN_HEIGHT * f);
+        m_boxTitleBtns->layout()->setSpacing(1 * f);
+
+//        onScreenScalingFactor(f);
 
         m_dpiRatio = f;
     }
@@ -104,10 +151,24 @@ void CSingleWindowBase::setWindowTitle(const QString& title)
 //#include <QPainter>
 QWidget * CSingleWindowBase::createMainPanel(QWidget * parent, const QString& title, bool custom)
 {
+    m_boxTitleBtns = new QWidget;
+    m_boxTitleBtns->setObjectName("box-title-tools");
+    m_boxTitleBtns->setFixedHeight(TOOLBTN_HEIGHT * m_dpiRatio);
+
+    QHBoxLayout * layoutBtns = new QHBoxLayout(m_boxTitleBtns);
+    layoutBtns->setContentsMargins(0,0,0,0);
+    layoutBtns->setSpacing(1 * m_dpiRatio);
+
     if ( custom ) {
-        m_labelTitle = new QLabel(title);
+        m_labelTitle = new CElipsisLabel(title);
         m_labelTitle->setObjectName("labelTitle");
         m_labelTitle->setAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
+        m_labelTitle->setMouseTracking(true);
+        m_labelTitle->setEllipsisMode(Qt::ElideMiddle);
+
+//        layoutBtns->addStretch();
+        layoutBtns->addWidget(m_labelTitle, 1);
+//        layoutBtns->addStretch();
 
         QSize small_btn_size(TOOLBTN_WIDTH*m_dpiRatio, TOOLBTN_HEIGHT*m_dpiRatio);
 
@@ -117,6 +178,7 @@ QWidget * CSingleWindowBase::createMainPanel(QWidget * parent, const QString& ti
             btn->setProperty("class", "normal");
             btn->setProperty("act", "tool");
             btn->setFixedSize(small_btn_size);
+            btn->setMouseTracking(true);
 
             return btn;
         };
@@ -164,6 +226,15 @@ void CSingleWindowBase::onMinimizeEvent()
 void CSingleWindowBase::onMaximizeEvent()
 {
 
+}
+
+void CSingleWindowBase::onExitSizeMove()
+{
+
+}
+
+void CSingleWindowBase::onDpiChanged(int, int)
+{
 }
 
 QPushButton * CSingleWindowBase::createToolButton(QWidget * parent)

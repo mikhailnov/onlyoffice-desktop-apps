@@ -230,8 +230,7 @@ pl.runOpenDefaultApps=Otwórz Domyślne aplikacje
 zh_CN.runOpenDefaultApps=打开默认应用
 
 [Run]
-Filename: control.exe; Description: {cm:runOpenDefaultApps}; Parameters: /name Microsoft.DefaultPrograms /page pageDefaultProgram\pageAdvancedSettings?pszAppName=DesktopEditors; \
-  Flags:postinstall shellexec nowait unchecked; MinVersion: 10.0.10240;
+Filename: ms-settings:defaultapps; Description: {cm:runOpenDefaultApps}; Flags:postinstall shellexec nowait unchecked; MinVersion: 10.0.10240;
 
 [Registry]
 Root: HKLM; Subkey: Software\Classes\{#ASSOC_PROG_ID};                      Flags: uninsdeletekey
@@ -256,6 +255,7 @@ var
   ExtensionRegistryInfo: array of string;
   AChecked: Boolean;
   associatePage: TWizardPage;
+  isFullAssociation: Boolean;
 
 procedure Explode(var Dest: TArrayOfString; Text: String; Separator: String);
 var
@@ -453,9 +453,10 @@ end;
 
 function isAssociateExtension(index: Integer): Boolean;
 begin
-  if ChlbAudio = nil then
-    Result := False
-  else
+  if ChlbAudio = nil then begin
+    if isFullAssociation then Result := True
+    else Result := False
+  end else
     Result := ChlbAudio.Checked[1] or (ChlbAudio.Checked[2] and ChlbAudio.Checked[index + 3]);
 end;
 
@@ -555,6 +556,11 @@ var
   ext, progId1, progId2: string;
   argsArray: TArrayOfString;
 begin
+    isFullAssociation := CheckCommandlineParam('/FULLASSOCIATION');
+    if (associatePage = nil) and isFullAssociation then begin
+      initExtensions();
+    end;
+
     for  i := 0 to GetArrayLength(AudioExts) - 1 do
     begin     
       Explode(argsArray, ExtensionRegistryInfo[i],':');
@@ -570,7 +576,7 @@ begin
 
       ext := LowerCase(AudioExts[i]);
 
-      if (associatePage <> nil) and isAssociateExtension(i) then
+      if isAssociateExtension(i) then
       begin
         if not RegValueExists(HKEY_LOCAL_MACHINE, 'Software\Classes\.' + ext, '') then begin
           RegWriteStringValue(HKEY_LOCAL_MACHINE, 'Software\Classes\.' + ext, '', argsArray[0])

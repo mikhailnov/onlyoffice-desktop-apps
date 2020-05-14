@@ -35,6 +35,14 @@
 
 #include <QObject>
 
+#ifdef Q_OS_WIN
+#include <Windows.h>
+using NativeHandle = HWND;
+#else
+#include <QWidget>
+using NativeHandle = WId;
+#endif
+
 class CInAppEventBase
 {
 public:
@@ -68,16 +76,16 @@ private:
 
 class CInAppEventModal : public CInAppRunnigEvent
 {
-    size_t m_handle;
+    NativeHandle m_handle;
 
 public:
-    CInAppEventModal(size_t h)
+    CInAppEventModal(NativeHandle h)
         : CInAppRunnigEvent(CEventType::etModal)
         , m_handle(h)
     {}
 
-    size_t handle() const { return m_handle; }
-    void setHandle(size_t h) { m_handle = h; }
+    NativeHandle handle() const { return m_handle; }
+    void setHandle(NativeHandle h) { m_handle = h; }
 };
 
 class CEventDriver : public QObject
@@ -90,7 +98,7 @@ public:
 //    void signal(edEventType);
     void signal(CInAppEventBase *);
 signals:
-    void onModalDialog(bool status, size_t handle);
+    void onModalDialog(bool status, NativeHandle handle);
 
 public slots:
 };

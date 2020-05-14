@@ -37,6 +37,23 @@
 #include <QPushButton>
 #include <QLabel>
 
+class CElipsisLabel : public QLabel
+{
+public:
+    CElipsisLabel(const QString &text, QWidget *parent=Q_NULLPTR);
+    CElipsisLabel(QWidget *parent=Q_NULLPTR, Qt::WindowFlags f=Qt::WindowFlags());
+
+    auto setText(const QString&) -> void;
+    auto setEllipsisMode(Qt::TextElideMode) -> void;
+protected:
+    void resizeEvent(QResizeEvent *event) override;
+
+    using QLabel::setText;
+private:
+    QString orig_text;
+    Qt::TextElideMode elide_mode = Qt::ElideRight;
+};
+
 class CSingleWindowBase
 {
 public:
@@ -53,9 +70,10 @@ public:
 //    virtual void setWindowState(Qt::WindowState) = 0;
     virtual void setWindowTitle(const QString&);
     virtual void adjustGeometry();
+    virtual void bringToTop() = 0;
 
 protected:
-    uint m_dpiRatio;
+    int m_dpiRatio;
 
     QWidget * m_boxTitleBtns = nullptr;
     QWidget * m_pMainPanel = nullptr;
@@ -64,7 +82,7 @@ protected:
     QPushButton * m_buttonMinimize = nullptr;
     QPushButton * m_buttonMaximize = nullptr;
     QPushButton * m_buttonClose = nullptr;
-    QLabel * m_labelTitle = nullptr;
+    CElipsisLabel * m_labelTitle = nullptr;
 
 protected:
     virtual void onCloseEvent();
@@ -72,7 +90,13 @@ protected:
     virtual void onMaximizeEvent();
     virtual void onMoveEvent(const QRect&) = 0;
     virtual QPushButton * createToolButton(QWidget * parent = nullptr);
-    virtual void onScreenScalingFactor(uint f) = 0;
+    virtual void onExitSizeMove();
+    virtual void onDpiChanged(int newfactor, int prevfactor);
+
+    inline int dpiCorrectValue(int v) const
+    {
+        return v * static_cast<int>(m_dpiRatio);
+    }
 };
 
 #endif // CSINGLEWINDOWBASE_H

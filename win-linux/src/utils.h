@@ -36,8 +36,15 @@
 #include <QStringList>
 #include <QFileInfo>
 #include <QWidget>
+#ifdef Q_OS_WIN
+# include <Windows.h>
+#endif
 
 using namespace std;
+namespace InputArgs {
+    auto contains(const QString&) -> bool;
+    auto get_arg_value(const QString& param) -> QString;
+}
 
 class Utils {
 public:
@@ -46,6 +53,7 @@ public:
     static void keepLastPath(int type, const QString&);
     static QString getUserPath();
     static wstring systemUserName();
+    static wstring appUserName();
     static QString getAppCommonPath();
     static QRect getScreenGeometry(const QPoint&);
     static void openUrl(const QString&);
@@ -58,7 +66,6 @@ public:
     static QString replaceBackslash(const QString&);
     static bool isFileLocal(const QString&);
     static bool setAppUserModelId(const QString&);
-    static bool appArgsContains(const QString&);
 
     static bool makepath(const QString&);
 
@@ -73,7 +80,32 @@ public:
     static QByteArray readStylesheets(std::vector<QString> *, std::vector<QString> *, int);
     static QByteArray readStylesheets(std::vector<QString> *);
     static QByteArray readStylesheets(const QString&);
+
+#ifdef Q_OS_WIN
+    //TODO: move to window.base class
+    static void adjustWindowRect(HWND, int, LPRECT);
+#endif
 };
+
+namespace WindowHelper {
+#ifdef Q_OS_LINUX
+    class CParentDisable
+    {
+        QWidget* m_pChild = nullptr;
+    public:
+        CParentDisable(QWidget* parent = nullptr);
+        ~CParentDisable();
+
+        void disable(QWidget* parent);
+        void enable();
+    };
+#else
+    auto isLeftButtonPressed() -> bool;
+    auto isWindowSystemDocked(HWND handle) -> bool;
+    auto correctWindowMinimumSize(HWND handle) -> void;
+    auto correctModalOrder(HWND windowhandle, HWND modalhandle) -> void;
+#endif
+}
 
 #endif // UTILS_H
 

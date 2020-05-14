@@ -59,7 +59,7 @@
                                     <div class='settings-field'>
                                         <label class='sett__caption' l10n>${_lang.settUserName}</label>
                                         <div class='hbox sett--label-lift-top' id='sett-box-user'>
-                                            <input type='text' class='tbox' spellcheck='false' maxlenght='30'>
+                                            <input type='text' class='tbox' spellcheck='false' maxlength='128'>
                                             <a class='link link--sizem link--gray' href='#' l10n>${_lang.settResetUserName}</a>
                                         </div>
                                     </div>
@@ -145,7 +145,10 @@
 
                 let $optsupdatesrate = $('#opts-checkupdate', $panel);
                 if ( $optsupdatesrate.is(':visible') ) {
-                    _new_settings.checkupdatesrate = $('select', $optsupdatesrate).val();
+                    let $combo = $('select', $optsupdatesrate);
+
+                    _new_settings.checkupdatesrate = $combo.val();
+                    $combo.selectpicker('refresh');
                 }
 
                 sdk.command("settings:apply", JSON.stringify(_new_settings));
@@ -153,10 +156,6 @@
                 
                 localStorage.setItem('username', _user_new_name);
                 localStorage.setItem('docopenmode', _doc_open_mode);
-
-                localStorage.setItem('reload', 'settings');
-                // remove item if it'll not be reloaded
-                setTimeout(e => localStorage.removeItem('reload'), 3000);
 
                 _lock_createnew(_doc_open_mode == 'view');
             } else {
@@ -277,19 +276,14 @@
                     _lock_createnew(true);
                 }
 
-                if ( _user_name || _open_mode ) {
-                    sdk.command("settings:apply", JSON.stringify({username:_user_name, docopenmode: _open_mode}));
+                if ( _open_mode == 'view' ) {
+                    sdk.command("settings:apply", JSON.stringify({docopenmode: _open_mode}));
                 }
 
                 ($optsLang = $panel.find('.settings-field-lang')).hide();
                 $optsLang.find('select').on('change', _on_lang_change.bind(this));
 
                 window.sdk.on('on_native_message', _on_app_message.bind(this));
-
-                if ( !!localStorage.reload ) {
-                    sdk.command("settings:get", "has:opened");
-                }
-
                 return this;
             }
         };

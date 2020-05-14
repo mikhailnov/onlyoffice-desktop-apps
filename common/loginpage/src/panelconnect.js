@@ -518,6 +518,12 @@
             carousel.$items = _$panel.find('.carousel__slide');
             let _activeindex = carousel.$items.filter('.active').index();
 
+            if ( !(navigator.userAgent.indexOf("Windows NT 5.") < 0) ||
+                    !(navigator.userAgent.indexOf("Windows NT 6.0") < 0) )
+            {
+                $('.carousel', _$panel).addClass('winxp');
+            }
+
             let _pre_index = _activeindex - 1,
                 _pro_index = _activeindex + 1;
 
@@ -530,6 +536,10 @@
                 .on('click', e => {
                     _scrollCarousel(e.target.getAttribute('value'));
                 });
+        };
+
+        function _on_lang_changed(ol,nl) {
+            $('.btn-quick.logout',this.$panelPortalList).attr('tooltip',utils.Lang.menuLogout);
         };
 
         return {
@@ -550,7 +560,7 @@
                                 model.set('logged', false);
                                 if ( model.removed ) {
                                     PortalsStore.forget(param);
-                                    _update_portals.call(this);
+                                    $('#' + model.uid, this.view.$panelPortalLis).addClass('lost');
                                 }
                             } else
                                 delete model.removed;
@@ -575,6 +585,7 @@
                 });
 
                 window.CommonEvents.on('portal:create', _on_create_portal);
+                window.CommonEvents.on('lang:changed', _on_lang_changed);
 
                 return this;
             },

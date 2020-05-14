@@ -42,6 +42,8 @@
 #include <QList>
 #include <QDebug>
 
+#include "qcefview.h"
+
 #if defined(_WIN32)
 CFileDialogWrapper::CFileDialogWrapper(HWND hParentWnd) : QWinWidget(hParentWnd)
 #else
@@ -49,31 +51,6 @@ CFileDialogWrapper::CFileDialogWrapper(HWND hParentWnd) : QWinWidget(hParentWnd)
 #if !defined(FILEDIALOG_DONT_USE_NATIVEDIALOGS) && !defined(FILEDIALOG_DONT_USE_MODAL)
 #define FILEDIALOG_DONT_USE_MODAL
 #endif
-//
-class CParentDisable
-{
-private:
-    QWidget* m_pChild = nullptr;
-public:
-    CParentDisable(QWidget* parent)
-    {
-        if (parent)
-        {
-            m_pChild = new QWidget(parent);
-            m_pChild->setGeometry(0, 0, parent->width(), parent->height());
-            m_pChild->setStyleSheet("background-color: rgba(255,0,0,0)");
-            m_pChild->setAttribute(Qt::WA_NoSystemBackground);
-            m_pChild->setAttribute(Qt::WA_TranslucentBackground);
-            m_pChild->show();
-        }
-    }
-    ~CParentDisable()
-    {
-        if (m_pChild)
-            m_pChild->deleteLater();
-    }
-};
-
 CFileDialogWrapper::CFileDialogWrapper(QWidget * parent) : QObject(parent)
 #endif
 {
@@ -144,7 +121,8 @@ bool CFileDialogWrapper::modalSaveAs(QString& fileName)
                                     fileName.left(fileName.lastIndexOf(".")) : fileName;
 
     HWND _mess_parent = QWinWidget::parentWindow();
-    CRunningEventHelper _event(&(CInAppEventModal((size_t)_mess_parent)));
+    CInAppEventModal _event(_mess_parent);
+    CRunningEventHelper _h(&_event);
 #else
     QString _croped_name = fileName.left(fileName.lastIndexOf("."));
     QWidget * _mess_parent = (QWidget *)parent();
@@ -171,7 +149,7 @@ bool CFileDialogWrapper::modalSaveAs(QString& fileName)
 #endif
 
 #ifndef _WIN32
-    CParentDisable oDisabler((QWidget *)parent());
+    WindowHelper::CParentDisable oDisabler(qobject_cast<QWidget*>(parent()));
 #endif
 
     while (true) {
@@ -261,9 +239,10 @@ QStringList CFileDialogWrapper::modalOpen(const QString& path, const QString& fi
 #endif
 
 #ifndef _WIN32
-    CParentDisable oDisabler((QWidget *)parent());
+    WindowHelper::CParentDisable oDisabler(qobject_cast<QWidget*>(parent()));
 #else
-    CRunningEventHelper _event(&(CInAppEventModal((size_t)QWinWidget::parentWindow())));
+    CInAppEventModal event_(QWinWidget::parentWindow());
+    CRunningEventHelper h_(&event_);
 #endif
 
     return multi ? QFileDialog::getOpenFileNames(_parent, tr("Open Document"), path, _filter_, &_sel_filter, _opts) :
@@ -278,18 +257,20 @@ QString CFileDialogWrapper::modalOpenSingle(const QString& path, const QString& 
 
 QStringList CFileDialogWrapper::modalOpenImage(const QString& path)
 {
+    QString selected = tr("All Images") + " (*.jpeg *.jpg *.png *.gif *.bmp)";
     QString filter = m_mapFilters[AVS_OFFICESTUDIO_FILE_UNKNOWN];
-    filter.prepend(tr("Jpeg (*.jpeg *.jpg);;Png (*.png);;Gif (*.gif);;Bmp (*.bmp);;"));
+    filter.append(";;" + selected + ";;" + tr("Jpeg (*.jpeg *.jpg);;Png (*.png);;Gif (*.gif);;Bmp (*.bmp)"));
 
-    return modalOpen(path, filter, nullptr, false);
+    return modalOpen(path, filter, &selected, false);
 }
 
 QStringList CFileDialogWrapper::modalOpenImages(const QString& path)
 {
+    QString selected = tr("All Images") + " (*.jpeg *.jpg *.png *.gif *.bmp)";
     QString filter = m_mapFilters[AVS_OFFICESTUDIO_FILE_UNKNOWN];
-    filter.prepend(tr("Jpeg (*.jpeg *.jpg);;Png (*.png);;Gif (*.gif);;Bmp (*.bmp);;"));
+    filter.append(";;" + selected + ";;" + tr("Jpeg (*.jpeg *.jpg);;Png (*.png);;Gif (*.gif);;Bmp (*.bmp)"));
 
-    return modalOpen(path, filter,  nullptr, true);
+    return modalOpen(path, filter, &selected, true);
 }
 
 QStringList CFileDialogWrapper::modalOpenPlugin(const QString& path)
@@ -310,10 +291,48 @@ QStringList CFileDialogWrapper::modalOpenPlugins(const QString& path)
     return modalOpen(path, _filter, &_plugins_filter, true);
 }
 
+QStringList CFileDialogWrapper::modalOpenDocuments(const QString& path, bool multi)
+{
+    QString filter = m_mapFilters[AVS_OFFICESTUDIO_FILE_UNKNOWN];
+    filter.prepend(tr("Text documents") + " (*.docx *.doc *.odt *.ott *.rtf *.docm *.dotx *.dotm *.fodt *.wps *.wpt *.xml);;");
+
+    return modalOpen(path, filter, nullptr, multi);
+}
+
+QStringList CFileDialogWrapper::modalOpenSpreadsheets(const QString& path, bool multi)
+{
+    QString filter = m_mapFilters[AVS_OFFICESTUDIO_FILE_UNKNOWN];
+    filter.prepend(tr("Spreadsheets") + " (*.xlsx *.xls *.ods *.ots *.csv *.xltx *.xltm *.fods *.et *.ett);;");
+
+    return modalOpen(path, filter, nullptr, multi);
+}
+
+QStringList CFileDialogWrapper::modalOpenPresentations(const QString& path, bool multi)
+{
+    QString filter = m_mapFilters[AVS_OFFICESTUDIO_FILE_UNKNOWN];
+    filter.prepend(tr("Presentations") + " (*.pptx *.ppt *.odp *.otp *.ppsm *.ppsx *.potx *.potm *.fodp *.dps *.dpt);;");
+
+    return modalOpen(path, filter, nullptr, multi);
+}
+
 QStringList CFileDialogWrapper::modalOpenAny(const QString& path, bool multi)
 {
     QString _filter = m_mapFilters[AVS_OFFICESTUDIO_FILE_UNKNOWN];
     return modalOpen(path, _filter, nullptr, multi);
+}
+
+QStringList CFileDialogWrapper::modalOpenMedia(const QString& type, const QString& path, bool multi)
+{
+    QString selected;
+    if ( type == "video" ) {
+        selected = tr("Video file") + " (*.webm *.mkv *.flv *.ogg *.avi *.mov *.wmv *.mp4 *.m4v *.mpg *.mp2 *.mpeg *.mpe *.mpv *.m2v *.m4v *.3gp *.3g2 *.f4v *.m2ts *.mts)";
+    } else
+    if ( type == "audio" ) {
+        selected = tr("Audio file") + " (*.flac *.mp3 *.ogg *.wav *.wma *.ape *.aac *.m4a *.alac)";
+    }
+
+    QString filter = m_mapFilters[AVS_OFFICESTUDIO_FILE_UNKNOWN] + ";;" + selected;
+    return modalOpen(path, filter, &selected, multi);
 }
 
 void CFileDialogWrapper::setFormats(std::vector<int>& vf)
