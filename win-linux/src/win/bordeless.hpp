@@ -72,7 +72,8 @@ namespace borderless {
             wcx.hInstance = instance;
             wcx.lpfnWndProc = wndproc;
             wcx.lpszClassName = L"BorderlessWindowClass";
-            wcx.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
+//            wcx.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
+            wcx.hbrBackground = CreateSolidBrush(RGB(0, 241, 0));
             wcx.hCursor = ::LoadCursorW(instance, IDC_ARROW);
             const ATOM result = ::RegisterClassExW(&wcx);
             if (!result) {
@@ -100,15 +101,19 @@ namespace borderless {
         }
     }
 
-    auto create_window(WNDPROC wndproc, void* userdata) -> unique_handle {
-        auto handle = CreateWindowExW(
-            0, window_class(wndproc), L"Borderless Window",
-            static_cast<DWORD>(Style::aero_borderless), /*CW_USEDEFAULT, CW_USEDEFAULT,*/ 100, 100,
-            1280, 720, nullptr, nullptr, GetModuleHandle(nullptr), userdata);
+    auto create_window(WNDPROC wndproc, const RECT& rc, void* userdata) -> unique_handle {
+        auto handle = CreateWindowEx(0, window_class(wndproc), L"Borderless Window",
+                        static_cast<DWORD>(Style::aero_borderless), /*CW_USEDEFAULT, CW_USEDEFAULT,*/ rc.left, rc.top,
+                            rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, GetModuleHandle(nullptr), userdata);
         if (!handle) {
             throw last_error("failed to create window");
         }
+
         return unique_handle{handle};
+    }
+
+    auto create_window(WNDPROC wndproc, void* userdata) -> unique_handle {
+        return create_window(wndproc, RECT{100,100,1280,720}, userdata);
     }
 
     auto hit_test(HWND handle, POINT cursor) -> LRESULT {

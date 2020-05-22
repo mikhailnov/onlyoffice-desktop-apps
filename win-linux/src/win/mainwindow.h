@@ -125,7 +125,7 @@ private:
     bool borderless;
     bool borderlessResizeable;
 
-    CMainPanelImpl * m_pMainPanel;
+    CMainPanelImpl * m_pMainPanel = nullptr;
 
     WindowBase::CWindowGeometry minimumSize;
     WindowBase::CWindowGeometry maximumSize;

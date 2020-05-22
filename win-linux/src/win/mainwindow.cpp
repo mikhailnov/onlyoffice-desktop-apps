@@ -140,7 +140,7 @@ CMainWindow::CMainWindow(QRect& rect) :
 
 //    SetWindowLongPtr( hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>( this ) );
 
-    g_handle = {borderless::create_window(&CMainWindow::WndProcB, this)};
+    g_handle = {borderless::create_window(&CMainWindow::WndProc, RECT{_window_rect.left(),_window_rect.top(),_window_rect.right(),_window_rect.bottom()}, this)};
     hWnd = g_handle.get();
 
     ::ShowWindow(g_handle.get(), SW_SHOW);
@@ -152,6 +152,7 @@ CMainWindow::CMainWindow(QRect& rect) :
     m_pMainPanel = new CMainPanelImpl(m_pWinPanel, true, m_dpiRatio);
     m_pMainPanel->setStyleSheet(AscAppManager::getWindowStylesheets(m_dpiRatio));
     m_pMainPanel->updateScaling(m_dpiRatio);
+
 //    m_pMainPanel->goStart();
 
 //    SetWindowPos(HWND(m_pWinPanel->winId()), NULL, 0, 0, _window_rect.width(), _window_rect.height(), SWP_FRAMECHANGED);
@@ -194,7 +195,12 @@ CMainWindow::~CMainWindow()
 
 LRESULT CALLBACK CMainWindow::WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
-    CMainWindow *window = reinterpret_cast<CMainWindow*>( GetWindowLongPtr( hWnd, GWLP_USERDATA ) );
+    if ( message == WM_NCCREATE ) {
+        auto userdata = reinterpret_cast<CREATESTRUCTW*>(lParam)->lpCreateParams;
+        ::SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(userdata));
+    }
+
+    auto window = reinterpret_cast<CMainWindow *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
     if ( !window )
         return DefWindowProc( hWnd, message, wParam, lParam );
 //static uint count=0;
@@ -214,7 +220,14 @@ LRESULT CALLBACK CMainWindow::WndProc( HWND hWnd, UINT message, WPARAM wParam, L
             }
         }
 
-        qDebug() << "WM_DPICHANGED: " << LOWORD(wParam);
+        break;
+
+    case WM_NCACTIVATE:
+        if (!borderless::composition_enabled()) {
+            // Prevents window frame reappearing on window activation
+            // in "basic" theme, where no aero shadow is present.
+            return 1;
+        }
         break;
 
     case WM_ACTIVATE: {
@@ -311,7 +324,7 @@ LRESULT CALLBACK CMainWindow::WndProc( HWND hWnd, UINT message, WPARAM wParam, L
 //        str += "\n";
 //        OutputDebugStringA( str.toLocal8Bit().data() );
 
-        if ( IsWindowEnabled(hWnd) )
+        if ( IsWindowEnabled(hWnd) && window->m_pMainPanel )
             window->m_pMainPanel->focus();
         break;
     }
@@ -320,8 +333,12 @@ LRESULT CALLBACK CMainWindow::WndProc( HWND hWnd, UINT message, WPARAM wParam, L
     {
         //this kills the window frame and title bar we added with
         //WS_THICKFRAME and WS_CAPTION
-        if (window->borderless)
-        {
+        if (window->b_borderless && wParam == TRUE) {
+            auto& params = *reinterpret_cast<NCCALCSIZE_PARAMS*>(lParam);
+            borderless::adjust_maximized_client_rect(hWnd, params.rgrc[0]);
+
+            if ( IsZoomed(hWnd) )
+                params.rgrc[0].bottom -= 1;
 
             return 0;
         }
@@ -349,11 +366,15 @@ qDebug() << "WM_CLOSE";
         break;
     }
 
-    case WM_NCPAINT:
-        return 0;
+//    case WM_NCPAINT:
+//        return 0;
 
     case WM_NCHITTEST:
     {
+        if ( window->b_borderless ) {
+            return borderless::hit_test(hWnd, POINT{GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)});
+        }
+
         if ( window->borderless )
         {
             const LONG borderWidth = 8; //in pixels
@@ -413,6 +434,10 @@ qDebug() << "WM_CLOSE";
         }
         break;
     }
+
+    case WM_SIZING:
+        RedrawWindow(hWnd, NULL, NULL, RDW_INVALIDATE | RDW_NOERASE | RDW_INTERNALPAINT);
+        break;
 
     case WM_SIZE:
         if ( !window->skipsizing && !window->closed && window->m_pWinPanel) {
@@ -499,12 +524,21 @@ qDebug() << "WM_CLOSE";
         break;
     }
 
-    case WM_NCACTIVATE: {
-        return TRUE;
-        break;
-    }
-
     case WM_PAINT: {
+#if 1
+        RECT ClientRect;
+        GetClientRect(hWnd, &ClientRect);
+
+        PAINTSTRUCT ps;
+        BeginPaint(hWnd, &ps);
+
+//        HBRUSH BorderBrush = CreateSolidBrush(WINDOW_BACKGROUND_COLOR);
+        HBRUSH BorderBrush = CreateSolidBrush(RGB(241, 0, 0));
+        FillRect(ps.hdc, &ClientRect, BorderBrush);
+
+        DeleteObject(BorderBrush);
+        EndPaint(hWnd, &ps);
+#else
         RECT rect;
         GetClientRect(hWnd, &rect);
 
@@ -523,6 +557,7 @@ qDebug() << "WM_CLOSE";
 
         ::SelectObject(hDC, hpenOld);
         ::EndPaint(hWnd, &ps);
+#endif
         return 0; }
 
     case WM_ERASEBKGND: {
@@ -652,7 +687,7 @@ auto CALLBACK CMainWindow::WndProcB(HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
 //                RECT BorderRect = { BORDERWIDTH, BORDERWIDTH, ClientRect.right - BORDERWIDTH - BORDERWIDTH, ClientRect.bottom - BORDERWIDTH - BORDERWIDTH },
 //                     TitleRect = { BORDERWIDTH, BORDERWIDTH, ClientRect.right - BORDERWIDTH - BORDERWIDTH, TITLEBARWIDTH };
 
-                HBRUSH BorderBrush = CreateSolidBrush(WINDOW_BACKGROUND_COLOR);
+                HBRUSH BorderBrush = CreateSolidBrush(RGB(241, 0, 0));
                 FillRect(ps.hdc, &ClientRect, BorderBrush);
 //                FillRect(ps.hdc, &BorderRect, GetSysColorBrush(2));
 //                FillRect(ps.hdc, &TitleRect, GetSysColorBrush(1));
@@ -853,17 +888,17 @@ void CMainWindow::adjustGeometry()
         nMaxOffsetB = 0;
 
     if ( IsZoomed(hWnd) != 0 ) {      // is window maximized
-        LONG lTestW = 640,
-             lTestH = 480;
+//        LONG lTestW = 640,
+//             lTestH = 480;
 
-        RECT wrect{0,0,lTestW,lTestH};
-        Utils::adjustWindowRect(hWnd, m_dpiRatio, &wrect);
+//        RECT wrect{0,0,lTestW,lTestH};
+//        WindowHelper::adjustWindowRect(hWnd, m_dpiRatio, &wrect);
 
-        if (0 > wrect.left) nMaxOffsetX = -wrect.left;
-        if (0 > wrect.top)  nMaxOffsetY = -wrect.top;
+//        if (0 > wrect.left) nMaxOffsetX = -wrect.left;
+//        if (0 > wrect.top)  nMaxOffsetY = -wrect.top;
 
-        if (wrect.right > lTestW)   nMaxOffsetR = (wrect.right - lTestW);
-        if (wrect.bottom > lTestH)  nMaxOffsetB = (wrect.bottom - lTestH);
+//        if (wrect.right > lTestW)   nMaxOffsetR = (wrect.right - lTestW);
+//        if (wrect.bottom > lTestH)  nMaxOffsetB = (wrect.bottom - lTestH);
 
         // TODO: вот тут бордер!!!
         m_pWinPanel->setGeometry( nMaxOffsetX + border_size, nMaxOffsetY + border_size,
