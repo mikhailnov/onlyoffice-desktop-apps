@@ -161,8 +161,8 @@ public:
             window->m_labelTitle->setText(APP_TITLE);
 
 #ifdef Q_OS_WIN
-            window->m_bgColor = WINDOW_BACKGROUND_COLOR;
-            InvalidateRect(window->m_hWnd,nullptr,TRUE);
+//            window->m_bgColor = WINDOW_BACKGROUND_COLOR;
+//            InvalidateRect(window->m_hWnd,nullptr,TRUE);
 #endif
         }
     }

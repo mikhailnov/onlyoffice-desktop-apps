@@ -47,18 +47,107 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QDir>
+#include <QCoreApplication>
 
 #include "ceditorwindow_p.h"
 
+HWND g_id = 0;
+namespace {
+    auto hit_test(HWND handle, POINT cursor) -> LRESULT {
+        // identify borders and corners to allow resizing the window.
+        // Note: On Windows 10, windows behave differently and
+        // allow resizing outside the visible window frame.
+        // This implementation does not replicate that behavior.
+        const POINT border{
+            ::GetSystemMetrics(SM_CXFRAME) + ::GetSystemMetrics(SM_CXPADDEDBORDER),
+            ::GetSystemMetrics(SM_CYFRAME) + ::GetSystemMetrics(SM_CXPADDEDBORDER)
+        };
+        RECT window;
+        if (!::GetWindowRect(handle, &window)) {
+            return HTNOWHERE;
+        }
+
+        const auto drag = HTCAPTION;
+
+        enum region_mask {
+            client = 0b0000,
+            left   = 0b0001,
+            right  = 0b0010,
+            top    = 0b0100,
+            bottom = 0b1000,
+        };
+
+        const auto result =
+            left    * (cursor.x <  (window.left   + border.x)) |
+            right   * (cursor.x >= (window.right  - border.x)) |
+            top     * (cursor.y <  (window.top    + border.y)) |
+            bottom  * (cursor.y >= (window.bottom - border.y));
+
+        bool borderless_resize = true;
+        switch (result) {
+            case left          : return borderless_resize ? HTLEFT        : drag;
+            case right         : return borderless_resize ? HTRIGHT       : drag;
+            case top           : return borderless_resize ? HTTOP         : drag;
+            case bottom        : return borderless_resize ? HTBOTTOM      : drag;
+            case top | left    : return borderless_resize ? HTTOPLEFT     : drag;
+            case top | right   : return borderless_resize ? HTTOPRIGHT    : drag;
+            case bottom | left : return borderless_resize ? HTBOTTOMLEFT  : drag;
+            case bottom | right: return borderless_resize ? HTBOTTOMRIGHT : drag;
+            case client        : return drag;
+            default            : return HTNOWHERE;
+        }
+    }
+}
+
+#define GET_X_LPARAM(lp)                        ((int)(short)LOWORD(lp))
+#define GET_Y_LPARAM(lp)                        ((int)(short)HIWORD(lp))
+#include <QAbstractNativeEventFilter>
+class MyNativeEventFilter: public QAbstractNativeEventFilter
+{
+public:
+    virtual bool nativeEventFilter(const QByteArray & eventtype, void * message, long * result) Q_DECL_OVERRIDE {
+        MSG* msg = reinterpret_cast<MSG*>(message);
+
+//        if ( msg->hwnd == g_id )
+        {
+            static int c = 0;
+//            qDebug() << "native event" << ++c << QString(" 0x%1").arg(msg->message,4,16,QChar('0'));
+
+//            qDebug() << "nativeEventFilter" << msg->message;
+
+            if( msg->message == WM_NCHITTEST )
+            {
+                RECT window;
+                if (!::GetWindowRect(msg->hwnd, &window)) {
+                    *result = HTNOWHERE;
+                }
+
+                POINT npt{GET_X_LPARAM(msg->lParam)- window.left, GET_Y_LPARAM(msg->lParam) - window.top};
+                QPoint pt{npt.x, npt.y};
+
+                *result = hit_test(::GetAncestor(msg->hwnd, GA_ROOT), npt);
+                qDebug() << "WM_NCHITTEST" << ::GetAncestor(msg->hwnd, GA_ROOT) << pt << *result;
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+};
+
+
 CEditorWindow::CEditorWindow()
-    : CSingleWindowPlatform(QRect(100, 100, 900, 800), "Desktop Editor", nullptr)
+    : CSingleWindowPlatform_win(QRect(100, 100, 900, 800), "Desktop Editor", nullptr)
 {
 }
 
 CEditorWindow::CEditorWindow(const QRect& rect, CTabPanel* panel)
-    : CSingleWindowPlatform(rect, panel->data()->title(), panel)
+    : CSingleWindowPlatform_win(rect, panel->data()->title(), panel)
     , d_ptr(new CEditorWindowPrivate(this))
 {
+    QApplication::instance()->installNativeEventFilter(new MyNativeEventFilter);
+
     d_ptr.get()->init(panel);
     m_css = {prepare_editor_css(d_ptr->canExtendTitle() ? panel->data()->contentType() : etUndefined)};
 
@@ -82,18 +171,25 @@ CEditorWindow::CEditorWindow(const QRect& rect, CTabPanel* panel)
         case etSpreadsheet: color = QColor(TAB_COLOR_SPREADSHEET); break;
         }
 
-        m_bgColor = RGB(color.red(), color.green(), color.blue());
+//        m_bgColor = RGB(color.red(), color.green(), color.blue());
     }
 
-    m_pMainPanel = createMainPanel(m_pWinPanel);
-    m_pWinPanel->show();
+//    m_pMainPanel = createMainPanel(m_pWinPanel);
+//    m_pWinPanel->show();
+    m_pMainPanel = createMainPanel(this);
+    setCentralWidget(m_pMainPanel);
+
+    g_id = (HWND)winId();
 
     recalculatePlaces();
 #endif
 
-    QTimer::singleShot(0, [=]{m_pMainView->show();});
+//    QTimer::singleShot(0, [=]{m_pMainView->show();});
     AscAppManager::bindReceiver(panel->cef()->GetId(), d_ptr.get());
     AscAppManager::sendCommandTo(panel->cef(), L"editor:config", L"request");
+
+//    qobject_cast<CTabPanel *>(m_pMainView)->view()->installEventFilter(new CTestEventsFilter(this));
+
 
 //    QObject::connect(d_ptr.get()->buttonDock(), &QPushButton::clicked, [=]{
 //        if ( !d_ptr->isReporterMode ) {
@@ -105,7 +201,7 @@ CEditorWindow::CEditorWindow(const QRect& rect, CTabPanel* panel)
 }
 
 CEditorWindow::CEditorWindow(const QRect& r, const QString& s, QWidget * w)
-    : CSingleWindowPlatform(r,s,w)
+    : CSingleWindowPlatform_win(r,s,w)
 {
 
 }
@@ -136,8 +232,8 @@ void CEditorWindow::undock(bool maximized)
     }
 #endif
 
-    CSingleWindowPlatform::show(maximized);
-    CSingleWindowPlatform::captureMouse();
+    CSingleWindowPlatform_win::show(maximized);
+    CSingleWindowPlatform_win::captureMouse();
 }
 
 int CEditorWindow::closeWindow()
@@ -191,7 +287,7 @@ QWidget * CEditorWindow::createMainPanel(QWidget * parent)
 QWidget * CEditorWindow::createMainPanel(QWidget * parent, const QString& title, bool custom)
 {
     // create min/max/close buttons
-    CSingleWindowBase::createMainPanel(parent, title, custom);
+    CSingleWindowPlatform_win::createMainPanel(parent, title, custom);
 
     QWidget * mainPanel = new QWidget(parent);
     mainPanel->setObjectName("mainPanel");
@@ -199,7 +295,10 @@ QWidget * CEditorWindow::createMainPanel(QWidget * parent, const QString& title,
     QGridLayout * mainGridLayout = new QGridLayout();
     mainGridLayout->setSpacing(0);
 #ifdef Q_OS_WIN
-    mainGridLayout->setMargin(0);
+    mainGridLayout->setMargin(8);
+
+    int b = 8 * m_dpiRatio;
+    mainGridLayout->setContentsMargins(QMargins(b,b,b,b));
 #else
     int b = CX11Decoration::customWindowBorderWith() * m_dpiRatio;
     mainGridLayout->setContentsMargins(QMargins(b,b,b,b));
@@ -257,7 +356,7 @@ QWidget * CEditorWindow::createMainPanel(QWidget * parent, const QString& title,
 //        m_pMainView = (QWidget *)pMainWidget;
     } else {
         m_pMainView = d_ptr->panel();
-        m_pMainView->setParent(mainPanel);
+//        m_pMainView->setParent(mainPanel);
 
 //        m_pMainView->setGeometry(mainPanel->geometry());
 //        m_pMainView->show();
@@ -284,20 +383,20 @@ void CEditorWindow::onCloseEvent()
 void CEditorWindow::onMinimizeEvent()
 {
     if ( !d_ptr->isReporterMode ) {
-        CSingleWindowPlatform::onMinimizeEvent();
+        CSingleWindowPlatform_win::onMinimizeEvent();
     }
 }
 
 void CEditorWindow::onMaximizeEvent()
 {
     if ( !d_ptr->isReporterMode ) {
-        CSingleWindowPlatform::onMaximizeEvent();
+        CSingleWindowPlatform_win::onMaximizeEvent();
     }
 }
 
 void CEditorWindow::onSizeEvent(int type)
 {
-    CSingleWindowPlatform::onSizeEvent(type);
+    CSingleWindowPlatform_win::onSizeEvent(type);
     recalculatePlaces();
 }
 
@@ -315,11 +414,11 @@ void CEditorWindow::onMoveEvent(const QRect& rect)
 
 void CEditorWindow::onExitSizeMove()
 {
-    CSingleWindowPlatform::onExitSizeMove();
+    CSingleWindowPlatform_win::onExitSizeMove();
 
     if ( m_restoreMaximized ) {
         m_restoreMaximized = false;
-        CSingleWindowPlatform::show(true);
+        CSingleWindowPlatform_win::show(true);
     }
 }
 
@@ -331,7 +430,7 @@ void CEditorWindow::onDpiChanged(int newfactor, int prevfactor)
 
 void CEditorWindow::setScreenScalingFactor(int newfactor)
 {
-    CSingleWindowPlatform::setScreenScalingFactor(newfactor);
+    CSingleWindowPlatform_win::setScreenScalingFactor(newfactor);
 
     m_pMainPanel->setProperty("zoom", newfactor > 1 ? "2x": "1x");
 
@@ -371,7 +470,9 @@ void CEditorWindow::recalculatePlaces()
 //    _s *= m_dpiRatio;
 //    m_boxTitleBtns->setFixedWidth(_s.width());
 #ifdef Q_OS_WIN
-    m_boxTitleBtns->setGeometry(nCaptionL, 0, windowW - nCaptionL, captionH);
+//    m_boxTitleBtns->setGeometry(nCaptionL, 0, windowW - nCaptionL, captionH);
+    int cbw = 4 * m_dpiRatio;
+    m_boxTitleBtns->setGeometry(cbw, cbw, windowW - cbw * 2, captionH);
 #else
     int cbw = CX11Decoration::customWindowBorderWith()*m_dpiRatio;
     m_boxTitleBtns->setGeometry(cbw, cbw, windowW - cbw * 2, captionH);
@@ -379,13 +480,14 @@ void CEditorWindow::recalculatePlaces()
 //    m_boxTitleBtns->move(windowW - m_boxTitleBtns->width() + cbw, cbw);
 //    m_pMainView->setGeometry(0, captionH, windowW, windowH - captionH);
 
-//    QRegion reg(0, captionH, windowW, windowH - captionH);
+//    QRegion reg(0, 100, 500, 200);
 //    reg = reg.united(QRect(0, 0, nCaptionL, captionH));
 //    reg = reg.united(QRect(windowW - nCaptionR, 0, nCaptionR, captionH));
 //    m_pMainView->clearMask();
 //    m_pMainView->setMask(reg);
 
     m_pMainView->lower();
+//    m_pMainView->setGeometry(0,0,500,500);
     }
 }
 

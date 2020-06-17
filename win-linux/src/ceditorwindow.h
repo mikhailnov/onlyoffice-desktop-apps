@@ -37,6 +37,7 @@
 # include "linux/csinglewindowplatform.h"
 #else
 # include "win/csinglewindowplatform.h"
+# include "win/csinglewindowplatform_win.h"
 #endif
 
 #include "ctabpanel.h"
@@ -44,7 +45,8 @@
 #include <QCoreApplication>
 
 class CEditorWindowPrivate;
-class CEditorWindow : public CSingleWindowPlatform
+//class CEditorWindow : public CSingleWindowPlatform
+class CEditorWindow : public CSingleWindowPlatform_win
 {
     Q_DECLARE_TR_FUNCTIONS(CEditorWindow)
 
