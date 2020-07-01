@@ -233,6 +233,10 @@ void CSingleWindowBase::onExitSizeMove()
 
 }
 
+void CSingleWindowBase::onSizeEvent(int)
+{
+}
+
 void CSingleWindowBase::onDpiChanged(int, int)
 {
 }
