@@ -51,7 +51,7 @@
 
 #include "ceditorwindow_p.h"
 
-HWND g_id = 0;
+
 namespace {
     auto hit_test(HWND handle, POINT cursor) -> LRESULT {
         // identify borders and corners to allow resizing the window.
@@ -106,28 +106,16 @@ class MyNativeEventFilter: public QAbstractNativeEventFilter
 {
 public:
     virtual bool nativeEventFilter(const QByteArray & eventtype, void * message, long * result) Q_DECL_OVERRIDE {
-        MSG* msg = reinterpret_cast<MSG*>(message);
+        if ( eventtype == "windows_generic_MSG" ) {
+            auto msg = reinterpret_cast<MSG*>(message);
+            auto window = reinterpret_cast<CEditorWindow *>(GetWindowLongPtr(msg->hwnd, GWLP_USERDATA));
 
-//        if ( msg->hwnd == g_id )
-        {
-            static int c = 0;
+//            static int c = 0;
 //            qDebug() << "native event" << ++c << QString(" 0x%1").arg(msg->message,4,16,QChar('0'));
 
-//            qDebug() << "nativeEventFilter" << msg->message;
 
-            if( msg->message == WM_NCHITTEST )
-            {
-                RECT window;
-                if (!::GetWindowRect(msg->hwnd, &window)) {
-                    *result = HTNOWHERE;
-                }
-
-                POINT npt{GET_X_LPARAM(msg->lParam)- window.left, GET_Y_LPARAM(msg->lParam) - window.top};
-                QPoint pt{npt.x, npt.y};
-
-                *result = hit_test(::GetAncestor(msg->hwnd, GA_ROOT), npt);
-                qDebug() << "WM_NCHITTEST" << ::GetAncestor(msg->hwnd, GA_ROOT) << pt << *result;
-
+            if( msg->message == WM_NCHITTEST && !window) {
+                *result = -1;
                 return true;
             }
         }
@@ -147,6 +135,7 @@ CEditorWindow::CEditorWindow(const QRect& rect, CTabPanel* panel)
     , d_ptr(new CEditorWindowPrivate(this))
 {
     QApplication::instance()->installNativeEventFilter(new MyNativeEventFilter);
+    SetWindowLongPtr((HWND)winId(), GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
     d_ptr.get()->init(panel);
     m_css = {prepare_editor_css(d_ptr->canExtendTitle() ? panel->data()->contentType() : etUndefined)};
@@ -178,8 +167,6 @@ CEditorWindow::CEditorWindow(const QRect& rect, CTabPanel* panel)
 //    m_pWinPanel->show();
     m_pMainPanel = createMainPanel(this);
     setCentralWidget(m_pMainPanel);
-
-    g_id = (HWND)winId();
 
     recalculatePlaces();
 #endif
@@ -297,7 +284,7 @@ QWidget * CEditorWindow::createMainPanel(QWidget * parent, const QString& title,
 #ifdef Q_OS_WIN
     mainGridLayout->setMargin(8);
 
-    int b = 8 * m_dpiRatio;
+    int b = 4 * m_dpiRatio;
     mainGridLayout->setContentsMargins(QMargins(b,b,b,b));
 #else
     int b = CX11Decoration::customWindowBorderWith() * m_dpiRatio;
