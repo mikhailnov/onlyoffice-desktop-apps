@@ -14,7 +14,51 @@
 #include "utils.h"
 #include <QDebug>
 #include <QEvent>
+#include <QApplication>
 
+HWND g_testHandle = 0;
+bool CAppNativeEventFilter::nativeEventFilter(const QByteArray & eventtype, void * message, long * result)
+{
+    if ( eventtype == "windows_generic_MSG" ) {
+        auto msg = *reinterpret_cast<MSG*>(message);
+        if( msg.message == WM_NCHITTEST ) {
+            if (msg.hwnd == g_testHandle)  {
+                *result = HTTRANSPARENT;
+                return false;
+            }
+
+            auto window = reinterpret_cast<CSingleWindowPlatform_win *>(GetWindowLongPtr(msg.hwnd, GWLP_USERDATA));
+
+            static int c = 0;
+//            qDebug() << "native event" << ++c << QString(" 0x%1").arg(msg.message,4,16,QChar('0'));
+
+//qDebug() << "hittest" << ++c << window << ownd;
+            if( !window ) {
+                HWND parent_wnd = GetAncestor(msg.hwnd, GA_PARENT);
+                if ( parent_wnd == g_testHandle ) {
+                    qDebug() << "has no owner 2" << ++c << msg.hwnd;
+                    *result = HTTRANSPARENT;
+                    return true;
+                }
+
+                HWND root_wnd = GetAncestor(msg.hwnd, GA_ROOT);
+
+                if ( root_wnd != GetDesktopWindow() )
+                {
+                    window = reinterpret_cast<CSingleWindowPlatform_win *>(GetWindowLongPtr(root_wnd, GWLP_USERDATA));
+//                    qDebug() << "has no owner" << ++c << msg.hwnd << window;
+
+                    if ( window ) {
+                        *result = HTTRANSPARENT;
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
+    return false;
+}
 
 CSingleWindowPlatform_win::CSingleWindowPlatform_win(const QRect& rect, const QString&, QWidget *)
     : QMainWindow()
@@ -27,6 +71,7 @@ CSingleWindowPlatform_win::CSingleWindowPlatform_win(const QRect& rect, const QS
     //we will get rid of titlebar and thick frame again in nativeEvent() later
     HWND hwnd = (HWND)winId();
     SetWindowLong(hwnd, GWL_STYLE, GetWindowLong(hwnd, GWL_STYLE) | WS_MAXIMIZEBOX | WS_THICKFRAME | WS_CAPTION);
+    SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
     //we better left 1 piexl width of border untouch, so OS can draw nice shadow around it
     const MARGINS shadow = { 1, 1, 1, 1 };
@@ -34,6 +79,8 @@ CSingleWindowPlatform_win::CSingleWindowPlatform_win(const QRect& rect, const QS
 
     setWindowIcon(Utils::appIcon());
     setGeometry(rect);
+
+    QApplication::instance()->installNativeEventFilter(new CAppNativeEventFilter);
 }
 
 CSingleWindowPlatform_win::~CSingleWindowPlatform_win()
@@ -193,6 +240,7 @@ QWidget * CSingleWindowPlatform_win::createMainPanel(QWidget * parent, const QSt
     m_titlebar = CSingleWindowBase::m_boxTitleBtns;
     m_whiteList.append(m_labelTitle);
 
+//    g_testHandle = (HWND)m_boxTitleBtns->winId();
     return nullptr;
 }
 

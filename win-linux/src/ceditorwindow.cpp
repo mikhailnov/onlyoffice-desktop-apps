@@ -52,79 +52,6 @@
 #include "ceditorwindow_p.h"
 
 
-namespace {
-    auto hit_test(HWND handle, POINT cursor) -> LRESULT {
-        // identify borders and corners to allow resizing the window.
-        // Note: On Windows 10, windows behave differently and
-        // allow resizing outside the visible window frame.
-        // This implementation does not replicate that behavior.
-        const POINT border{
-            ::GetSystemMetrics(SM_CXFRAME) + ::GetSystemMetrics(SM_CXPADDEDBORDER),
-            ::GetSystemMetrics(SM_CYFRAME) + ::GetSystemMetrics(SM_CXPADDEDBORDER)
-        };
-        RECT window;
-        if (!::GetWindowRect(handle, &window)) {
-            return HTNOWHERE;
-        }
-
-        const auto drag = HTCAPTION;
-
-        enum region_mask {
-            client = 0b0000,
-            left   = 0b0001,
-            right  = 0b0010,
-            top    = 0b0100,
-            bottom = 0b1000,
-        };
-
-        const auto result =
-            left    * (cursor.x <  (window.left   + border.x)) |
-            right   * (cursor.x >= (window.right  - border.x)) |
-            top     * (cursor.y <  (window.top    + border.y)) |
-            bottom  * (cursor.y >= (window.bottom - border.y));
-
-        bool borderless_resize = true;
-        switch (result) {
-            case left          : return borderless_resize ? HTLEFT        : drag;
-            case right         : return borderless_resize ? HTRIGHT       : drag;
-            case top           : return borderless_resize ? HTTOP         : drag;
-            case bottom        : return borderless_resize ? HTBOTTOM      : drag;
-            case top | left    : return borderless_resize ? HTTOPLEFT     : drag;
-            case top | right   : return borderless_resize ? HTTOPRIGHT    : drag;
-            case bottom | left : return borderless_resize ? HTBOTTOMLEFT  : drag;
-            case bottom | right: return borderless_resize ? HTBOTTOMRIGHT : drag;
-            case client        : return drag;
-            default            : return HTNOWHERE;
-        }
-    }
-}
-
-#define GET_X_LPARAM(lp)                        ((int)(short)LOWORD(lp))
-#define GET_Y_LPARAM(lp)                        ((int)(short)HIWORD(lp))
-#include <QAbstractNativeEventFilter>
-class MyNativeEventFilter: public QAbstractNativeEventFilter
-{
-public:
-    virtual bool nativeEventFilter(const QByteArray & eventtype, void * message, long * result) Q_DECL_OVERRIDE {
-        if ( eventtype == "windows_generic_MSG" ) {
-            auto msg = reinterpret_cast<MSG*>(message);
-            auto window = reinterpret_cast<CEditorWindow *>(GetWindowLongPtr(msg->hwnd, GWLP_USERDATA));
-
-//            static int c = 0;
-//            qDebug() << "native event" << ++c << QString(" 0x%1").arg(msg->message,4,16,QChar('0'));
-
-
-            if( msg->message == WM_NCHITTEST && !window) {
-                *result = -1;
-                return true;
-            }
-        }
-
-        return false;
-    }
-};
-
-
 CEditorWindow::CEditorWindow()
     : CSingleWindowPlatform_win(QRect(100, 100, 900, 800), "Desktop Editor", nullptr)
 {
@@ -134,9 +61,6 @@ CEditorWindow::CEditorWindow(const QRect& rect, CTabPanel* panel)
     : CSingleWindowPlatform_win(rect, panel->data()->title(), panel)
     , d_ptr(new CEditorWindowPrivate(this))
 {
-    QApplication::instance()->installNativeEventFilter(new MyNativeEventFilter);
-    SetWindowLongPtr((HWND)winId(), GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
-
     d_ptr.get()->init(panel);
     m_css = {prepare_editor_css(d_ptr->canExtendTitle() ? panel->data()->contentType() : etUndefined)};
 
@@ -360,6 +284,8 @@ QWidget * CEditorWindow::createMainPanel(QWidget * parent, const QString& title,
 
 void CEditorWindow::onCloseEvent()
 {
+    CSingleWindowPlatform_win::onCloseEvent();
+
     if ( m_pMainView ) {
         if ( closeWindow() == MODAL_RESULT_YES ) {
             hide();
