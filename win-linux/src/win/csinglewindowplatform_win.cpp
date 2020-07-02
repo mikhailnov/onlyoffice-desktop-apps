@@ -16,6 +16,30 @@
 #include <QEvent>
 #include <QApplication>
 
+#include <QtGui/qpa/qplatformnativeinterface.h>
+static QWindow* windowForWidget(const QWidget* widget)
+{
+       QWindow* window = widget->windowHandle();
+       if (window)
+           return window;
+       const QWidget* nativeParent = widget->nativeParentWidget();
+       if (nativeParent)
+           return nativeParent->windowHandle();
+       return 0;
+}
+
+HWND getHWNDForWidget(const QWidget* widget)
+{
+       QWindow* window = ::windowForWidget(widget);
+       if (window)
+       {
+           QPlatformNativeInterface* interfacep = QGuiApplication::platformNativeInterface();
+           return static_cast<HWND>(interfacep->nativeResourceForWindow(QByteArrayLiteral("handle"), window));
+       }
+       return 0;
+}
+
+
 HWND g_testHandle = 0;
 bool CAppNativeEventFilter::nativeEventFilter(const QByteArray & eventtype, void * message, long * result)
 {
