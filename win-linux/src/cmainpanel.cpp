@@ -689,9 +689,8 @@ void CMainPanel::onFileChecked(const QString& name, int uid, bool exists)
 
     if ( !exists ) {
         QJsonObject _json_obj{{QString::number(uid), exists}};
-        QString json = QJsonDocument(_json_obj).toJson(QJsonDocument::Compact);
 
-        AscAppManager::sendCommandTo(QCEF_CAST(m_pMainWidget), "files:checked", Utils::encodeJson(json));
+        AscAppManager::sendCommandTo(QCEF_CAST(m_pMainWidget), "files:checked", Utils::encodeJson(_json_obj));
     }
 }
 

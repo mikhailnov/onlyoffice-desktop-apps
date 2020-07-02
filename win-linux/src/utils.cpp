@@ -318,23 +318,9 @@ QString Utils::getPortalName(const QString& url)
 
 QString Utils::encodeJson(const QJsonObject& obj)
 {
-    return Utils::encodeJson(
-                QJsonDocument(obj).toJson(QJsonDocument::Compact) );
+    return QJsonDocument(obj).toJson(QJsonDocument::Compact);
 }
 
-QString Utils::encodeJson(const QString& s)
-{
-    return QString(s).replace("\"", "\\\"");
-}
-
-wstring Utils::encodeJson(const wstring& s)
-{
-#if defined(__GNUC__) && __GNUC__ <= 4 && __GNUC_MINOR__ < 9
-    return QString::fromStdWString(s).replace("\"", "\\\"").toStdWString();
-#else
-    return std::regex_replace(wstring(s), std::wregex(L"\""), L"\\\"");
-#endif
-}
 
 unsigned Utils::getScreenDpiRatio(int scrnum)
 {

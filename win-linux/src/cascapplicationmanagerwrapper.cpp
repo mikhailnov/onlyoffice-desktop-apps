@@ -249,7 +249,7 @@ bool CAscApplicationManagerWrapper::processCommonEvent(NSEditorApi::CAscCefMenuE
         std::wstring const & cmd = pData->get_Command();
 
         if ( cmd.compare(L"portal:login") == 0 ) {
-            AscAppManager::sendCommandTo(SEND_TO_ALL_START_PAGE, L"portal:login", Utils::encodeJson(pData->get_Param()));
+            AscAppManager::sendCommandTo(SEND_TO_ALL_START_PAGE, L"portal:login", pData->get_Param());
             return true;
         } else
         if ( cmd.compare(L"portal:logout") == 0 ) {
@@ -862,7 +862,8 @@ void CAscApplicationManagerWrapper::closeEditorWindow(const size_t p)
         it = _app.m_vecEditors.begin();
         while ( it != _app.m_vecEditors.end() ) {
             if ( *it == p /*&& !_app.m_vecEditors.empty()*/ ) {
-                CSingleWindowBase * _w = reinterpret_cast<CSingleWindowBase *>(*it);
+//                CSingleWindowBase * _w = reinterpret_cast<CSingleWindowBase *>(*it);
+                auto _w = reinterpret_cast<CEditorWindow *>(*it);
 
                 AscAppManager::unbindReceiver(static_cast<const CCefEventsGate *>(_w->receiver()));
 

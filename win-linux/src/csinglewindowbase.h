@@ -65,7 +65,7 @@ public:
     virtual void setScreenScalingFactor(int);
     virtual bool holdView(int uid) const = 0;
     virtual QWidget * createMainPanel(QWidget * parent, const QString& title, bool custom);
-    virtual const QObject * receiver() = 0;
+//    virtual const QObject * receiver() = 0;
 //    virtual Qt::WindowState windowState() = 0;
 //    virtual void setWindowState(Qt::WindowState) = 0;
     virtual void setWindowTitle(const QString&);

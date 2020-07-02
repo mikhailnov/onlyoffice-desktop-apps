@@ -64,6 +64,7 @@ public:
     QString documentName() const;
     bool closed() const;
     AscEditorType editorType() const;
+    const QObject * receiver();
 
     void setReporterMode(bool);
 private:
@@ -75,7 +76,6 @@ private:
     QWidget * createMainPanel(QWidget * parent);
     QWidget * createMainPanel(QWidget * parent, const QString& title, bool custom) override;
     void recalculatePlaces();
-    const QObject * receiver() override;
 
 protected:
     void onCloseEvent() override;
