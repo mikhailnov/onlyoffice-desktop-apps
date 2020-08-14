@@ -8,6 +8,7 @@ class CMainWindowBase
 {
 public:
     CMainWindowBase();
+    virtual ~CMainWindowBase();
 
     virtual CMainPanel * mainPanel() const = 0;
     virtual QRect windowRect() const = 0;
@@ -25,6 +26,10 @@ public:
 //    virtual WId handle() const = 0;
 
     virtual void captureMouse(int tab_index);
+
+public:
+    int m_dpiRatio = 1;
+
 protected:
 };
 

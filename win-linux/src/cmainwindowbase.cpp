@@ -11,6 +11,10 @@ CMainWindowBase::CMainWindowBase()
 //    });
 }
 
+CMainWindowBase::~CMainWindowBase()
+{
+}
+
 int CMainWindowBase::attachEditor(QWidget * panel, int index)
 {
     CMainPanel * _pMainPanel = mainPanel();

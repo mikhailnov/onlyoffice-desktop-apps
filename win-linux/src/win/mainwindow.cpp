@@ -87,7 +87,6 @@ auto refresh_window_scaling_factor(CMainWindow * window) -> void {
 
 CMainWindow::CMainWindow(QRect& rect) :
     hWnd(nullptr),
-    hInstance(GetModuleHandle(nullptr)),
     borderless( true ),
     borderlessResizeable( true ),
     closed( false ),
@@ -116,6 +115,7 @@ CMainWindow::CMainWindow(QRect& rect) :
         _window_rect = QRect(QPoint(100, 100)*m_dpiRatio, QSize(MAIN_WINDOW_MIN_WIDTH, MAIN_WINDOW_MIN_HEIGHT)*m_dpiRatio);
     }
 
+    HINSTANCE hInstance = GetModuleHandle(nullptr);
     WNDCLASSEXW wcx{ sizeof(WNDCLASSEX) };
     wcx.style = CS_HREDRAW | CS_VREDRAW;
     wcx.hInstance = hInstance;

@@ -48,7 +48,6 @@ class CMainWindow : public CMainWindowBase
 
 public:
     HWND                    hWnd;
-    HINSTANCE               hInstance;
 
     explicit CMainWindow(QRect&);
     ~CMainWindow();
