@@ -237,11 +237,9 @@ CTabBar::CTabBar(QWidget * parent)
 {
     setDrawBase(false);
 
-    if (Utils::getScreenDpiRatio(
-                QApplication::desktop()->screen(QApplication::desktop()->primaryScreen())->geometry().topLeft()) > 1)
-    {
+//    if (Utils::getScreenDpiRatio(QApplication::desktop()->screen(QApplication::desktop()->primaryScreen())->geometry().topLeft()) > 1)
+    if (scaling() > 1)
         setProperty("scroll", "var2");
-    }
 
     connect(this, &QTabBar::currentChanged, this, &CTabBar::onCurrentChanged);
 }
