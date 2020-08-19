@@ -325,3 +325,14 @@ void CSingleWindowPlatform_win::bringToTop()
 //    SetFocus(m_hWnd);
 //    SetActiveWindow(m_hWnd);
 }
+
+auto CSingleWindowPlatform_win::setTitle(QWidget* w) -> void
+{
+    m_titlebar = w;
+}
+
+auto CSingleWindowPlatform_win::appendToTitle(QWidget* w) -> void
+{
+    if ( w )
+        m_whiteList.append(w);
+}

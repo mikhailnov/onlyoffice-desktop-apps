@@ -25,6 +25,8 @@ public:
     virtual void show(bool showmaximized);
     virtual void bringToTop() override;
 
+    auto setTitle(QWidget*) -> void;
+    auto appendToTitle(QWidget*) -> void;
 private:
     QWidget * m_titlebar = nullptr;
     QList<QWidget*> m_whiteList;

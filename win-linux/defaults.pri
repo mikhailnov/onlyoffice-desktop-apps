@@ -69,6 +69,7 @@ HEADERS += \
     $$PWD/src/csvgpushbutton.h \
     $$PWD/src/cappupdater.h \
     $$PWD/src/win/csinglewindowplatform_win.h \
+    $$PWD/src/win/cmainwindow2.h \
     $$PWD/src/win/cmainwindowwrap.h \
 #    src/ctabbar_p.h \
 #    src/ctabstyle.h \
@@ -107,6 +108,7 @@ SOURCES += \
     $$PWD/src/csvgpushbutton.cpp \
     $$PWD/src/cappupdater.cpp \
     $$PWD/src/win/csinglewindowplatform_win.cpp \
+    $$PWD/src/win/cmainwindow2.cpp \
     $$PWD/src/win/cmainwindowwrap.cpp \
 #    src/ctabstyle.cpp
 #    src/casclabel.cpp
