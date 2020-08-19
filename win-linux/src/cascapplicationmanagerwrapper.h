@@ -45,7 +45,7 @@
 #include "ceventdriver.h"
 
 #ifdef _WIN32
-#include "win/mainwindow.h"
+#include "win/cmainwindowwrap.h"
 #include "win/csinglewindow.h"
 #else
 #include "linux/cmainwindow.h"
@@ -117,7 +117,7 @@ private:
     bool applySettings(const wstring& wstrjson);
     void sendSettings(const wstring& opts);
 
-    CMainWindow * mainWindowFromViewId(int uid) const;
+    CMainWindowWrap * mainWindowFromViewId(int uid) const;
     CEditorWindow * editorWindowFromViewId(int uid) const;
     CEditorWindow * editorWindowFromUrl(const QString&) const;
 
@@ -143,14 +143,14 @@ public:
 
     static void             startApp();
     static void             initializeApp();
-    static CMainWindow *    createMainWindow(QRect&);
+    static CMainWindowWrap *    createMainWindow(QRect&);
     static void             closeMainWindow(const size_t);
     static void             closeEditorWindow(const size_t);
 
     static void             processMainWindowMoving(const size_t, const QPoint&);
     static void             editorWindowMoving(const size_t, const QPoint&);
     static uint             countMainWindow();
-    static CMainWindow *    topWindow();
+    static CMainWindowWrap * topWindow();
     static const CEditorWindow *  editorWindowFromHandle(size_t);
     static void             sendCommandTo(QCefView * target, const QString& cmd, const QString& args = "");
     static void             sendCommandTo(CCefView * target, const wstring& cmd, const wstring& args = L"");

@@ -49,7 +49,7 @@ class CMainWindow : public CMainWindowBase
 public:
     HWND                    hWnd;
 
-    explicit CMainWindow(QRect&);
+    explicit CMainWindow(const QRect&);
     ~CMainWindow();
     static LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
 

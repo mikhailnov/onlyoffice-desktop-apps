@@ -86,9 +86,9 @@ CAscApplicationManagerWrapper::~CAscApplicationManagerWrapper()
 //    }
 
 
-    CMainWindow * _window = nullptr;
+    CMainWindowWrap * _window = nullptr;
     for (auto const& w : m_vecWindows) {
-        _window = reinterpret_cast<CMainWindow *>(w);
+        _window = reinterpret_cast<CMainWindowWrap *>(w);
 
         if ( _window ) {
 #ifdef _WIN32
@@ -137,7 +137,7 @@ void CAscApplicationManagerWrapper::onCoreEvent(void * e)
         return;
     }
 
-    CMainWindow * _window, * _target = nullptr, * _dest = nullptr;
+    CMainWindowWrap * _window, * _target = nullptr, * _dest = nullptr;
     int _uid = _event->get_SenderId();
 
 #if 0
@@ -171,7 +171,7 @@ void CAscApplicationManagerWrapper::onCoreEvent(void * e)
 #endif
 
     for (auto const& w : m_vecWindows) {
-        _window = reinterpret_cast<CMainWindow *>(w);
+        _window = reinterpret_cast<CMainWindowWrap *>(w);
 
         if ( _event->m_nType == ASC_MENU_EVENT_TYPE_CEF_LOCALFILE_RECENTOPEN ||
                 _event->m_nType == ASC_MENU_EVENT_TYPE_CEF_LOCALFILE_RECOVEROPEN )
@@ -213,7 +213,7 @@ void CAscApplicationManagerWrapper::onCoreEvent(void * e)
 #ifdef __linux
             QApplication::setActiveWindow(_window);
 #else
-            ::SetForegroundWindow(_window->hWnd);
+            ::SetForegroundWindow(_window->handle());
 #endif
         }
 
@@ -330,7 +330,7 @@ bool CAscApplicationManagerWrapper::processCommonEvent(NSEditorApi::CAscCefMenuE
                 if ( editor ) {
                     editor->bringToTop();
                 } else {
-                    CMainWindow * _w = mainWindowFromViewId(event->get_SenderId());
+                    CMainWindowWrap * _w = mainWindowFromViewId(event->get_SenderId());
                     if ( _w ) {
                         _w->mainPanel()->doOpenLocalFiles(QStringList{path});
                     }
@@ -413,7 +413,7 @@ bool CAscApplicationManagerWrapper::processCommonEvent(NSEditorApi::CAscCefMenuE
             switch ( m_countViews ) {
             case 1: DestroyCefView(-1); break;
             case 0: {
-                CMainWindow * _w = reinterpret_cast<CMainWindow *>(m_vecWindows.at(0));
+                CMainWindowWrap * _w = reinterpret_cast<CMainWindowWrap *>(m_vecWindows.at(0));
                 if ( _w ) {
                     _w->hide();
 
@@ -482,7 +482,7 @@ bool CAscApplicationManagerWrapper::processCommonEvent(NSEditorApi::CAscCefMenuE
         return true;}
 
     case ASC_MENU_EVENT_TYPE_CEF_DOWNLOAD: {
-        CMainWindow * mw = topWindow();
+        CMainWindowWrap * mw = topWindow();
         if ( mw ) mw->mainPanel()->onDocumentDownload(event->m_pData);
         return true;}
 
@@ -592,9 +592,9 @@ bool CAscApplicationManagerWrapper::processCommonEvent(NSEditorApi::CAscCefMenuE
 
 void CAscApplicationManagerWrapper::broadcastEvent(NSEditorApi::CAscCefMenuEvent * event)
 {
-    CMainWindow * _window;
+    CMainWindowWrap * _window;
     for ( auto const& w : m_vecWindows ) {
-        _window = reinterpret_cast<CMainWindow *>(w);
+        _window = reinterpret_cast<CMainWindowWrap *>(w);
 
         ADDREFINTERFACE(event);
         CCefEventsTransformer::OnEvent(_window->mainPanel(), event);
@@ -626,7 +626,7 @@ void CAscApplicationManagerWrapper::startApp()
     QRect _start_rect = reg_user.value("position").toRect();
     bool _is_maximized = reg_user.value("maximized", false).toBool();
 
-    CMainWindow * _window = createMainWindow(_start_rect);
+    CMainWindowWrap * _window = createMainWindow(_start_rect);
 
 #ifdef __linux
     _window->show();
@@ -725,11 +725,11 @@ void CAscApplicationManagerWrapper::initializeApp()
 
 }
 
-CMainWindow * CAscApplicationManagerWrapper::createMainWindow(QRect& rect)
+CMainWindowWrap * CAscApplicationManagerWrapper::createMainWindow(QRect& rect)
 {
     APP_CAST(_app)
 
-    CMainWindow * _window = new CMainWindow(rect);
+    CMainWindowWrap * _window = new CMainWindowWrap(rect);
     _app.m_vecWindows.push_back( size_t(_window) );
 
     return _window;
@@ -748,7 +748,7 @@ CSingleWindow * CAscApplicationManagerWrapper::createReporterWindow(void * data,
 
     QString _doc_name;
     QRect _windowRect{100,100,1000,700}, _currentRect;
-    CMainWindow * _main_window = mainWindowFromViewId(parentid);
+    CMainWindowWrap * _main_window = mainWindowFromViewId(parentid);
     if ( _main_window ) {
         _doc_name = _main_window->documentName(parentid);
         _currentRect = _main_window->windowRect();
@@ -814,7 +814,7 @@ void CAscApplicationManagerWrapper::closeMainWindow(const size_t p)
 void CAscApplicationManagerWrapper::launchAppClose()
 {
     if ( canAppClose() ) {
-        CMainWindow * _w = reinterpret_cast<CMainWindow *>(m_vecWindows[0]);
+        CMainWindowWrap * _w = reinterpret_cast<CMainWindowWrap *>(m_vecWindows[0]);
 
         if ( m_countViews > 1 ) {
             m_closeTarget = L"app";
@@ -883,12 +883,12 @@ uint CAscApplicationManagerWrapper::countMainWindow()
     return _app.m_vecWindows.size();
 }
 
-CMainWindow * CAscApplicationManagerWrapper::mainWindowFromViewId(int uid) const
+CMainWindowWrap * CAscApplicationManagerWrapper::mainWindowFromViewId(int uid) const
 {
-    CMainWindow * _window = nullptr;
+    CMainWindowWrap * _window = nullptr;
 
     for (auto const& w : m_vecWindows) {
-        _window = reinterpret_cast<CMainWindow *>(w);
+        _window = reinterpret_cast<CMainWindowWrap *>(w);
 
         if ( _window->holdView(uid) )
             return _window;
@@ -929,7 +929,7 @@ ParentHandle CAscApplicationManagerWrapper::windowHandleFromId(int id)
 {
     APP_CAST(_app);
 
-    CMainWindow * w = _app.mainWindowFromViewId(id);
+    CMainWindowWrap * w = _app.mainWindowFromViewId(id);
     if ( w ) return w->handle();
     else {
         CEditorWindow * e = _app.editorWindowFromViewId(id);
@@ -945,11 +945,11 @@ void CAscApplicationManagerWrapper::processMainWindowMoving(const size_t s, cons
     APP_CAST(_app);
 
     if ( _app.m_vecWindows.size() > 1 ) {
-        CMainWindow * _window = nullptr,
-                    * _source = reinterpret_cast<CMainWindow *>(s);
+        CMainWindowWrap * _window = nullptr,
+                    * _source = reinterpret_cast<CMainWindowWrap *>(s);
         for (auto const& w : _app.m_vecWindows) {
             if ( w != s ) {
-                _window = reinterpret_cast<CMainWindow *>(w);
+                _window = reinterpret_cast<CMainWindowWrap *>(w);
 
                 if ( _window->pointInTabs(c) ) {
                     _source->hide();
@@ -983,7 +983,7 @@ namespace Drop {
 
     size_t drop_handle;
     auto validate_drop(size_t handle, const QPoint& pt) -> void {
-        CMainWindow * main_window = CAscApplicationManagerWrapper::topWindow();
+        CMainWindowWrap * main_window = CAscApplicationManagerWrapper::topWindow();
         drop_handle = handle;
 
         static QPoint last_cursor_pos;
@@ -992,7 +992,7 @@ namespace Drop {
             drop_timer = new QTimer;
             QObject::connect(qApp, &QCoreApplication::aboutToQuit, drop_timer, &QTimer::deleteLater);
             QObject::connect(drop_timer, &QTimer::timeout, []{
-                CMainWindow * main_window = CAscApplicationManagerWrapper::topWindow();
+                CMainWindowWrap * main_window = CAscApplicationManagerWrapper::topWindow();
                 QPoint current_cursor = QCursor::pos();
                 if ( main_window->pointInTabs(current_cursor) ) {
                     if ( current_cursor == last_cursor_pos ) {
@@ -1073,12 +1073,12 @@ void CAscApplicationManagerWrapper::editorWindowMoving(const size_t h, const QPo
 #endif
 }
 
-CMainWindow * CAscApplicationManagerWrapper::topWindow()
+CMainWindowWrap * CAscApplicationManagerWrapper::topWindow()
 {
     APP_CAST(_app);
 
     if ( _app.m_vecWindows.size() > 0 )
-        return reinterpret_cast<CMainWindow *>(_app.m_vecWindows.at(0));
+        return reinterpret_cast<CMainWindowWrap *>(_app.m_vecWindows.at(0));
     else return nullptr;
 }
 
@@ -1124,7 +1124,7 @@ QString CAscApplicationManagerWrapper::getWindowStylesheets(int dpifactor)
 bool CAscApplicationManagerWrapper::event(QEvent *event)
 {
     if ( event->type() == CTabUndockEvent::type() ) {
-        CMainWindow * _main_window = topWindow();
+        CMainWindowWrap * _main_window = topWindow();
         if ( _main_window ) {
             CTabUndockEvent * e = static_cast<CTabUndockEvent *>(event);
 
@@ -1219,9 +1219,9 @@ void CAscApplicationManagerWrapper::sendSettings(const wstring& opts)
     if ( opts == L"has:opened" ) {
         _send_cmd = L"settings:hasopened";
 
-        CMainWindow * _window = nullptr;
+        CMainWindowWrap * _window = nullptr;
         for (auto const& w : m_vecWindows) {
-            _window = reinterpret_cast<CMainWindow *>(w);
+            _window = reinterpret_cast<CMainWindowWrap *>(w);
 
             if ( _window && _window->editorsCount() ) {
                 _send_opts = L"has";
@@ -1312,7 +1312,7 @@ void CAscApplicationManagerWrapper::manageUndocking(int id, const std::wstring& 
             tabpanel = static_cast<CEditorWindow *>(editor_win)->releaseEditorView();
             sendCommandTo(tabpanel->cef(), L"window:status", Utils::encodeJson(_json_obj).toStdWString());
 
-            CMainWindow * main_win = topWindow();
+            CMainWindowWrap * main_win = topWindow();
             main_win->attachEditor(tabpanel);
 
             closeEditorWindow(size_t(editor_win));
@@ -1320,7 +1320,7 @@ void CAscApplicationManagerWrapper::manageUndocking(int id, const std::wstring& 
     } else {
         _json_obj["status"] = "undocked";
 
-        CMainWindow * const main_win = mainWindowFromViewId(id);
+        CMainWindowWrap * const main_win = mainWindowFromViewId(id);
         if ( main_win ) {
             int index = main_win->mainPanel()->tabWidget()->tabIndexByView(id);
             if ( !(index < 0) ) {
@@ -1337,9 +1337,9 @@ void CAscApplicationManagerWrapper::manageUndocking(int id, const std::wstring& 
 uint CAscApplicationManagerWrapper::logoutCount(const wstring& portal) const
 {
     uint _count = 0;
-    CMainWindow * _window;
+    CMainWindowWrap * _window;
     for (auto const& w : m_vecWindows ) {
-        _window = reinterpret_cast<CMainWindow *>(w);
+        _window = reinterpret_cast<CMainWindowWrap *>(w);
         _count += _window->editorsCount(portal);
     }
 

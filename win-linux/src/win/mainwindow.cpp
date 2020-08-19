@@ -85,7 +85,7 @@ auto refresh_window_scaling_factor(CMainWindow * window) -> void {
     }
 }
 
-CMainWindow::CMainWindow(QRect& rect) :
+CMainWindow::CMainWindow(const QRect& rect) :
     hWnd(nullptr),
     borderless( true ),
     borderlessResizeable( true ),
