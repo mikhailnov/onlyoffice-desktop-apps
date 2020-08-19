@@ -71,6 +71,9 @@ HEADERS += \
     $$PWD/src/win/csinglewindowplatform_win.h \
     $$PWD/src/win/cmainwindow2.h \
     $$PWD/src/win/cmainwindowwrap.h \
+    $$PWD/src/cmainwindow3.h \
+    $$PWD/src/win/cwindowplatform_p.h \
+    $$PWD/src/cwindowwidget.h
 #    src/ctabbar_p.h \
 #    src/ctabstyle.h \
 #    src/ctabstyle_p.h
@@ -107,9 +110,12 @@ SOURCES += \
     $$PWD/src/ceventdriver.cpp \
     $$PWD/src/csvgpushbutton.cpp \
     $$PWD/src/cappupdater.cpp \
+    $$PWD/src/cwindowbase.cpp \
     $$PWD/src/win/csinglewindowplatform_win.cpp \
     $$PWD/src/win/cmainwindow2.cpp \
     $$PWD/src/win/cmainwindowwrap.cpp \
+    $$PWD/src/cmainwindow3.cpp \
+    $$PWD/src/cwindowwidget.cpp
 #    src/ctabstyle.cpp
 #    src/casclabel.cpp
 
@@ -188,7 +194,8 @@ core_windows {
                 $$PWD/src/win/cwinwindow.h \
                 $$PWD/src/win/csinglewindow.h \
                 $$PWD/src/win/csinglewindowplatform.h \
-                $$PWD/src/win/cprintdialog.h
+                $$PWD/src/win/cprintdialog.h \
+                $$PWD/src/win/cwindowplatform.h
 
     SOURCES += $$PWD/src/win/mainwindow.cpp \
                 $$PWD/src/win/qwinwidget.cpp \
@@ -197,7 +204,8 @@ core_windows {
                 $$PWD/src/win/cwinwindow.cpp \
                 $$PWD/src/win/csinglewindow.cpp \
                 $$PWD/src/win/csinglewindowplatform.cpp \
-                $$PWD/src/win/cprintdialog.cpp
+                $$PWD/src/win/cprintdialog.cpp \
+                $$PWD/src/win/cwindowplatform.cpp
 
     LIBS += -lwininet \
             -ldnsapi \

@@ -51,6 +51,7 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QApplication>
 
 #ifdef _WIN32
 #include "win/cprintdialog.h"

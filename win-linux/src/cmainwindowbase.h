@@ -28,7 +28,6 @@ public:
     virtual void captureMouse(int tab_index);
 
 public:
-    int m_dpiRatio = 1;
 
 protected:
 };

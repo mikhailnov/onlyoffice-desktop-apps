@@ -41,7 +41,7 @@ HWND getHWNDForWidget(const QWidget* widget)
 
 
 HWND g_testHandle = 0;
-bool CAppNativeEventFilter::nativeEventFilter(const QByteArray & eventtype, void * message, long * result)
+bool CAppNativeEventFilter1::nativeEventFilter(const QByteArray & eventtype, void * message, long * result)
 {
     if ( eventtype == "windows_generic_MSG" ) {
         auto msg = *reinterpret_cast<MSG*>(message);
@@ -98,13 +98,13 @@ CSingleWindowPlatform_win::CSingleWindowPlatform_win(const QRect& rect, const QS
     SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
     //we better left 1 piexl width of border untouch, so OS can draw nice shadow around it
-    const MARGINS shadow = { 1, 1, 1, 1 };
+    const MARGINS shadow{1, 1, 1, 1};
     DwmExtendFrameIntoClientArea(hwnd, &shadow);
 
     setWindowIcon(Utils::appIcon());
     setGeometry(rect);
 
-    QApplication::instance()->installNativeEventFilter(new CAppNativeEventFilter);
+//    QApplication::instance()->installNativeEventFilter(new CAppNativeEventFilter1);
 }
 
 CSingleWindowPlatform_win::~CSingleWindowPlatform_win()
@@ -228,6 +228,7 @@ bool CSingleWindowPlatform_win::nativeEvent(const QByteArray &eventType, void *m
     }
 
     case WM_GETMINMAXINFO: {
+        qDebug() << "getminmaxinfo" << m_bJustMaximized << m_margins;
         if ( ::IsZoomed(msg->hwnd) ) {
             RECT frame{0, 0, 0, 0};
             AdjustWindowRectEx(&frame, WS_OVERLAPPEDWINDOW, FALSE, 0);

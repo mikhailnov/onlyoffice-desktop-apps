@@ -5,7 +5,7 @@
 #include "csinglewindowbase.h"
 
 #include <QAbstractNativeEventFilter>
-class CAppNativeEventFilter: public QAbstractNativeEventFilter
+class CAppNativeEventFilter1: public QAbstractNativeEventFilter
 {
 public:
     virtual bool nativeEventFilter(const QByteArray & eventtype, void * message, long * result) override;

@@ -36,8 +36,10 @@
 #define WINDOW_MIN_WIDTH    500
 #define WINDOW_MIN_HEIGHT   300
 
-#define MAIN_WINDOW_MIN_WIDTH  960
-#define MAIN_WINDOW_MIN_HEIGHT 661
+#define MAIN_WINDOW_MIN_WIDTH       960
+#define MAIN_WINDOW_MIN_HEIGHT      661
+#define MAIN_WINDOW_START_WIDTH     1324
+#define MAIN_WINDOW_START_HEIGHT    800
 
 #define BUTTON_MAIN_WIDTH   112
 #define MAIN_WINDOW_BORDER_WIDTH 4
@@ -49,6 +51,8 @@
 #ifdef _WIN32
 # include <windows.h>
 #endif
+
+#include <QWidget>
 
 namespace WindowBase
 {
@@ -70,5 +74,21 @@ namespace WindowBase
     };
 #endif
 }
+
+#ifdef Q_OS_WIN
+using WinNativeHandle = HWND;
+#else
+using WinNativeHandle = QWidget *;
+#endif
+
+class CWindowBase
+{
+public:
+    virtual ~CWindowBase();
+
+//    virtual void bringToFront() const = 0;
+//    virtual bool holdView(int id) const = 0;
+//    virtual WinNativeHandle handle() const = 0;
+};
 
 #endif // CWINDOWBASE_H

@@ -2,8 +2,8 @@
 #define CMAINWINDOWWRAP_H
 
 //#define __WINWNDOW
-#define __WINWNDOW2
-//#define __WINWNDOW3
+//#define __WINWNDOW2
+#define __WINWNDOW3
 #if defined(__WINWNDOW)
 #include "mainwindow.h"
 

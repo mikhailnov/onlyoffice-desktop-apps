@@ -12,6 +12,7 @@
 #include <QProcess>
 #include <algorithm>
 #include <functional>
+#include <QApplication>
 
 #include "cstyletweaks.h"
 #include "defines.h"
@@ -22,6 +23,7 @@
 #include "clangater.h"
 #include "cmessage.h"
 #include "ceditortools.h"
+#include "cmainwindow3.h"
 
 #ifdef _WIN32
 #include "csplash.h"
@@ -49,6 +51,7 @@ CAscApplicationManagerWrapper::CAscApplicationManagerWrapper(CAscApplicationMana
 
 }
 
+QAbstractNativeEventFilter * event_filter = nullptr;
 CAscApplicationManagerWrapper::CAscApplicationManagerWrapper()
     : QAscApplicationManager()
     , CCefEventsTransformer(nullptr)
@@ -64,10 +67,15 @@ CAscApplicationManagerWrapper::CAscApplicationManagerWrapper()
     m_queueToClose->setcallback(std::bind(&CAscApplicationManagerWrapper::onQueueCloseWindow,this, _1));
 
     NSBaseVideoLibrary::Init(nullptr);
+
+    event_filter = new CAppNativeEventFilter;
+    QApplication::instance()->installNativeEventFilter(event_filter);
 }
 
 CAscApplicationManagerWrapper::~CAscApplicationManagerWrapper()
 {
+    QApplication::instance()->removeNativeEventFilter(event_filter);
+
     NSBaseVideoLibrary::Destroy();
 
     delete m_queueToClose, m_queueToClose = nullptr;
@@ -638,10 +646,10 @@ void CAscApplicationManagerWrapper::startApp()
 
     if ( _is_maximized ) {
         WINDOWPLACEMENT wp{sizeof(WINDOWPLACEMENT)};
-        if (GetWindowPlacement(_window->hWnd, &wp)) {
+        if (GetWindowPlacement(_window->handle(), &wp)) {
             wp.rcNormalPosition = {_start_rect.x(), _start_rect.y(), _start_rect.right(), _start_rect.bottom()};
 
-            SetWindowPlacement(_window->hWnd, &wp);
+            SetWindowPlacement(_window->handle(), &wp);
         }
     }
 #endif
