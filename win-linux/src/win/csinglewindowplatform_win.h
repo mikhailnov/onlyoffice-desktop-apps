@@ -4,12 +4,12 @@
 #include <QMainWindow>
 #include "csinglewindowbase.h"
 
-#include <QAbstractNativeEventFilter>
-class CAppNativeEventFilter1: public QAbstractNativeEventFilter
-{
-public:
-    virtual bool nativeEventFilter(const QByteArray & eventtype, void * message, long * result) override;
-};
+//#include <QAbstractNativeEventFilter>
+//class CAppNativeEventFilter1: public QAbstractNativeEventFilter
+//{
+//public:
+//    virtual bool nativeEventFilter(const QByteArray & eventtype, void * message, long * result) override;
+//};
 
 
 class CSingleWindowPlatform_win : public QMainWindow, public CSingleWindowBase

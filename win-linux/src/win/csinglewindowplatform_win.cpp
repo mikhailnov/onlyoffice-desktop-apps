@@ -17,30 +17,31 @@
 #include <QApplication>
 
 #include <QtGui/qpa/qplatformnativeinterface.h>
-static QWindow* windowForWidget(const QWidget* widget)
-{
-       QWindow* window = widget->windowHandle();
-       if (window)
-           return window;
-       const QWidget* nativeParent = widget->nativeParentWidget();
-       if (nativeParent)
-           return nativeParent->windowHandle();
-       return 0;
-}
+//static QWindow* windowForWidget(const QWidget* widget)
+//{
+//       QWindow* window = widget->windowHandle();
+//       if (window)
+//           return window;
+//       const QWidget* nativeParent = widget->nativeParentWidget();
+//       if (nativeParent)
+//           return nativeParent->windowHandle();
+//       return 0;
+//}
 
-HWND getHWNDForWidget(const QWidget* widget)
-{
-       QWindow* window = ::windowForWidget(widget);
-       if (window)
-       {
-           QPlatformNativeInterface* interfacep = QGuiApplication::platformNativeInterface();
-           return static_cast<HWND>(interfacep->nativeResourceForWindow(QByteArrayLiteral("handle"), window));
-       }
-       return 0;
-}
+//HWND getHWNDForWidget(const QWidget* widget)
+//{
+//       QWindow* window = ::windowForWidget(widget);
+//       if (window)
+//       {
+//           QPlatformNativeInterface* interfacep = QGuiApplication::platformNativeInterface();
+//           return static_cast<HWND>(interfacep->nativeResourceForWindow(QByteArrayLiteral("handle"), window));
+//       }
+//       return 0;
+//}
 
 
-HWND g_testHandle = 0;
+//HWND g_testHandle = 0;
+/*
 bool CAppNativeEventFilter1::nativeEventFilter(const QByteArray & eventtype, void * message, long * result)
 {
     if ( eventtype == "windows_generic_MSG" ) {
@@ -83,6 +84,7 @@ bool CAppNativeEventFilter1::nativeEventFilter(const QByteArray & eventtype, voi
 
     return false;
 }
+*/
 
 CSingleWindowPlatform_win::CSingleWindowPlatform_win(const QRect& rect, const QString&, QWidget *)
     : QMainWindow()
@@ -265,7 +267,6 @@ QWidget * CSingleWindowPlatform_win::createMainPanel(QWidget * parent, const QSt
     m_titlebar = CSingleWindowBase::m_boxTitleBtns;
     m_whiteList.append(m_labelTitle);
 
-//    g_testHandle = (HWND)m_boxTitleBtns->winId();
     return nullptr;
 }
 
