@@ -40,7 +40,7 @@
 #include <memory>
 #include "ccefeventstransformer.h"
 #include "ccefeventsgate.h"
-#include "ceditorwindow.h"
+#include "ceditorwindowwrapper.h"
 #include "cwindowsqueue.h"
 #include "ceventdriver.h"
 
@@ -118,8 +118,8 @@ private:
     void sendSettings(const wstring& opts);
 
     CMainWindowWrap * mainWindowFromViewId(int uid) const;
-    CEditorWindow * editorWindowFromViewId(int uid) const;
-    CEditorWindow * editorWindowFromUrl(const QString&) const;
+    CEditorWindowWrap * editorWindowFromViewId(int uid) const;
+    CEditorWindowWrap * editorWindowFromUrl(const QString&) const;
 
 public:
     static void bindReceiver(int view_id, CCefEventsGate * const receiver);
@@ -151,7 +151,7 @@ public:
     static void             editorWindowMoving(const size_t, const QPoint&);
     static uint             countMainWindow();
     static CMainWindowWrap * topWindow();
-    static const CEditorWindow *  editorWindowFromHandle(size_t);
+    static const CEditorWindowWrap *  editorWindowFromHandle(size_t);
     static void             sendCommandTo(QCefView * target, const QString& cmd, const QString& args = "");
     static void             sendCommandTo(CCefView * target, const wstring& cmd, const wstring& args = L"");
 

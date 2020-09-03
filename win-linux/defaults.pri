@@ -73,7 +73,8 @@ HEADERS += \
     $$PWD/src/win/cmainwindowwrap.h \
     $$PWD/src/cmainwindow3.h \
     $$PWD/src/win/cwindowplatform_p.h \
-    $$PWD/src/cwindowwidget.h
+    $$PWD/src/cwindowwidget.h \
+    $$PWD/src/ceditorwindowwrapper.h
 #    src/ctabbar_p.h \
 #    src/ctabstyle.h \
 #    src/ctabstyle_p.h
@@ -115,7 +116,8 @@ SOURCES += \
     $$PWD/src/win/cmainwindow2.cpp \
     $$PWD/src/win/cmainwindowwrap.cpp \
     $$PWD/src/cmainwindow3.cpp \
-    $$PWD/src/cwindowwidget.cpp
+    $$PWD/src/cwindowwidget.cpp \
+    $$PWD/src/ceditorwindowwrapper.cpp
 #    src/ctabstyle.cpp
 #    src/casclabel.cpp
 

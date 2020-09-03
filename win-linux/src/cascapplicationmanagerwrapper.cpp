@@ -334,7 +334,7 @@ bool CAscApplicationManagerWrapper::processCommonEvent(NSEditorApi::CAscCefMenuE
             QString path = CEditorTools::getlocalfile(pData->get_Param());
 
             if ( !path.isEmpty() ) {
-                CEditorWindow * editor = editorWindowFromUrl(path);
+                CEditorWindowWrap * editor = editorWindowFromUrl(path);
                 if ( editor ) {
                     editor->bringToTop();
                 } else {
@@ -530,7 +530,7 @@ bool CAscApplicationManagerWrapper::processCommonEvent(NSEditorApi::CAscCefMenuE
         CAscLocalOpenFiles * pData = (CAscLocalOpenFiles *)event->m_pData;
         vector<wstring>& files = pData->get_Files();
 
-        CEditorWindow * _editor;
+        CEditorWindowWrap * _editor;
         for (size_t i(files.size()); i --> 0;) {
             _editor = editorWindowFromUrl(QString::fromStdWString(files[i]));
 
@@ -550,7 +550,7 @@ bool CAscApplicationManagerWrapper::processCommonEvent(NSEditorApi::CAscCefMenuE
         CAscLocalOpenFileRecent_Recover * data = (CAscLocalOpenFileRecent_Recover *)event->m_pData;
         CCefView * view = GetViewByRecentId(data->get_Id());
         if ( view ) {
-            CEditorWindow * editor = editorWindowFromViewId(view->GetId());
+            CEditorWindowWrap * editor = editorWindowFromViewId(view->GetId());
 
             if ( editor ) {
 #ifdef Q_OS_WIN
@@ -565,7 +565,7 @@ bool CAscApplicationManagerWrapper::processCommonEvent(NSEditorApi::CAscCefMenuE
         break;}
 
     case ASC_MENU_EVENT_TYPE_CEF_CREATETAB: {
-        CEditorWindow * editor = editorWindowFromViewId(event->get_SenderId());
+        CEditorWindowWrap * editor = editorWindowFromViewId(event->get_SenderId());
         if ( editor ) {
             QRect winrect{editor->geometry().translated(QPoint(50, 50))};
 
@@ -574,7 +574,7 @@ bool CAscApplicationManagerWrapper::processCommonEvent(NSEditorApi::CAscCefMenuE
             _panel->data()->setContentType(editor->editorType());
             _panel->data()->setUrl("");
 
-            CEditorWindow * editor_win = new CEditorWindow(winrect, _panel);
+            CEditorWindowWrap * editor_win = new CEditorWindowWrap(winrect, _panel);
             editor_win->show(editor->windowState() == Qt::WindowMaximized);
 
             m_vecEditors.push_back( size_t(editor_win) );
@@ -761,7 +761,7 @@ CSingleWindow * CAscApplicationManagerWrapper::createReporterWindow(void * data,
         _doc_name = _main_window->documentName(parentid);
         _currentRect = _main_window->windowRect();
     } else {
-        CEditorWindow * _window = editorWindowFromViewId(parentid);
+        CEditorWindowWrap * _window = editorWindowFromViewId(parentid);
 
         if ( _window ) {
             _doc_name = _window->documentName();
@@ -830,7 +830,7 @@ void CAscApplicationManagerWrapper::launchAppClose()
             /* close all editors windows */
             vector<size_t>::const_iterator it = m_vecEditors.begin();
             while ( it != m_vecEditors.end() ) {
-                CEditorWindow * _w = reinterpret_cast<CEditorWindow *>(*it);
+                CEditorWindowWrap * _w = reinterpret_cast<CEditorWindowWrap *>(*it);
 
                 int _r = _w->closeWindow();
                 if ( _r == MODAL_RESULT_CANCEL ) {
@@ -870,8 +870,7 @@ void CAscApplicationManagerWrapper::closeEditorWindow(const size_t p)
         it = _app.m_vecEditors.begin();
         while ( it != _app.m_vecEditors.end() ) {
             if ( *it == p /*&& !_app.m_vecEditors.empty()*/ ) {
-//                CSingleWindowBase * _w = reinterpret_cast<CSingleWindowBase *>(*it);
-                auto _w = reinterpret_cast<CEditorWindow *>(*it);
+                auto _w = reinterpret_cast<CEditorWindowWrap *>(*it);
 
                 AscAppManager::unbindReceiver(static_cast<const CCefEventsGate *>(_w->receiver()));
 
@@ -905,12 +904,12 @@ CMainWindowWrap * CAscApplicationManagerWrapper::mainWindowFromViewId(int uid) c
     return nullptr;
 }
 
-CEditorWindow * CAscApplicationManagerWrapper::editorWindowFromViewId(int uid) const
+CEditorWindowWrap * CAscApplicationManagerWrapper::editorWindowFromViewId(int uid) const
 {
-    CEditorWindow * _window = nullptr;
+    CEditorWindowWrap * _window = nullptr;
 
     for (auto const& w : m_vecEditors) {
-        _window = reinterpret_cast<CEditorWindow *>(w);
+        _window = reinterpret_cast<CEditorWindowWrap *>(w);
 
         if ( _window->holdView(uid) )
             return _window;
@@ -919,12 +918,12 @@ CEditorWindow * CAscApplicationManagerWrapper::editorWindowFromViewId(int uid) c
     return nullptr;
 }
 
-CEditorWindow * CAscApplicationManagerWrapper::editorWindowFromUrl(const QString& url) const
+CEditorWindowWrap * CAscApplicationManagerWrapper::editorWindowFromUrl(const QString& url) const
 {
-    CEditorWindow * _window = nullptr;
+    CEditorWindowWrap * _window = nullptr;
 
     for (auto const& w : m_vecEditors) {
-        _window = reinterpret_cast<CEditorWindow *>(w);
+        _window = reinterpret_cast<CEditorWindowWrap *>(w);
 
         if ( _window->holdView(url.toStdWString()) )
             return _window;
@@ -940,7 +939,7 @@ ParentHandle CAscApplicationManagerWrapper::windowHandleFromId(int id)
     CMainWindowWrap * w = _app.mainWindowFromViewId(id);
     if ( w ) return w->handle();
     else {
-        CEditorWindow * e = _app.editorWindowFromViewId(id);
+        CEditorWindowWrap * e = _app.editorWindowFromViewId(id);
         if ( e ) return e->handle();
     }
 
@@ -974,7 +973,7 @@ void CAscApplicationManagerWrapper::processMainWindowMoving(const size_t s, cons
 
 namespace Drop {
     const int drop_timeout = 300;
-    auto callback_to_attach(const CEditorWindow * editor) -> void {
+    auto callback_to_attach(const CEditorWindowWrap * editor) -> void {
         if ( editor ) {
             CTabPanel * tabpanel = editor->releaseEditorView();
 //            QJsonObject _json_obj{{"action", "undocking"},{"status", "docked"}};
@@ -1028,12 +1027,12 @@ namespace Drop {
     }
 }
 
-const CEditorWindow * CAscApplicationManagerWrapper::editorWindowFromHandle(size_t handle)
+const CEditorWindowWrap * CAscApplicationManagerWrapper::editorWindowFromHandle(size_t handle)
 {
     APP_CAST(_app)
 
     for (auto const& w : _app.m_vecEditors) {
-        CEditorWindow * e = reinterpret_cast<CEditorWindow *>(w);
+        CEditorWindowWrap * e = reinterpret_cast<CEditorWindowWrap *>(w);
 
         if ( (size_t)e->handle() == handle ) {
             return e;
@@ -1155,7 +1154,7 @@ bool CAscApplicationManagerWrapper::event(QEvent *event)
                     if ( _main_window ) {
                         QRect rect = _main_window->windowRect();
 
-                        CEditorWindow * editor_win = new CEditorWindow(rect.translated(QPoint(50,50)), _editor);
+                        CEditorWindowWrap * editor_win = new CEditorWindowWrap(rect.translated(QPoint(50,50)), _editor);
                         editor_win->undock(_main_window->isMaximized());
 
                         m_vecEditors.push_back( size_t(editor_win) );
@@ -1260,7 +1259,7 @@ bool CAscApplicationManagerWrapper::canAppClose()
     if ( !_app.m_vecEditors.empty() ) {
         bool _has_opened_editors = std::find_if(_app.m_vecEditors.begin(), _app.m_vecEditors.end(),
                 [](size_t h){
-                    CEditorWindow * _e = reinterpret_cast<CEditorWindow *>(h);
+                    CEditorWindowWrap * _e = reinterpret_cast<CEditorWindowWrap *>(h);
                     return _e && !_e->closed();
                 }) != _app.m_vecEditors.end();
 
@@ -1306,9 +1305,9 @@ void CAscApplicationManagerWrapper::manageUndocking(int id, const std::wstring& 
     if ( action.find(L"undock") == wstring::npos ) {
         _json_obj["status"] = "docked";
 
-        CSingleWindowBase * editor_win = nullptr;
+        CEditorWindowWrap * editor_win = nullptr;
         for (auto const& w : m_vecEditors) {
-            CSingleWindowBase * _w = reinterpret_cast<CSingleWindowBase *>(w);
+            CEditorWindowWrap * _w = reinterpret_cast<CEditorWindowWrap *>(w);
 
             if ( _w->holdView(id) ) {
                 editor_win = _w;
@@ -1317,7 +1316,7 @@ void CAscApplicationManagerWrapper::manageUndocking(int id, const std::wstring& 
         }
 
         if ( editor_win ) {
-            tabpanel = static_cast<CEditorWindow *>(editor_win)->releaseEditorView();
+            tabpanel = static_cast<CEditorWindowWrap *>(editor_win)->releaseEditorView();
             sendCommandTo(tabpanel->cef(), L"window:status", Utils::encodeJson(_json_obj).toStdWString());
 
             CMainWindowWrap * main_win = topWindow();
@@ -1351,9 +1350,9 @@ uint CAscApplicationManagerWrapper::logoutCount(const wstring& portal) const
         _count += _window->editorsCount(portal);
     }
 
-    CEditorWindow * _editor;
+    CEditorWindowWrap * _editor;
     for (auto const& e : m_vecEditors ) {
-        _editor = reinterpret_cast<CEditorWindow *>(e);
+        _editor = reinterpret_cast<CEditorWindowWrap *>(e);
         if ( _editor->holdView(portal) )
             ++_count;
     }
@@ -1446,7 +1445,7 @@ void CAscApplicationManagerWrapper::onQueueCloseWindow(const sWinTag& t)
     if ( t.type == 1 ) {
         closeMainWindow(t.handle);
     } else {
-        CEditorWindow * _e = reinterpret_cast<CEditorWindow *>(t.handle);
+        CEditorWindowWrap * _e = reinterpret_cast<CEditorWindowWrap *>(t.handle);
         int res = _e->closeWindow();
         if ( res == MODAL_RESULT_CANCEL ) {
             AscAppManager::getInstance().closeQueue().cancel();
