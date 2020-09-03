@@ -21,7 +21,7 @@ bool CAppNativeEventFilter::nativeEventFilter(const QByteArray & eventtype, void
             static int c = 0;
 //            qDebug() << "native event" << ++c << QString(" 0x%1").arg(msg.message,4,16,QChar('0'));
 
-qDebug() << "hittest" << ++c << window;
+//qDebug() << "hittest" << ++c << window;
             if( !window ) {
                 auto root_wnd = GetAncestor(msg.hwnd, GA_ROOT);
                 if ( root_wnd != GetDesktopWindow() ) {
@@ -45,30 +45,27 @@ CWindowPlatform::CWindowPlatform(const QRect& rect)
 }
 
 CWindowPlatform::CWindowPlatform(CWindowPlatformPrivate *pp, const QRect& rect)
-//    : CWindowWidget(rect)
-    : CWindowBase()
-    , QMainWindow()
+    : QMainWindow()
+    , CWindowBase()
     , d_pintf(pp)
 {
-    m_hWnd = (HWND)winId();
     setWindowFlags(windowFlags() | Qt::Window | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint);
     setWindowFlags(windowFlags() | Qt::WindowMaximizeButtonHint);
 
-    qDebug() << "start handle" << windowFlags();
-
-    SetWindowLong(m_hWnd, GWL_STYLE, GetWindowLong(m_hWnd, GWL_STYLE) | WS_MAXIMIZEBOX | WS_THICKFRAME | WS_CAPTION);
-    SetWindowLongPtr(m_hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+    HWND hwnd = (HWND)winId();
+    SetWindowLong(hwnd, GWL_STYLE, GetWindowLong(hwnd, GWL_STYLE) | WS_MAXIMIZEBOX | WS_THICKFRAME | WS_CAPTION);
+    SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
     //we better left 1 piexl width of border untouch, so OS can draw nice shadow around it
-    const MARGINS shadow = {1, 1, 1, 1};
-    DwmExtendFrameIntoClientArea(m_hWnd, &shadow);
+    const MARGINS shadow{1, 1, 1, 1};
+    DwmExtendFrameIntoClientArea(hwnd, &shadow);
 
     setGeometry(rect);
 }
 
 CWindowPlatform::~CWindowPlatform()
 {
-
+    qDebug() << "window platform destructor";
 }
 
 bool CWindowPlatform::nativeEvent(const QByteArray &eventType, void *message, long *result)
@@ -79,7 +76,7 @@ bool CWindowPlatform::nativeEvent(const QByteArray &eventType, void *message, lo
     MSG* msg = reinterpret_cast<MSG*>(message);
     #endif
 
-    static int c = 0;
+//    static int c = 0;
 //    qDebug() << "native event" << ++c << QString(" 0x%1").arg(msg->message,4,16,QChar('0'));
 
     switch (msg->message) {
@@ -94,11 +91,11 @@ bool CWindowPlatform::nativeEvent(const QByteArray &eventType, void *message, lo
 
     case WM_NCHITTEST: {
         *result = 0;
-        qDebug() << "WM_NCHITTEST" << *result;
+        qDebug() << "WM_NCHITTEST";
 
         const LONG border_width = 8;
         RECT winrect;
-        GetWindowRect(d_pintf->handle(), &winrect);
+        GetWindowRect(msg->hwnd, &winrect);
 
         long x = GET_X_LPARAM(msg->lParam);
         long y = GET_Y_LPARAM(msg->lParam);
@@ -178,7 +175,6 @@ bool CWindowPlatform::nativeEvent(const QByteArray &eventType, void *message, lo
     }
 
     case WM_GETMINMAXINFO: {
-        qDebug() << "getminmaxinfo" << m_bJustMaximized;
         if ( ::IsZoomed(msg->hwnd) ) {
             RECT frame{0, 0, 0, 0};
             AdjustWindowRectEx(&frame, WS_OVERLAPPEDWINDOW, FALSE, 0);
@@ -220,7 +216,7 @@ void CWindowPlatform::bringToFront() const
     SetActiveWindow(d_pintf->handle());
 }
 
-WinNativeHandle CWindowPlatform::handle() const
+WindowNativeHandle CWindowPlatform::handle() const
 {
     return d_pintf->handle();
 }

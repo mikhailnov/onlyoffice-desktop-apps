@@ -76,9 +76,9 @@ namespace WindowBase
 }
 
 #ifdef Q_OS_WIN
-using WinNativeHandle = HWND;
+using WindowNativeHandle = HWND;
 #else
-using WinNativeHandle = QWidget *;
+using WindowNativeHandle = QWidget *;
 #endif
 
 class CWindowBase
@@ -86,9 +86,9 @@ class CWindowBase
 public:
     virtual ~CWindowBase();
 
-//    virtual void bringToFront() const = 0;
-//    virtual bool holdView(int id) const = 0;
-//    virtual WinNativeHandle handle() const = 0;
+    virtual void bringToFront() const = 0;
+    virtual bool holdView(int id) const = 0;
+    virtual WindowNativeHandle handle() const = 0;
 };
 
 #endif // CWINDOWBASE_H

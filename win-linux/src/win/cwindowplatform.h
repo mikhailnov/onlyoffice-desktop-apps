@@ -14,7 +14,7 @@ public:
 
 
 class CWindowPlatformPrivate;
-class CWindowPlatform: public CWindowBase, public QMainWindow
+class CWindowPlatform: public QMainWindow, public CWindowBase
 {
     friend class CWindowPlatformPrivate;
 
@@ -22,13 +22,12 @@ public:
     CWindowPlatform(const QRect&);
     virtual ~CWindowPlatform() override;
 
-    virtual void bringToFront() const;
-    virtual WinNativeHandle handle() const;
+    virtual void bringToFront() const override;
+    virtual WindowNativeHandle handle() const override;
 
 protected:
     CWindowPlatform(CWindowPlatformPrivate *, const QRect&);
     CWindowPlatformPrivate * d_pintf;
-    HWND m_hWnd;
 
 private:
     bool nativeEvent(const QByteArray &, void *, long *) override;

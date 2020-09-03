@@ -11,6 +11,10 @@ public:
     {
     }
 
+    virtual ~CWindowPlatformPrivate()
+    {
+    }
+
     auto init(CWindowPlatform * ptr)
     {
         q_ptr = ptr;
@@ -19,7 +23,6 @@ public:
 
     auto handle()
     {
-        qDebug() << "handle" << m_hWnd;
         return m_hWnd;
     }
 
@@ -39,7 +42,6 @@ public:
         m_titlebar = w;
     }
 
-//private:
     CWindowPlatform * q_ptr;
     HWND m_hWnd = nullptr;
 

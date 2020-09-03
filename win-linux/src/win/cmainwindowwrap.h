@@ -3,7 +3,10 @@
 
 //#define __WINWNDOW
 //#define __WINWNDOW2
-#define __WINWNDOW3
+#if !defined(__WINWNDOW2) && !defined(__WINWNDOW)
+# define __WINWNDOW3
+#endif
+
 #if defined(__WINWNDOW)
 #include "mainwindow.h"
 
@@ -20,6 +23,16 @@ class CMainWindowWrap : public CMainWindow3
 {
 public:
     CMainWindowWrap(const QRect&);
+
+#if defined(__WINWNDOW3)
+    auto windowRect() const -> QRect {
+        return geometry();
+    }
+
+    auto bringToTop() {
+        bringToFront();
+    }
+#endif
 };
 
 #endif // CMAINWINDOWWRAP_H

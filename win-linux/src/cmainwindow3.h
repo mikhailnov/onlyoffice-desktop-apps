@@ -12,51 +12,15 @@ public:
     CMainWindow3(const QRect& rect);
     ~CMainWindow3() override;
 
-    bool holdView(int id) const;
-    auto editorsCount(const wstring&) const
-    {
-        return 1;
-    }
-
-    auto editorsCount() const
-    {
-        return 1;
-    }
-
-    auto attachEditor(QWidget *, int index = -1) -> int
-    {
-        return 0;
-    }
-
-    auto attachEditor(QWidget *, const QPoint&)
-    {
-        return 0;
-    }
-
-    auto bringToTop() {
-        bringToFront();
-    }
-
-    auto windowRect() -> QRect {
-        return geometry();
-    }
-
+    bool holdView(int id) const override;
+    auto editorsCount(const wstring&) const -> int;
+    auto editorsCount() const -> int;
     auto mainPanel() -> CMainPanel *;
-
-    auto pointInTabs(const QPoint& pt) const
-    {
-        return true;
-    }
-
-    auto documentName(int) const
-    {
-        return QString("Test");
-    }
-
-    QWidget * editor(int)
-    {
-        return nullptr;
-    }
+    auto attachEditor(QWidget *, int index = -1) -> int;
+    auto attachEditor(QWidget *, const QPoint&) -> int;
+    auto pointInTabs(const QPoint& pt) const -> bool;
+    auto documentName(int) const -> QString;
+    auto editor(int) -> QWidget *;
 
     void show(bool);
 
