@@ -53,7 +53,7 @@ class CEditorWindow : public CSingleWindowPlatform_win
 public:
     CEditorWindow();
     CEditorWindow(const QRect& rect, CTabPanel* view);
-    ~CEditorWindow();
+    virtual ~CEditorWindow();
 
     bool holdView(int id) const override;
     bool holdView(const wstring& portal) const;
