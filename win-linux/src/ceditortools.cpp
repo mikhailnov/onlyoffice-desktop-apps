@@ -40,6 +40,7 @@
 #include "utils.h"
 #include "cfilechecker.h"
 
+#include <QApplication>
 #include <QDir>
 #include <QDebug>
 

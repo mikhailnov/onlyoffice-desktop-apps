@@ -45,6 +45,7 @@
 #include "ceditortools.h"
 #include "csvgpushbutton.h"
 #include "defines.h"
+#include "cellipsislabel.h"
 
 #include <QPrinterInfo>
 #include <QDesktopWidget>
@@ -105,7 +106,7 @@ class CEditorWindowPrivate : public CCefEventsGate
     sPrintData m_printData;
 
     CEditorWindow * window = nullptr;
-    CElipsisLabel * iconuser = nullptr;
+    CEllipsisLabel * iconuser = nullptr;
     QPushButton * btndock = nullptr;
     bool isPrinting = false,
         isFullScreen = false;
@@ -495,7 +496,7 @@ public:
     QLabel * iconUser()
     {
         if ( !iconuser ) {
-            iconuser = new CElipsisLabel(window->m_boxTitleBtns);
+            iconuser = new CEllipsisLabel(window->m_boxTitleBtns);
             iconuser->setObjectName("iconuser");
             iconuser->setContentsMargins(0,0,0,2 * window->m_dpiRatio);
             iconuser->setMaximumWidth(200 * window->m_dpiRatio);

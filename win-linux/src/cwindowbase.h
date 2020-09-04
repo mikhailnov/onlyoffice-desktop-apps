@@ -89,6 +89,9 @@ public:
     virtual void bringToFront() const = 0;
     virtual bool holdView(int id) const = 0;
     virtual WindowNativeHandle handle() const = 0;
+
+protected:
+    int m_dpiRatio = 1;
 };
 
 #endif // CWINDOWBASE_H

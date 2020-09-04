@@ -76,7 +76,8 @@ HEADERS += \
     $$PWD/src/cwindowwidget.h \
     $$PWD/src/ceditorwindow2.h \
     $$PWD/src/ceditorwindow2_p.h \
-    $$PWD/src/ceditorwindowwrapper.h
+    $$PWD/src/ceditorwindowwrapper.h \
+    $$PWD/src/cellipsislabel.h
 #    src/ctabbar_p.h \
 #    src/ctabstyle.h \
 #    src/ctabstyle_p.h
@@ -120,7 +121,8 @@ SOURCES += \
     $$PWD/src/cmainwindow3.cpp \
     $$PWD/src/cwindowwidget.cpp \
     $$PWD/src/ceditorwindow2.cpp \
-    $$PWD/src/ceditorwindowwrapper.cpp
+    $$PWD/src/ceditorwindowwrapper.cpp \
+    $$PWD/src/cellipsislabel.cpp
 #    src/ctabstyle.cpp
 #    src/casclabel.cpp
 

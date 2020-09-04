@@ -3,6 +3,7 @@
 #include "cmainpanelimpl.h"
 #include "cascapplicationmanagerwrapper.h"
 #include <QGridLayout>
+#include <QLabel>
 
 #ifdef Q_OS_WIN
 # include "win/cwindowplatform_p.h"
@@ -41,8 +42,9 @@ public:
 CMainWindow3::CMainWindow3(const QRect& rect)
     : CWindowPlatform(new CMainWindowPrivate, rect)
 {
-    CMainWindowPrivate * d_priv = reinterpret_cast<CMainWindowPrivate *>(d_pintf);
-    d_priv->init(this);
+    WINDOW_PRIVATE_CAST
+
+    priv->init(this);
 
     int m_dpiRatio = 1;
 
@@ -52,22 +54,22 @@ CMainWindow3::CMainWindow3(const QRect& rect)
     centralWidget()->layout()->setSpacing(0);
     centralWidget()->layout()->setMargin(4);
 
-    d_priv->m_pMainPanel = new CMainPanelImpl(nullptr, true, m_dpiRatio);
-    d_priv->m_pMainPanel->setStyleSheet(AscAppManager::getWindowStylesheets(m_dpiRatio));
-    d_priv->m_pMainPanel->updateScaling(m_dpiRatio);
+    priv->m_pMainPanel = new CMainPanelImpl(nullptr, true, m_dpiRatio);
+    priv->m_pMainPanel->setStyleSheet(AscAppManager::getWindowStylesheets(m_dpiRatio));
+    priv->m_pMainPanel->updateScaling(m_dpiRatio);
 
 //    m_pMainPanel->goStart();
 
 //    SetWindowPos(HWND(m_pWinPanel->winId()), NULL, 0, 0, _window_rect.width(), _window_rect.height(), SWP_FRAMECHANGED);
 
-    CMainPanel * mainpanel = d_priv->m_pMainPanel;
+    CMainPanel * mainpanel = priv->m_pMainPanel;
     connect(mainpanel, &CMainPanel::mainWindowChangeState, this, &CMainWindow3::slot_windowChangeState);
     connect(mainpanel, &CMainPanel::mainWindowWantToClose, this, &CMainWindow3::slot_windowClose);
     connect(mainpanel, &CMainPanel::mainPageReady, this, &CMainWindow3::slot_mainPageReady);
 //    QObject::connect(&AscAppManager::getInstance().commonEvents(), &CEventDriver::onModalDialog, bind(&CMainWindow::slot_modalDialog, this, _1, _2));
 
     centralWidget()->layout()->addWidget(mainpanel);
-    d_priv->configure_title();
+    priv->configure_title();
 }
 
 CMainWindow3::~CMainWindow3()
