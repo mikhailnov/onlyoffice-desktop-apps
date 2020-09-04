@@ -19,6 +19,14 @@ public:
     /* TODO: documentName -> documentTitle
      *      documentName -> editor().title() */
     auto documentName() const -> QString;
+    auto editorType() const -> AscEditorType;
+    auto holdView(const wstring&) const -> bool;
+    auto holdView(int) const -> bool override;
+    CTabPanel * releaseEditorView() const;
+
+
+    const QObject * receiver();
+
     auto show(bool) -> void;
     void undock(bool maximized = false);
     int closeWindow();
@@ -28,6 +36,9 @@ public:
     {
         return false;
     }
+
+private:
+    auto createMainPanel() -> QWidget *;
 };
 
 #endif // CEDITORWINDOW2_H
