@@ -36,6 +36,8 @@ public:
     {
         return false;
     }
+protected:
+    virtual void resizeEvent(QResizeEvent *event) override;
 
 private:
     auto createMainPanel() -> QWidget *;

@@ -42,11 +42,18 @@ public:
         m_titlebar = w;
     }
 
+    virtual auto on_screen_scaling_changed(int f) -> void {
+        m_dpiRatio = f;
+    }
+
     CWindowPlatform * q_ptr;
     HWND m_hWnd = nullptr;
 
     QWidget * m_titlebar = nullptr;
     QList<QWidget*> m_whiteList;
+
+    int m_dpiRatio = 1;
+    bool is_customstyle = true;
 };
 
 

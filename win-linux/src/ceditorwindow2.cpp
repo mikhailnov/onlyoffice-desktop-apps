@@ -29,12 +29,12 @@ CEditorWindow2::CEditorWindow2(const QRect& rect, CTabPanel * panel)
 #else
 
     if ( pintf->extendableTitle() ) {
-        QColor color;
-        switch (panel->data()->contentType()) {
-        case etDocument: color = QColor(TAB_COLOR_DOCUMENT); break;
-        case etPresentation: color = QColor(TAB_COLOR_PRESENTATION); break;
-        case etSpreadsheet: color = QColor(TAB_COLOR_SPREADSHEET); break;
-        }
+//        QColor color;
+//        switch (panel->data()->contentType()) {
+//        case etDocument: color = QColor(TAB_COLOR_DOCUMENT); break;
+//        case etPresentation: color = QColor(TAB_COLOR_PRESENTATION); break;
+//        case etSpreadsheet: color = QColor(TAB_COLOR_SPREADSHEET); break;
+//        }
 
 //        m_bgColor = RGB(color.red(), color.green(), color.blue());
     }
@@ -42,7 +42,7 @@ CEditorWindow2::CEditorWindow2(const QRect& rect, CTabPanel * panel)
     pintf->m_pMainPanel = createMainPanel();
     setCentralWidget(pintf->m_pMainPanel);
 
-//    recalculatePlaces();
+    pintf->on_window_resize();
 #endif
 
 //    QTimer::singleShot(0, [=]{m_pMainView->show();});
@@ -154,7 +154,7 @@ auto CEditorWindow2::createMainPanel() -> QWidget *
     WINDOW_PRIVATE_CAST
 
     // create min/max/close buttons
-//    CSingleWindowPlatform_win::createMainPanel(parent, title, custom);
+    pintf->create_custom_elements();
 
     QWidget * mainPanel = new QWidget(this);
     mainPanel->setObjectName("mainPanel");
@@ -163,19 +163,17 @@ auto CEditorWindow2::createMainPanel() -> QWidget *
     mainGridLayout->setSpacing(0);
 #ifdef Q_OS_WIN
     mainGridLayout->setMargin(8);
-
-    int b = 4 * m_dpiRatio;
-    mainGridLayout->setContentsMargins(QMargins(b,b,b,b));
+    mainGridLayout->setContentsMargins(QMargins(4,4,4,4) * pintf->m_dpiRatio);
 #else
     int b = CX11Decoration::customWindowBorderWith() * m_dpiRatio;
     mainGridLayout->setContentsMargins(QMargins(b,b,b,b));
 #endif
     mainPanel->setLayout(mainGridLayout);
 
-    if ( m_dpiRatio > 1 )
+    if ( pintf->m_dpiRatio > 1 )
         mainPanel->setProperty("zoom", "2x");
 
-    QString css(AscAppManager::getWindowStylesheets(m_dpiRatio));
+    QString css(AscAppManager::getWindowStylesheets(pintf->m_dpiRatio));
     css.append(pintf->m_css);
     mainPanel->setStyleSheet(css);
 
@@ -207,8 +205,15 @@ auto CEditorWindow2::createMainPanel() -> QWidget *
 
 //    m_pMainWidget->setVisible(false);
 
-    pintf->onScreenScalingFactor(m_dpiRatio);
+//    pintf->on_screen_scaling_changed(pintf->m_dpiRatio);
     mainGridLayout->addWidget(pintf->panel(), 1, 0);
     mainGridLayout->setRowStretch(1,1);
     return mainPanel;
+}
+
+void CEditorWindow2::resizeEvent(QResizeEvent *event)
+{
+    WINDOW_PRIVATE_CAST
+
+    pintf->on_window_resize();
 }

@@ -6,6 +6,9 @@
 #include "ceditorwindow2.h"
 #include "cellipsislabel.h"
 
+#include <QPushButton>
+#include <QHBoxLayout>
+
 #ifdef Q_OS_WIN
 # include "win/cwindowplatform_p.h"
 #else
@@ -111,19 +114,18 @@ public:
 
     auto iconUser() {
         if ( !iconuser ) {
-            CEditorWindow2 * window = reinterpret_cast<CEditorWindow2 *>(q_ptr);
-
             iconuser = new CEllipsisLabel(m_boxTitleBtns);
             iconuser->setObjectName("iconuser");
-            iconuser->setContentsMargins(0,0,0,2 * window->m_dpiRatio);
-            iconuser->setMaximumWidth(200 * window->m_dpiRatio);
+            iconuser->setContentsMargins(0,0,0,2 * m_dpiRatio);
+            iconuser->setMaximumWidth(200 * m_dpiRatio);
         }
 
         return iconuser;
     }
 
-    void onScreenScalingFactor(int f)
-    {
+    auto on_screen_scaling_changed(int f) -> void {
+        CWindowPlatformPrivate::on_screen_scaling_changed(f);
+
 //        int _btncount = /*iconuser ? 4 :*/ 3;
 //        int diffW = (titleLeftOffset - (TOOLBTN_WIDTH * _btncount)) * f; // 4 tool buttons: min+max+close+usericon
 
@@ -140,6 +142,78 @@ public:
 //            btn->setFixedSize(QSize(TOOLBTN_WIDTH*f, TOOLBTN_HEIGHT*f));
 //            btn->setIconSize(QSize(20,20) * f);
 //        }
+    }
+
+    auto create_custom_elements() {
+        m_boxTitleBtns = new QWidget;
+        m_boxTitleBtns->setObjectName("box-title-tools");
+        m_boxTitleBtns->setFixedHeight(TOOLBTN_HEIGHT * m_dpiRatio);
+
+        QHBoxLayout * layoutBtns = new QHBoxLayout(m_boxTitleBtns);
+        layoutBtns->setContentsMargins(0,0,0,0);
+        layoutBtns->setSpacing(1 * m_dpiRatio);
+
+        if ( is_customstyle ) {
+            m_labelTitle = new CEllipsisLabel(panel()->data()->title());
+            m_labelTitle->setObjectName("labelTitle");
+            m_labelTitle->setAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
+            m_labelTitle->setMouseTracking(true);
+            m_labelTitle->setEllipsisMode(Qt::ElideMiddle);
+
+    //        layoutBtns->addStretch();
+            layoutBtns->addWidget(m_labelTitle, 1);
+    //        layoutBtns->addStretch();
+
+            QSize small_btn_size(TOOLBTN_WIDTH*m_dpiRatio, TOOLBTN_HEIGHT*m_dpiRatio);
+
+            auto _creatToolButton = [&small_btn_size](const QString& name, QWidget * parent) {
+                QPushButton * btn = new QPushButton(parent);
+                btn->setObjectName(name);
+                btn->setProperty("class", "normal");
+                btn->setProperty("act", "tool");
+                btn->setFixedSize(small_btn_size);
+                btn->setMouseTracking(true);
+
+                return btn;
+            };
+
+            // Minimize
+            m_buttonMinimize = _creatToolButton("toolButtonMinimize", m_boxTitleBtns);
+            QObject::connect(m_buttonMinimize, &QPushButton::clicked, [=]{
+                q_ptr->setWindowState(Qt::WindowMaximized);
+            });
+
+            // Maximize
+            m_buttonMaximize = _creatToolButton("toolButtonMaximize", m_boxTitleBtns);
+            QObject::connect(m_buttonMaximize, &QPushButton::clicked, [=]{
+                q_ptr->setWindowState(q_ptr->windowState().testFlag(Qt::WindowMaximized) ? Qt::WindowNoState : Qt::WindowMaximized);
+            });
+
+            // Close
+            m_buttonClose = _creatToolButton("toolButtonClose", m_boxTitleBtns);
+//            QObject::connect(m_buttonClose, &QPushButton::clicked, [=]{onCloseEvent();});
+        }
+    }
+
+    void on_window_resize()
+    {
+        if ( !panel() ) return;
+
+        panel()->view()->SetCaptionMaskSize(TITLE_HEIGHT * m_dpiRatio);
+
+        if ( extendableTitle() ) {
+#ifdef Q_OS_WIN
+            const int windowW = m_pMainPanel->width(),
+                captionH = TITLE_HEIGHT * m_dpiRatio;
+
+            int cbw = 4 * m_dpiRatio;
+            m_boxTitleBtns->setGeometry(cbw, cbw, windowW - cbw * 2, captionH);
+#else
+            int cbw = CX11Decoration::customWindowBorderWith()*m_dpiRatio;
+            m_boxTitleBtns->setGeometry(cbw, cbw, windowW - cbw * 2, captionH);
+#endif
+            panel()->lower();
+        }
     }
 
 };

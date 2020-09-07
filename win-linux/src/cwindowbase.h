@@ -91,7 +91,6 @@ public:
     virtual WindowNativeHandle handle() const = 0;
 
 protected:
-    int m_dpiRatio = 1;
 };
 
 #endif // CWINDOWBASE_H
