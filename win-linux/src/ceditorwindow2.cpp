@@ -42,6 +42,7 @@ CEditorWindow2::CEditorWindow2(const QRect& rect, CTabPanel * panel)
     pintf->m_pMainPanel = createMainPanel();
     setCentralWidget(pintf->m_pMainPanel);
 
+    pintf->configure_title();
     pintf->on_window_resize();
 #endif
 

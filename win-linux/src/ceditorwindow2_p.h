@@ -108,6 +108,13 @@ public:
         return true;
     }
 
+    auto configure_title()
+    {
+        m_titlebar = m_boxTitleBtns;
+        if ( m_labelTitle )
+            m_whiteList.append(m_labelTitle);
+    }
+
     auto panel() {
         return m_editor_panel;
     }
