@@ -563,8 +563,7 @@ public:
     }
 
     auto viewerMode() -> bool {
-//        return panel()->data()->hasFeature(L"viewmode\":true");
-        return true;
+        return panel()->data()->hasFeature(L"viewmode\":true");
     }
 };
 
