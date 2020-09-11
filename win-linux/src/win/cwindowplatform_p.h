@@ -53,7 +53,7 @@ public:
     QList<QWidget*> m_whiteList;
 
     int m_dpiRatio = 1;
-    bool is_customstyle = true;
+    bool is_window_custom_style = true;
 };
 
 

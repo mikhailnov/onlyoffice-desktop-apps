@@ -160,7 +160,7 @@ public:
         layoutBtns->setContentsMargins(0,0,0,0);
         layoutBtns->setSpacing(1 * m_dpiRatio);
 
-        if ( is_customstyle ) {
+        if ( is_window_custom_style ) {
             m_labelTitle = new CEllipsisLabel(panel()->data()->title());
             m_labelTitle->setObjectName("labelTitle");
             m_labelTitle->setAlignment(Qt::AlignHCenter|Qt::AlignVCenter);

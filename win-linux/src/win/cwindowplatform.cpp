@@ -10,7 +10,6 @@
 
 #include <QDebug>
 
-
 bool CAppNativeEventFilter::nativeEventFilter(const QByteArray & eventtype, void * message, long * result)
 {
     if ( eventtype == "windows_generic_MSG" ) {
@@ -21,7 +20,7 @@ bool CAppNativeEventFilter::nativeEventFilter(const QByteArray & eventtype, void
             static int c = 0;
 //            qDebug() << "native event" << ++c << QString(" 0x%1").arg(msg.message,4,16,QChar('0'));
 
-//qDebug() << "hittest" << ++c << window;
+qDebug() << "hittest" << ++c << window << (HWND)msg.hwnd;
             if( !window ) {
                 auto root_wnd = GetAncestor(msg.hwnd, GA_ROOT);
                 if ( root_wnd != GetDesktopWindow() ) {
@@ -82,11 +81,12 @@ bool CWindowPlatform::nativeEvent(const QByteArray &eventType, void *message, lo
     switch (msg->message) {
     case WM_NCCALCSIZE: {
         auto& params = *reinterpret_cast<NCCALCSIZE_PARAMS *>(msg->lParam);
-        if ( params.rgrc[0].top != 0 )
-            params.rgrc[0].top -= 1;
+//        if ( params.rgrc[0].top != 0 )
+//            params.rgrc[0].top -= 1;
 
         //this kills the window frame and title bar we added with WS_THICKFRAME and WS_CAPTION
         *result = WVR_REDRAW;
+//        *result = 0;
         return true; }
 
     case WM_NCHITTEST: {
