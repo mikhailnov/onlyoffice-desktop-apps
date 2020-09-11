@@ -5,9 +5,10 @@
 #include "defines.h"
 #include "cascapplicationmanagerwrapper.h"
 
+#include <QStackedLayout>
+
 #define WINDOW_PRIVATE_CAST \
     CEditorWindow2Private * pintf = reinterpret_cast<CEditorWindow2Private *>(d_pintf);
-
 
 CEditorWindow2::CEditorWindow2(const QRect& rect, CTabPanel * panel)
     : CWindowPlatform(new CEditorWindow2Private, rect)
@@ -28,7 +29,7 @@ CEditorWindow2::CEditorWindow2(const QRect& rect, CTabPanel * panel)
     }
 #else
 
-    if ( pintf->extendableTitle() ) {
+    if ( pintf->canExtendTitle() ) {
 //        QColor color;
 //        switch (panel->data()->contentType()) {
 //        case etDocument: color = QColor(TAB_COLOR_DOCUMENT); break;
@@ -43,7 +44,7 @@ CEditorWindow2::CEditorWindow2(const QRect& rect, CTabPanel * panel)
     setCentralWidget(pintf->m_pMainPanel);
 
     pintf->configure_title();
-    pintf->on_window_resize();
+//    pintf->on_window_resize();
 #endif
 
 //    QTimer::singleShot(0, [=]{m_pMainView->show();});
@@ -154,22 +155,48 @@ auto CEditorWindow2::createMainPanel() -> QWidget *
 {
     WINDOW_PRIVATE_CAST
 
-    // create min/max/close buttons
-    pintf->create_custom_elements();
+    QLayout * main_layout, * fix_layout;
+    if ( !pintf->is_window_custom_style || !pintf->canExtendTitle() ) {
+        main_layout = new QVBoxLayout;
+        fix_layout = main_layout;
+    } else {
+        main_layout = new QStackedLayout;
+        qobject_cast<QStackedLayout *>(main_layout)->setStackingMode(QStackedLayout::StackAll);
+        main_layout->setContentsMargins(0,0,0,0);
+
+        fix_layout = new QVBoxLayout;
+        qobject_cast<QVBoxLayout *>(fix_layout)->addLayout(main_layout);
+    }
 
     QWidget * mainPanel = new QWidget(this);
     mainPanel->setObjectName("mainPanel");
+    mainPanel->setLayout(fix_layout);
 
-    QGridLayout * mainGridLayout = new QGridLayout();
-    mainGridLayout->setSpacing(0);
+    if ( pintf->is_window_custom_style ) {
+        // create min/max/close buttons
+        pintf->create_custom_elements();
+
+        main_layout->addWidget(pintf->m_boxTitleBtns);
+
+        if ( pintf->canExtendTitle() ) {
+            main_layout->addWidget(pintf->panel());
+
+            pintf->m_boxTitleBtns->layout()->addWidget(pintf->iconUser());
+            mainPanel->setProperty("window", "pretty");
+        } else {
+            qobject_cast<QVBoxLayout *>(main_layout)->addWidget(pintf->panel(), 1);
+            pintf->m_labelTitle->setText(APP_TITLE);
+        }
+    }
+
+    fix_layout->setSpacing(0);
 #ifdef Q_OS_WIN
-    mainGridLayout->setMargin(8);
-    mainGridLayout->setContentsMargins(QMargins(4,4,4,4) * pintf->m_dpiRatio);
+//    fix_layout->setMargin(8);
+    fix_layout->setContentsMargins(QMargins(1,2,1,1) * pintf->m_dpiRatio);
 #else
     int b = CX11Decoration::customWindowBorderWith() * m_dpiRatio;
     mainGridLayout->setContentsMargins(QMargins(b,b,b,b));
 #endif
-    mainPanel->setLayout(mainGridLayout);
 
     if ( pintf->m_dpiRatio > 1 )
         mainPanel->setProperty("zoom", "2x");
@@ -178,37 +205,8 @@ auto CEditorWindow2::createMainPanel() -> QWidget *
     css.append(pintf->m_css);
     mainPanel->setStyleSheet(css);
 
-    if ( !pintf->extendableTitle() ) {
-        mainGridLayout->addWidget(pintf->m_boxTitleBtns);
-        pintf->m_labelTitle->setText(APP_TITLE);
-    } else {
-        mainPanel->setProperty("window", "pretty");
-        pintf->m_boxTitleBtns->setParent(mainPanel);
-        pintf->m_boxTitleBtns->layout()->addWidget(pintf->iconUser());
-    }
-
-    if ( /*custom*/ true ) {
-        pintf->m_boxTitleBtns->layout()->addWidget(pintf->m_buttonMinimize);
-        pintf->m_boxTitleBtns->layout()->addWidget(pintf->m_buttonMaximize);
-        pintf->m_boxTitleBtns->layout()->addWidget(pintf->m_buttonClose);
-    } else {
-    }
-
-    if ( !pintf->panel() ) {
-//        QCefView * pMainWidget = AscAppManager::createViewer(centralWidget);
-//        pMainWidget->Create(&AscAppManager::getInstance(), cvwtSimple);
-//        pMainWidget->setObjectName( "mainPanel" );
-//        pMainWidget->setHidden(false);
-
-//        m_pMainView = (QWidget *)pMainWidget;
-    } else {
-    }
-
-//    m_pMainWidget->setVisible(false);
-
 //    pintf->on_screen_scaling_changed(pintf->m_dpiRatio);
-    mainGridLayout->addWidget(pintf->panel(), 1, 0);
-    mainGridLayout->setRowStretch(1,1);
+
     return mainPanel;
 }
 
@@ -216,5 +214,8 @@ void CEditorWindow2::resizeEvent(QResizeEvent *event)
 {
     WINDOW_PRIVATE_CAST
 
-    pintf->on_window_resize();
+    if ( pintf->is_window_custom_style && pintf->canExtendTitle() ) {
+        pintf->panel()->view()->setMask(QRegion(0,TITLE_HEIGHT, width(), height() - TITLE_HEIGHT));
+    }
+//    pintf->on_window_resize();
 }

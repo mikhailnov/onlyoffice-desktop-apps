@@ -101,11 +101,12 @@ public:
         CWindowPlatformPrivate::init(owner);
         m_editor_panel = panel;
 
-        m_css = {prepare_editor_css(extendableTitle() ? panel->data()->contentType() : etUndefined)};
+        m_css = {prepare_editor_css(canExtendTitle() ? panel->data()->contentType() : etUndefined)};
     }
 
-    auto extendableTitle() -> bool {
-        return true;
+    auto canExtendTitle() -> bool {
+//        return true;
+        return false;
     }
 
     auto configure_title()
@@ -199,6 +200,10 @@ public:
             // Close
             m_buttonClose = _creatToolButton("toolButtonClose", m_boxTitleBtns);
 //            QObject::connect(m_buttonClose, &QPushButton::clicked, [=]{onCloseEvent();});
+
+            m_boxTitleBtns->layout()->addWidget(m_buttonMinimize);
+            m_boxTitleBtns->layout()->addWidget(m_buttonMaximize);
+            m_boxTitleBtns->layout()->addWidget(m_buttonClose);
         }
     }
 
@@ -208,7 +213,7 @@ public:
 
         panel()->view()->SetCaptionMaskSize(TITLE_HEIGHT * m_dpiRatio);
 
-        if ( extendableTitle() ) {
+        if ( canExtendTitle() ) {
 #ifdef Q_OS_WIN
             const int windowW = m_pMainPanel->width(),
                 captionH = TITLE_HEIGHT * m_dpiRatio;
