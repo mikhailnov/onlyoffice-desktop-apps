@@ -85,8 +85,10 @@ bool CWindowPlatform::nativeEvent(const QByteArray &eventType, void *message, lo
 //            params.rgrc[0].top -= 1;
 
         //this kills the window frame and title bar we added with WS_THICKFRAME and WS_CAPTION
+        if ( msg->wParam == TRUE ) {
         *result = WVR_REDRAW;
 //        *result = 0;
+        }
         return true; }
 
     case WM_NCHITTEST: {
