@@ -34,6 +34,7 @@
 #define CTABBAR_H
 
 #include <QTabBar>
+#include <QToolButton>
 #include "cscalingwrapper.h"
 
 //class CTabBarPrivate;
@@ -100,6 +101,7 @@ signals:
 
 private:
     Q_DECLARE_PRIVATE(QTabBar)
+
 };
 
 #endif // CTABBAR_H

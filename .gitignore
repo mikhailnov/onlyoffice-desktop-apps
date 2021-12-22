@@ -1,9 +1,11 @@
 
+win-linux/build
 win-linux/build/Release/*
 win-linux/build/Debug/*
 win-linux/ASCDocumentEditor.build/*
 
 win-linux/*.user
+win-linux/*.stash
 
 win-linux/package/linux/index.html
 win-linux/package/windows/index.html

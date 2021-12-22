@@ -11,6 +11,12 @@ QTabBar::tab:selected{background-color: #515252;}
 QTabBar::tab-label{active:#fff;normal:#444;}
 QTabBar::tab-icon{width:15;height:15;}
 
+QTabWidget>QToolButton {}
+QTabWidget>QToolButton {width: 13px; height: 46px; background-color: #f1f1f1;
+border: 0 none; margin: 0 0 0 0;}
+QTabWidget>QToolButton:hover {background-color: #cecece;}
+QTabWidget>QToolButton:selected {background-color: #515252;}
+
 QTabWidget[active=false] QTabBar::tab:selected {background-color: #f1f1f1;}
 QTabWidget[active=false] QTabBar::tab:selected:hover {background-color: #cecece;}
 

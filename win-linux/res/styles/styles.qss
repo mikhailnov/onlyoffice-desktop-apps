@@ -740,3 +740,47 @@ QPrintDialog QTabBar::tab:!selected {
     /*margin-top: 2px;*/
     /*color:#444;*/
 }
+
+
+
+/****************************************
+** QTabWidget>QToolButton
+****************************************/
+
+
+QTabWidget>QToolButton:pressed {
+    background-color:#b7b7b7;
+}
+
+QTabWidget>QToolButton::left-arrow {
+    border-image: url(:/tabbar/icons/scrolltab_ln.png) 0 0 0 0 repeat;
+    border-width: 8px 0 8px 1px;
+}
+
+QTabWidget>QToolButton::left-arrow:disabled {
+    border-image: url(:/tabbar/icons/scrolltab_ld.png) 0 0 0 0 repeat;
+}
+
+QTabWidget>QToolButton::left-arrow:hover {
+    border-image: url(:/tabbar/icons/scrolltab_lh.png) 0 0 0 0 repeat;
+}
+
+QTabWidget>QToolButton::left-arrow:pressed {
+    border-image: url(:/tabbar/icons/scrolltab_lp.png) 0 0 0 0 repeat;
+}
+
+QTabWidget>QToolButton::right-arrow {
+    border-image: url(:/tabbar/icons/scrolltab_rn.png) 0 0 0 0 repeat;
+    border-width: 8px 0 8px 3px;
+}
+
+QTabWidget>QToolButton::right-arrow:disabled {
+    border-image: url(:/tabbar/icons/scrolltab_rd.png) 0 0 0 0 repeat;
+}
+
+QTabWidget>QToolButton::right-arrow:hover {
+    border-image: url(:/tabbar/icons/scrolltab_rh.png) 0 0 0 0 repeat;
+}
+QTabWidget>QToolButton::right-arrow:pressed {
+    border-image: url(:/tabbar/icons/scrolltab_rp.png) 0 0 0 0 repeat;
+}

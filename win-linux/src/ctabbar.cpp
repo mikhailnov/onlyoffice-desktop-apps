@@ -40,6 +40,9 @@
 #include "canimatedicon.h"
 #include "utils.h"
 
+//#include <QTimer>
+#include <QHBoxLayout>
+
 #define TAB_BTNCLOSE(index) tabButton(index, QTabBar::RightSide)
 #define TAB_ICON(index) tabButton(index, QTabBar::LeftSide)
 
@@ -242,6 +245,21 @@ CTabBar::CTabBar(QWidget * parent)
     {
         setProperty("scroll", "var2");
     }
+
+    QHBoxLayout *layout = new QHBoxLayout(parent); // Bypassing the bug with tab scroller
+    parent->setLayout(layout);
+    layout->setContentsMargins(0,0,0,0);
+    layout->setSpacing(0);
+    QSpacerItem *spacerLeft = new QSpacerItem(5, 5, QSizePolicy::Expanding, QSizePolicy::Fixed);
+    QSpacerItem *spacerRight = new QSpacerItem(205, 5, QSizePolicy::Fixed, QSizePolicy::Fixed); // 205 - 100%
+    layout->addSpacerItem(spacerLeft);
+    QList<QToolButton*> toolButtons = this->findChildren<QToolButton*>();
+    foreach (QToolButton *toolButton, toolButtons) {
+        toolButton->setParent(parent);
+        layout->addWidget(toolButton);
+        layout->setAlignment(toolButton, Qt::AlignTop);
+    }
+    layout->addSpacerItem(spacerRight); // End bypassing the bug
 
     connect(this, &QTabBar::currentChanged, this, &CTabBar::onCurrentChanged);
 }
@@ -577,6 +595,7 @@ void CTabBar::paintEvent(QPaintEvent * event)
         d->leftB->setGeometry(d->rightB->geometry().adjusted(0,0,-24,0));
         d->leftB->raise();
     }
+
 }
 
 void CTabBar::fillTabColor(QPainter * p, const QStyleOptionTab& tab, uint index, const QColor& color)
