@@ -111,16 +111,16 @@ QTabBar::close-button:pressed {
 }
 
 QTabBar QToolButton,
-    QTabBar QToolButton:disabled {
+QTabBar QToolButton:disabled {
     margin-right:-2px;
     border-width:2px;
 }
-
+/*
 QTabBar[scroll=var2] QToolButton::left-arrow,
 QTabBar QToolButton::left-arrow {
-    border-image: url(:/tabbar/icons/scrolltab_ln_2x.png) 0;
-    /*border-width:12px;*/
-    border-width:16px 0 16px 2px;
+    border-image: url(:/tabbar/icons/scrolltab_ln_2x.png) 0;*/
+    /*border-width:12px; not used!!!*/
+    /*border-width:16px 0 16px 2px;
 }
 
 QTabBar QToolButton::left-arrow:disabled {
@@ -137,9 +137,9 @@ QTabBar QToolButton::left-arrow:pressed {
 
 QTabBar[scroll=var2] QToolButton::right-arrow,
 QTabBar QToolButton::right-arrow {
-    border-image: url(:/tabbar/icons/scrolltab_rn_2x.png) 0;
-    /*border-width:12px;*/
-    border-width:16px 0 16px 26px;
+    border-image: url(:/tabbar/icons/scrolltab_rn_2x.png) 0;*/
+    /*border-width:12px; not used!!!*/
+    /*border-width:16px 0 16px 26px;
 }
 
 QTabBar QToolButton::right-arrow:disabled {
@@ -151,11 +151,12 @@ QTabBar QToolButton::right-arrow:hover {
 }
 QTabBar QToolButton::right-arrow:pressed {
     border-image: url(:/tabbar/icons/scrolltab_rp_2x.png) 0;
-}
+}*/
 
 QTabBar[scroll=var2]::scroller,
 QTabBar::scroller {
-    width:48px;
+    /*width:48px;*/
+    width: 0px;
 }
 
 /* download widget */
@@ -321,4 +322,52 @@ QPrintDialog QTabBar::tab {
 
 QPrintDialog QTabBar::tab:selected {
     padding: 0 20px;
+}
+
+
+/****************************************
+** QTabWidget>QToolButton
+****************************************/
+
+/*#scrollerFrame {min-width: 50px; min-height: 56px}*/
+
+#scrollerFrame>QToolButton {
+    /*width: 48px; height: 53px;*/ margin: 0px;
+    border: none; background-color: #f1f1f1;
+}
+#scrollerFrame>QToolButton:hover {background-color: #cecece;}
+#scrollerFrame>QToolButton:pressed {background-color: #b7b7b7;}
+
+#scrollerFrame>QToolButton#leftButton {
+    image: url(:/tabbar/icons/scrolltab_ln_2x.png) center no-repeat;
+    /*border-width:16px 0 16px 2px;*/
+}
+
+#scrollerFrame>QToolButton#leftButton:disabled {
+    image: url(:/tabbar/icons/scrolltab_ld_2x.png) center no-repeat;
+}
+
+#scrollerFrame>QToolButton#leftButton:hover {
+    image: url(:/tabbar/icons/scrolltab_lh_2x.png) center no-repeat;
+}
+
+#scrollerFrame>QToolButton#leftButton:pressed {
+    image: url(:/tabbar/icons/scrolltab_lp_2x.png) center no-repeat;
+}
+
+#scrollerFrame>QToolButton#rightButton {
+    image: url(:/tabbar/icons/scrolltab_rn_2x.png) center no-repeat;
+    /*border-width:16px 0 16px 26px;*/
+}
+
+#scrollerFrame>QToolButton#rightButton:disabled {
+    image: url(:/tabbar/icons/scrolltab_rd_2x.png) center no-repeat;
+}
+
+#scrollerFrame>QToolButton#rightButton:hover {
+    image: url(:/tabbar/icons/scrolltab_rh_2x.png) center no-repeat;
+}
+
+#scrollerFrame>QToolButton#rightButton:pressed {
+    image: url(:/tabbar/icons/scrolltab_rp_2x.png) center no-repeat;
 }

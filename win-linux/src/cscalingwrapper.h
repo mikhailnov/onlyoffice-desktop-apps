@@ -17,7 +17,7 @@ public:
     static double parentScalingFactor(const QObject * parent);
 
 private:
-    double m_scaleFactor = 1;
+    double m_scaleFactor = 1.0;
 };
 
 #endif // CSCALINGWRAPPER_H

@@ -40,8 +40,6 @@
 #include "canimatedicon.h"
 #include "utils.h"
 
-//#include <QTimer>
-#include <QHBoxLayout>
 
 #define TAB_BTNCLOSE(index) tabButton(index, QTabBar::RightSide)
 #define TAB_ICON(index) tabButton(index, QTabBar::LeftSide)
@@ -52,9 +50,9 @@ inline static bool verticalTabs(QTabBar::Shape shape)
            || shape == QTabBar::TriangularWest || shape == QTabBar::TriangularEast;
 }
 
-QMovableTabWidget::QMovableTabWidget(QWidget *parent)
-    : QWidget(parent)
+QMovableTabWidget::QMovableTabWidget(QWidget *parent) : QWidget(parent)
 {
+
 }
 
 void QMovableTabWidget::paintEvent(QPaintEvent *e)
@@ -64,10 +62,11 @@ void QMovableTabWidget::paintEvent(QPaintEvent *e)
     p.drawPixmap(0, 0, m_pixmap);
 }
 
-/*
- *  TabBarPrivate class description
- *
-*/
+
+/*****************************************
+**  TabBarPrivate class description
+*****************************************/
+
 void QTabBarPrivate::layoutTab(int index)
 {
     Q_Q(QTabBar);
@@ -231,37 +230,61 @@ void QTabBarPrivate::Tab::TabBarAnimation::updateState(QAbstractAnimation::State
     if (newState == Stopped) priv->moveTabFinished(priv->tabList.indexOf(*tab));
 }
 
-/*
- *    CTabBar descrition
-*/
-CTabBar::CTabBar(QWidget * parent)
-    : QTabBar(parent)
-    , CScalingWrapper(parent)
+
+/*****************************************
+**  CTabBar descrition
+*****************************************/
+
+CTabBar::CTabBar(QWidget *parent) :
+    QTabBar(parent),
+    CScalingWrapper(parent),
+    parent(parent)
 {
-    setDrawBase(false);
-
-    if (Utils::getScreenDpiRatio(
-                QApplication::desktop()->screen(QApplication::desktop()->primaryScreen())->geometry().topLeft()) > 1)
-    {
-        setProperty("scroll", "var2");
+    this->setDrawBase(false);
+    if (Utils::getScreenDpiRatio(QApplication::desktop()->screen(
+        QApplication::desktop()->primaryScreen())->geometry().topLeft()) > 1) {
+        this->setProperty("scroll", "var2");
     }
+    connect(this, &QTabBar::currentChanged, this, &CTabBar::onCurrentChanged);
 
-    QHBoxLayout *layout = new QHBoxLayout(parent); // Bypassing the bug with tab scroller
-    parent->setLayout(layout);
-    layout->setContentsMargins(0,0,0,0);
-    layout->setSpacing(0);
-    QSpacerItem *spacerLeft = new QSpacerItem(5, 5, QSizePolicy::Expanding, QSizePolicy::Fixed);
-    QSpacerItem *spacerRight = new QSpacerItem(205, 5, QSizePolicy::Fixed, QSizePolicy::Fixed); // 205 - 100%
-    layout->addSpacerItem(spacerLeft);
+    // Bypassing the bug with tab scroller
     QList<QToolButton*> toolButtons = this->findChildren<QToolButton*>();
     foreach (QToolButton *toolButton, toolButtons) {
-        toolButton->setParent(parent);
-        layout->addWidget(toolButton);
-        layout->setAlignment(toolButton, Qt::AlignTop);
+        if (toolButton->accessibleName().indexOf("Left") != -1) leftButton = toolButton;
+        if (toolButton->accessibleName().indexOf("Right") != -1) rightButton = toolButton;
     }
-    layout->addSpacerItem(spacerRight); // End bypassing the bug
+    scrollerFrame = new QFrame(parent);
+    scrollerFrame->setObjectName("scrollerFrame");
+    scrollerFrame->setStyleSheet("QFrame {border: none; background: transparent;}");
+    QHBoxLayout *layout =new QHBoxLayout(scrollerFrame);
+    scrollerFrame->setLayout(layout);
+    layout->setSpacing(0);
+    layout->setContentsMargins(0,0,0,0);
 
-    connect(this, &QTabBar::currentChanged, this, &CTabBar::onCurrentChanged);
+    newLeftButton = new QToolButton(parent);
+    newRightButton = new QToolButton(parent);
+    newLeftButton->setObjectName("leftButton");
+    newRightButton->setObjectName("rightButton");
+
+    layout->addWidget(newLeftButton);
+    layout->addWidget(newRightButton);
+    newLeftButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    newRightButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    scrollerFrame->setGeometry(this->width() + 80, this->y(), 32, this->height());
+    scrollerFrame->show();
+    scrollerFrame->raise();
+    newLeftButton->show();
+    newLeftButton->raise();
+    newRightButton->show();
+    newRightButton->raise();
+    scrollerFrame->setVisible(false);
+    connect(newLeftButton, &QToolButton::clicked, this, [this](){
+        emit leftButton->click();
+    });
+    connect(newRightButton, &QToolButton::clicked, this, [this](){
+        emit rightButton->click();
+    }); // End bypassing the bug
 }
 
 CTabBar::~CTabBar()
@@ -596,6 +619,26 @@ void CTabBar::paintEvent(QPaintEvent * event)
         d->leftB->raise();
     }
 
+    // Bypassing the bug with tab scroller
+    QPushButton *toolButtonMain = parent->parent()->findChild<QPushButton*>("toolButtonMain");
+    const int &&toolButtonMainWidth = (toolButtonMain != nullptr) ? toolButtonMain->width() : 80;
+    const int &&scrollerWidth = static_cast<int>(round(1.143f*this->height()));
+    scrollerFrame->setGeometry(this->width() + toolButtonMainWidth - scrollerFrame->width(), this->y(), scrollerWidth, this->height());
+    if (leftButton->isVisible()) {
+        scrollerFrame->setVisible(true);
+    } else {
+        scrollerFrame->setVisible(false);
+    }
+    if (leftButton->isEnabled()) {
+        newLeftButton->setEnabled(true);
+    } else {
+        newLeftButton->setEnabled(false);
+    }
+    if (rightButton->isEnabled()) {
+        newRightButton->setEnabled(true);
+    } else {
+        newRightButton->setEnabled(false);
+    }   // End bypassing the bug
 }
 
 void CTabBar::fillTabColor(QPainter * p, const QStyleOptionTab& tab, uint index, const QColor& color)

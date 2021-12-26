@@ -392,12 +392,12 @@ QTabBar::close-button:pressed {
 }
 
 QTabBar QToolButton,
-    QTabBar QToolButton:disabled {
+QTabBar QToolButton:disabled {
     background-color:#f1f1f1;
     border:0 none;
     width: 40px;
 }
-
+/*
 QTabBar QToolButton:hover {
     background-color:#cecece;
 }
@@ -437,16 +437,17 @@ QTabBar QToolButton::right-arrow:hover {
 }
 QTabBar QToolButton::right-arrow:pressed {
     border-image: url(:/tabbar/icons/scrolltab_rp.png) 0 0 0 0 repeat;
-}
+}*/
 
 QTabBar::scroller {
     /*padding-left: 0px;*/
     /*margin-left: 0px;*/
     /*background-color:#0f0;*/
-    width:16px;
+    /*width:16px;*/
+    width: 0px;
 }
 
-QTabBar[scroll=var2] QToolButton::left-arrow {
+/*QTabBar[scroll=var2] QToolButton::left-arrow {
     border-width: 8px 12px 8px 8px;
 }
 
@@ -456,7 +457,7 @@ QTabBar[scroll=var2] QToolButton::right-arrow {
 
 QTabBar[scroll=var2]::scroller {
     width:32px;
-}
+}*/
 
 QLabel[class=tab-icon] {
     padding:0 0 2px 4px;
@@ -747,40 +748,45 @@ QPrintDialog QTabBar::tab:!selected {
 ** QTabWidget>QToolButton
 ****************************************/
 
+/*#scrollerFrame {min-width: 32px; min-height: 28px}*/
 
-QTabWidget>QToolButton:pressed {
-    background-color:#b7b7b7;
+#scrollerFrame>QToolButton {
+    /*width: 16px; height: 28px;*/ margin: 0px;
+    border: none; background-color: #f1f1f1;
+}
+#scrollerFrame>QToolButton:hover {background-color: #cecece;}
+#scrollerFrame>QToolButton:pressed {background-color: #b7b7b7;}
+
+#scrollerFrame>QToolButton#leftButton {
+    image: url(:/tabbar/icons/scrolltab_ln.png) center no-repeat;
+    /*border-width: 8px 0px 8px 1px;*/
 }
 
-QTabWidget>QToolButton::left-arrow {
-    border-image: url(:/tabbar/icons/scrolltab_ln.png) 0 0 0 0 repeat;
-    border-width: 8px 0 8px 1px;
+#scrollerFrame>QToolButton#leftButton:disabled {
+    image: url(:/tabbar/icons/scrolltab_ld.png) center no-repeat;
 }
 
-QTabWidget>QToolButton::left-arrow:disabled {
-    border-image: url(:/tabbar/icons/scrolltab_ld.png) 0 0 0 0 repeat;
+#scrollerFrame>QToolButton#leftButton:hover {
+    image: url(:/tabbar/icons/scrolltab_lh.png) center no-repeat;
 }
 
-QTabWidget>QToolButton::left-arrow:hover {
-    border-image: url(:/tabbar/icons/scrolltab_lh.png) 0 0 0 0 repeat;
+#scrollerFrame>QToolButton#leftButton:pressed {
+    image: url(:/tabbar/icons/scrolltab_lp.png) center no-repeat;
 }
 
-QTabWidget>QToolButton::left-arrow:pressed {
-    border-image: url(:/tabbar/icons/scrolltab_lp.png) 0 0 0 0 repeat;
+#scrollerFrame>QToolButton#rightButton {
+    image: url(:/tabbar/icons/scrolltab_rn.png) center no-repeat;
+    /*border-width: 8px 0px 8px 3px;*/
 }
 
-QTabWidget>QToolButton::right-arrow {
-    border-image: url(:/tabbar/icons/scrolltab_rn.png) 0 0 0 0 repeat;
-    border-width: 8px 0 8px 3px;
+#scrollerFrame>QToolButton#rightButton:disabled {
+    image: url(:/tabbar/icons/scrolltab_rd.png) center no-repeat;
 }
 
-QTabWidget>QToolButton::right-arrow:disabled {
-    border-image: url(:/tabbar/icons/scrolltab_rd.png) 0 0 0 0 repeat;
+#scrollerFrame>QToolButton#rightButton:hover {
+    image: url(:/tabbar/icons/scrolltab_rh.png) center no-repeat;
 }
 
-QTabWidget>QToolButton::right-arrow:hover {
-    border-image: url(:/tabbar/icons/scrolltab_rh.png) 0 0 0 0 repeat;
-}
-QTabWidget>QToolButton::right-arrow:pressed {
-    border-image: url(:/tabbar/icons/scrolltab_rp.png) 0 0 0 0 repeat;
+#scrollerFrame>QToolButton#rightButton:pressed {
+    image: url(:/tabbar/icons/scrolltab_rp.png) center no-repeat;
 }

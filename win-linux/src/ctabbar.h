@@ -35,8 +35,11 @@
 
 #include <QTabBar>
 #include <QToolButton>
+#include <QFrame>
+#include <QHBoxLayout>
+#include <QPushButton>
 #include "cscalingwrapper.h"
-
+#include <math.h>
 //class CTabBarPrivate;
 
 class CTabBar : public QTabBar, public CScalingWrapper
@@ -100,8 +103,13 @@ signals:
     void tabUndock(int, bool *);
 
 private:
-    Q_DECLARE_PRIVATE(QTabBar)
-
+    Q_DECLARE_PRIVATE(QTabBar);
+    QWidget *parent;
+    QFrame *scrollerFrame;
+    QToolButton *leftButton,
+                *rightButton,
+                *newLeftButton,
+                *newRightButton;
 };
 
 #endif // CTABBAR_H
