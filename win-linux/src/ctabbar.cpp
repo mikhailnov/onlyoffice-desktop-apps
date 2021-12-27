@@ -620,14 +620,17 @@ void CTabBar::paintEvent(QPaintEvent * event)
     }
 
     // Bypassing the bug with tab scroller
-    QPushButton *toolButtonMain = parent->parent()->findChild<QPushButton*>("toolButtonMain");
-    const int &&toolButtonMainWidth = (toolButtonMain != nullptr) ? toolButtonMain->width() : 80;
-    const int &&scrollerWidth = static_cast<int>(round(1.143f*this->height()));
-    scrollerFrame->setGeometry(this->width() + toolButtonMainWidth - scrollerFrame->width(), this->y(), scrollerWidth, this->height());
     if (leftButton->isVisible()) {
+        QPushButton *toolButtonMain = parent->parent()->findChild<QPushButton*>("toolButtonMain");
+        Q_ASSERT(toolButtonMain != nullptr);
+        const int &&toolButtonMainWidth = (toolButtonMain != nullptr) ? toolButtonMain->width() : 112;
+        const int &&scrollerWidth = static_cast<int>(round(1.143f*this->height()));
+        scrollerFrame->setGeometry(this->width() + toolButtonMainWidth - 32, this->y(),
+                                   scrollerWidth, this->height());
         scrollerFrame->setVisible(true);
     } else {
         scrollerFrame->setVisible(false);
+        scrollerFrame->setGeometry(0, 0, 0, 0);
     }
     if (leftButton->isEnabled()) {
         newLeftButton->setEnabled(true);

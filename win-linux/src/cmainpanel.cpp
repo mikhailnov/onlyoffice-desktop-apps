@@ -238,7 +238,11 @@ void CMainPanel::RecalculatePlaces()
 
     m_pTabs->setGeometry(cbw, cbw, windowW, windowH);
 
-    int docCaptionW = windowW - m_pTabs->tabBar()->width() - btnMainWidth;
+    QFrame *scrollerFrame = findChild<QFrame*>("scrollerFrame", Qt::FindChildrenRecursively);
+    Q_ASSERT(scrollerFrame != nullptr);
+    const int &&scrollerFrameWidth = (scrollerFrame != nullptr) ? scrollerFrame->width() : 0;
+    const int &&offset = static_cast<int>(round(0.5f*scrollerFrameWidth));
+    int docCaptionW = windowW - m_pTabs->tabBar()->width() - btnMainWidth - offset;
     int contentH = windowH - captionH;
 
     if (docCaptionW < 1)

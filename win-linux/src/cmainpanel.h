@@ -44,6 +44,7 @@
 #include "ccefeventstransformer.h"
 #include "cscalingwrapper.h"
 #include "csvgpushbutton.h"
+#include <math.h>
 
 
 struct printdata;
