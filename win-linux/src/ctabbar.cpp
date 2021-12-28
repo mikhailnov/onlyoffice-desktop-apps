@@ -256,7 +256,7 @@ CTabBar::CTabBar(QWidget *parent) :
     scrollerFrame = new QFrame(parent);
     scrollerFrame->setObjectName("scrollerFrame");
     scrollerFrame->setStyleSheet("QFrame {border: none; background: transparent;}");
-    QHBoxLayout *layout =new QHBoxLayout(scrollerFrame);
+    QHBoxLayout *layout = new QHBoxLayout(scrollerFrame);
     scrollerFrame->setLayout(layout);
     layout->setSpacing(0);
     layout->setContentsMargins(0,0,0,0);

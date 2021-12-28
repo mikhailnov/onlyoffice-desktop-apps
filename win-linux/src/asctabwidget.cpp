@@ -1023,7 +1023,8 @@ void CAscTabWidget::activate(bool a)
 {
     if (property("active").toBool() != a) {
         setProperty("active", a);
-        style()->polish(tabBar());
+        //style()->polish(tabBar());  // This row create a bug of changing the position
+                                      // of the tabs when switching to the main menu and back
     }
 
     QString strVal = a ? "normal" : "active";
