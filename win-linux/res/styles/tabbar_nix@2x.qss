@@ -16,4 +16,5 @@ QTabBar::tab-icon {width: 15; height: 15;}
 #scrollerFrame>QToolButton:pressed {background-color: #b7b7b7;}
 
 QTabWidget[active=false] QTabBar::tab:selected {background-color: #c2c2c2; border-color: #a5a5a5;}
+QTabWidget[active=true] QTabBar::tab:selected {background-color: #c2c2c2; border-color: #a5a5a5;}
 QTabWidget[active=false] QTabBar::tab:selected:hover {background-color: #cfcfcf;}

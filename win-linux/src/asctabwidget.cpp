@@ -76,11 +76,10 @@ const QString g_dark_theme_stylesheet =
     "#mainPanel[uitheme=theme-dark] #scrollerFrame>QToolButton:pressed {background-color: #b7b7b7;}";   // End bypassing the bug
 
 
-/*
- *
- *  Tab data
- *
-*/
+/*****************************************
+**  Tab data
+*****************************************/
+
 
 template <class T> class VPtr
 {
@@ -90,11 +89,10 @@ public:
 };
 
 
-/*
- *
- * COpenOptions structure definition
- *
-*/
+/*****************************************
+**  COpenOptions structure definition
+*****************************************/
+
 
 COpenOptions::COpenOptions() :
     srctype(etUndefined), id(-1)
@@ -132,10 +130,11 @@ COpenOptions::COpenOptions(QString _name_, AscEditorType _srctype_) :
     COpenOptions(_name_, _srctype_, "")
 {}
 
-/*
- *  TabWidget component
- *
-*/
+
+/*****************************************
+**  TabWidget component
+*****************************************/
+
 
 auto createTabPanel(QWidget * parent, CTabPanel * panel = nullptr) -> QWidget * {
     QWidget * panelwidget = new QWidget(parent);
@@ -686,9 +685,10 @@ void CAscTabWidget::reloadTabIcons()
     }
 }
 
-/*
- *      Slots
-*/
+
+/*****************************************
+**  Slots
+*****************************************/
 
 
 void CAscTabWidget::editorCloseRequest(int index)
@@ -955,7 +955,6 @@ void CAscTabWidget::applyDocumentChanging(int id, int type)
         }
     }
 
-
     if ( !(tabIndex < 0) ) {
         panel(tabIndex)->data()->setContentType(AscEditorType(type));
 
@@ -968,7 +967,7 @@ void CAscTabWidget::applyDocumentChanging(int id, int type)
     }
 
     updateTabIcon(tabIndexByView(id));
-    tabBar()->style()->polish(tabBar());
+    //tabBar()->style()->polish(tabBar());  // This row create wrong tab theme
 }
 
 void CAscTabWidget::setEditorOptions(int id, const wstring& option)
@@ -990,9 +989,11 @@ void CAscTabWidget::setEditorOptions(int id, const wstring& option)
     }
 }
 
-/*
- *      Slots description end
-*/
+
+/*****************************************
+**  Slots description end
+*****************************************/
+
 
 void CAscTabWidget::setFocusedView(int index)
 {
@@ -1022,7 +1023,7 @@ void CAscTabWidget::setFocusedView(int index)
 void CAscTabWidget::activate(bool a)
 {
     if (property("active").toBool() != a) {
-        setProperty("active", a);
+        this->setProperty("active", a);
         //style()->polish(tabBar());  // This row create a bug of changing the position
                                       // of the tabs when switching to the main menu and back
     }
