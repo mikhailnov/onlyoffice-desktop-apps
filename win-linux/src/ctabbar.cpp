@@ -253,23 +253,13 @@ CTabBar::CTabBar(QWidget *parent) :
         if (toolButton->accessibleName().indexOf("Left") != -1) leftButton = toolButton;
         if (toolButton->accessibleName().indexOf("Right") != -1) rightButton = toolButton;
     }
-    scrollerFrame = new QFrame(parent);
-    scrollerFrame->setObjectName("scrollerFrame");
-    scrollerFrame->setStyleSheet("QFrame {border: none; background: transparent;}");
-    QHBoxLayout *layout = new QHBoxLayout(scrollerFrame);
-    scrollerFrame->setLayout(layout);
-    layout->setSpacing(0);
-    layout->setContentsMargins(0,0,0,0);
 
-    newLeftButton = new QToolButton(parent);
-    newRightButton = new QToolButton(parent);
-    newLeftButton->setObjectName("leftButton");
-    newRightButton->setObjectName("rightButton");
-
-    layout->addWidget(newLeftButton);
-    layout->addWidget(newRightButton);
-    newLeftButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    newRightButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    scrollerFrame = parent->findChild<QFrame*>("scrollerFrame");
+    newLeftButton = parent->findChild<QToolButton*>("leftButton");
+    newRightButton = parent->findChild<QToolButton*>("rightButton");
+    Q_ASSERT(scrollerFrame != nullptr);
+    Q_ASSERT(newLeftButton != nullptr);
+    Q_ASSERT(newRightButton != nullptr);
 
     scrollerFrame->setGeometry(this->width() + 80, this->y(), 32, this->height());
     scrollerFrame->show();

@@ -160,12 +160,36 @@ CAscTabWidget::CAscTabWidget(QWidget *parent)
     , m_isCustomStyle(true)
     , m_tabIconSize(11, 11)
 {
+    // Bypassing the bug with tab scroller
+    QFrame *scrollerFrame = new QFrame(this);
+    scrollerFrame->setObjectName("scrollerFrame");
+    scrollerFrame->setStyleSheet("QFrame {border: none; background: transparent;}");
+    QHBoxLayout *layout = new QHBoxLayout(scrollerFrame);
+    scrollerFrame->setLayout(layout);
+    layout->setSpacing(0);
+    layout->setContentsMargins(0,0,0,0);
+
+    QToolButton *newLeftButton = new QToolButton(this);
+    QToolButton *newRightButton = new QToolButton(this);
+    newLeftButton->setObjectName("leftButton");
+    newRightButton->setObjectName("rightButton");
+
+    layout->addWidget(newLeftButton);
+    layout->addWidget(newRightButton);
+    newLeftButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    newRightButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    newLeftButton->installEventFilter(this);
+    newRightButton->installEventFilter(this);
+    newLeftButton->setMouseTracking(true);
+    newRightButton->setMouseTracking(true);
+    newLeftButton->setAttribute(Qt::WA_Hover, true);
+    newRightButton->setAttribute(Qt::WA_Hover, true);   // End bypassing the bug
+
     CTabBar * tabs = new CTabBar(this);
     tabs->setObjectName("asc_editors_tabbar");
     tabs->setTabTextColor(QPalette::Active, QColor(51, 51, 51));
     tabs->setTabTextColor(QPalette::Inactive, QColor(51, 51, 51));
     setTabBar(tabs);
-
 //    tabBar()->setStyle(new CTabStyle);
 //    tabBar()->setFixedWidth(450);
 
@@ -469,6 +493,30 @@ void CAscTabWidget::resizeEvent(QResizeEvent* e)
 //            }
 //        }
     //    }
+}
+
+bool CAscTabWidget::eventFilter(QObject *object, QEvent *event)
+{
+    switch (event->type()) {
+    case QEvent::HoverEnter: {
+        if (object->objectName() == QString("leftButton") ||
+                object->objectName() == QString("rightButton")) {
+            QGuiApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
+        }
+        break;
+    }
+    case QEvent::HoverLeave: {
+        if (object->objectName() == QString("leftButton") ||
+                object->objectName() == QString("rightButton")) {
+            QGuiApplication::restoreOverrideCursor();
+        }
+        break;
+    }
+    default:
+        break;
+    }
+
+    return QTabWidget::eventFilter(object, event);
 }
 
 void CAscTabWidget::tabInserted(int index)

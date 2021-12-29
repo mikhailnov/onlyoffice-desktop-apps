@@ -159,6 +159,7 @@ public:
     void updateScaling(double) override;
 protected:
     void resizeEvent(QResizeEvent* e);
+    bool eventFilter(QObject *, QEvent *) override;
     void tabInserted(int index);
     void tabRemoved(int index);
     void closeEditor(int, bool, bool);
