@@ -501,8 +501,7 @@ bool CAscTabWidget::eventFilter(QObject *object, QEvent *event)
     case QEvent::HoverEnter: {
         if (object->objectName() == QString("leftButton") ||
                 object->objectName() == QString("rightButton")) {
-            Qt::CursorShape cursor = Qt::ArrowCursor;
-            this->setCursor(cursor);
+            this->setCursor(QCursor(Qt::ArrowCursor));
         }
         break;
     }
