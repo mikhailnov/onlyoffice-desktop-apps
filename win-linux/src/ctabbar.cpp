@@ -613,8 +613,8 @@ void CTabBar::paintEvent(QPaintEvent * event)
     if (leftButton->isVisible()) {
         QPushButton *toolButtonMain = parent->parent()->findChild<QPushButton*>("toolButtonMain");
         Q_ASSERT(toolButtonMain != nullptr);
-        const int &&toolButtonMainWidth = (toolButtonMain != nullptr) ? toolButtonMain->width() : 112;
-        const int &&scrollerWidth = static_cast<int>(round(1.143f*this->height()));
+        const int toolButtonMainWidth = (toolButtonMain != nullptr) ? toolButtonMain->width() : 112;
+        const int scrollerWidth = static_cast<int>(round(1.143f*this->height()));
         scrollerFrame->setGeometry(this->width() + toolButtonMainWidth - 32, this->y(),
                                    scrollerWidth, this->height());
         scrollerFrame->setVisible(true);
