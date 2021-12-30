@@ -1392,8 +1392,8 @@ void CAscTabWidget::applyUITheme(const std::wstring& theme)
 //    _tabbar.setTabTextColor(QPalette::Active, AscAppManager::themes().color(theme, CThemes::ColorRole::ecrTextPressed));
     _tabbar.setTabTextColor(QPalette::Inactive, AscAppManager::themes().current().color(CTheme::ColorRole::ecrTextNormal));
     _tabbar.setUIThemeType(!AscAppManager::themes().current().isDark());
-    _tabbar.style()->polish(&_tabbar);
-    style()->polish(this);
+    //_tabbar.style()->polish(&_tabbar);
+    //style()->polish(this);
     QToolButton *newLeftButton = this->findChild<QToolButton*>("leftButton");
     QToolButton *newRightButton = this->findChild<QToolButton*>("rightButton");
     Q_ASSERT(newLeftButton != nullptr);
