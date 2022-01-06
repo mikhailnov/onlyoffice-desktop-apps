@@ -37,7 +37,7 @@
 //#include <QtWidgets/QTabWidget>
 #include <QtWidgets/QTabBar>
 #include <QtWidgets/QPushButton>
-
+#include "ctabbar.h"
 #include "qcefview.h"
 #include "cscalingwrapper.h"
 #include "ctabpanel.h"
@@ -129,6 +129,7 @@ private:
     bool m_isCustomStyle;
     CTabIconSet m_mapTabIcons;
     QSize m_tabIconSize;
+    CTabBar *tabs;
 
 signals:
 //    void sendAddEditor();

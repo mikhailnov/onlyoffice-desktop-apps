@@ -38,6 +38,7 @@
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QPushButton>
+#include <QTimer>
 #include "cscalingwrapper.h"
 #include <math.h>
 //class CTabBarPrivate;
@@ -110,6 +111,7 @@ private:
                 *rightButton,
                 *newLeftButton,
                 *newRightButton;
+    int scrollPos;
 };
 
 #endif // CTABBAR_H

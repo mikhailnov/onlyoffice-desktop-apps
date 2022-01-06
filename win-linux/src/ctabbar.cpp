@@ -238,7 +238,8 @@ void QTabBarPrivate::Tab::TabBarAnimation::updateState(QAbstractAnimation::State
 CTabBar::CTabBar(QWidget *parent) :
     QTabBar(parent),
     CScalingWrapper(parent),
-    parent(parent)
+    parent(parent),
+    scrollPos(0)
 {
     this->setDrawBase(false);
     if (Utils::getScreenDpiRatio(QApplication::desktop()->screen(
@@ -270,10 +271,14 @@ CTabBar::CTabBar(QWidget *parent) :
     newRightButton->raise();
     scrollerFrame->setVisible(false);
     connect(newLeftButton, &QToolButton::clicked, this, [this](){
-        emit leftButton->click();
+        leftButton->click();
+        Q_D(QTabBar);
+        scrollPos = d->scrollOffset;
     });
     connect(newRightButton, &QToolButton::clicked, this, [this](){
-        emit rightButton->click();
+        rightButton->click();
+        Q_D(QTabBar);
+        scrollPos = d->scrollOffset;
     }); // End bypassing the bug
 }
 
@@ -603,11 +608,11 @@ void CTabBar::paintEvent(QPaintEvent * event)
     }
 #endif
 
-    if ( scaling() > 1 ) {
-        /* qtabbar scroller doesn't apply big width */
+    /*if ( scaling() > 1 ) {    // after adding custom scroll buttons, there is no need
+        // qtabbar scroller doesn't apply big width
         d->leftB->setGeometry(d->rightB->geometry().adjusted(0,0,-24,0));
         d->leftB->raise();
-    }
+    }*/
 
     // Bypassing the bug with tab scroller
     if (leftButton->isVisible()) {
@@ -693,6 +698,9 @@ void CTabBar::tabInserted(int index)
 
 void CTabBar::onCurrentChanged(int index)
 {
+    Q_D(QTabBar);
+    scrollPos = d->scrollOffset;
+
     QWidget * b = TAB_BTNCLOSE(m_current);
 //    if ( tabData(m_current).isNull() )
     {
@@ -885,6 +893,33 @@ void CTabBar::updateScaling(double f)
 
 bool CTabBar::event(QEvent * e)
 {
+    if ( e->type() == QEvent::StyleChange ) {
+        QTimer::singleShot(50, this, [this](){
+            Q_D(QTabBar);
+            if (count() > 0 && d->scrollOffset != scrollPos) {
+                const int tabWidth = this->tabSizeHint(0).width();
+                if (scrollPos % tabWidth == 0) {
+                    for (int i = 0; i < count(); i++) {
+                        rightButton->click();
+                    }
+                    for (int i = 0; i < count(); i++) {
+                        if (d->scrollOffset == scrollPos) break;
+                        leftButton->click();
+                    }
+
+                } else {
+                    for (int i = 0; i < count(); i++) {
+                        leftButton->click();
+                    }
+                    for (int i = 0; i < count(); i++) {
+                        if (d->scrollOffset == scrollPos) break;
+                        rightButton->click();
+                    }
+                }
+            }
+        });
+
+    } else
     if ( e->type() == QEvent::HoverMove ) {
         Q_D(QTabBar);
 

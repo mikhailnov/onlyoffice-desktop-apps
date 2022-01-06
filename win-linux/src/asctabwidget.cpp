@@ -43,7 +43,6 @@
 #include <QTimer>
 #include <regex>
 
-#include "ctabbar.h"
 #include "ctabstyle.h"
 #include "casctabdata.h"
 #include "common/Types.h"
@@ -185,11 +184,11 @@ CAscTabWidget::CAscTabWidget(QWidget *parent)
     newLeftButton->setAttribute(Qt::WA_Hover, true);
     newRightButton->setAttribute(Qt::WA_Hover, true);   // End bypassing the bug
 
-    CTabBar * tabs = new CTabBar(this);
+    tabs = new CTabBar(this);
     tabs->setObjectName("asc_editors_tabbar");
     tabs->setTabTextColor(QPalette::Active, QColor(51, 51, 51));
     tabs->setTabTextColor(QPalette::Inactive, QColor(51, 51, 51));
-    setTabBar(tabs);
+    this->setTabBar(tabs);
 //    tabBar()->setStyle(new CTabStyle);
 //    tabBar()->setFixedWidth(450);
 
@@ -1388,12 +1387,13 @@ void CAscTabWidget::applyUITheme(const std::wstring& theme)
     reloadTabIcons();
     updateIcons();
 
-    CTabBar & _tabbar = *(static_cast<CTabBar *>(tabBar()));
+    //CTabBar & _tabbar = *(static_cast<CTabBar *>(tabBar()));
 //    _tabbar.setTabTextColor(QPalette::Active, AscAppManager::themes().color(theme, CThemes::ColorRole::ecrTextPressed));
-    _tabbar.setTabTextColor(QPalette::Inactive, AscAppManager::themes().current().color(CTheme::ColorRole::ecrTextNormal));
-    _tabbar.setUIThemeType(!AscAppManager::themes().current().isDark());
-    //_tabbar.style()->polish(&_tabbar);
-    //style()->polish(this);
+    tabs->setTabTextColor(QPalette::Inactive, AscAppManager::themes().current().color(CTheme::ColorRole::ecrTextNormal));
+    tabs->setUIThemeType(!AscAppManager::themes().current().isDark());
+    tabs->style()->polish(tabs);
+    style()->polish(this);
+
     QToolButton *newLeftButton = this->findChild<QToolButton*>("leftButton");
     QToolButton *newRightButton = this->findChild<QToolButton*>("rightButton");
     Q_ASSERT(newLeftButton != nullptr);
