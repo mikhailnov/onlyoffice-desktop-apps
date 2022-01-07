@@ -888,12 +888,13 @@ void CTabBar::updateScaling(double f)
 bool CTabBar::event(QEvent * e)
 {
     if ( e->type() == QEvent::StyleChange ) {
-        QTimer::singleShot(50, this, [this](){
+        QTimer::singleShot(20, this, [this](){
             Q_D(QTabBar);
             if (d->scrollOffset != scrollPos) {
                 const int tabWidth = this->tabSizeHint(0).width();
                 if (scrollPos % tabWidth == 0) {
                     for (int i = 0; i < count(); i++) {
+                        if (!d->rightB->isEnabled()) break;
                         d->rightB->click();
                     }
                     for (int i = 0; i < count(); i++) {
@@ -903,6 +904,7 @@ bool CTabBar::event(QEvent * e)
 
                 } else {
                     for (int i = 0; i < count(); i++) {
+                        if (!d->leftB->isEnabled()) break;
                         d->leftB->click();
                     }
                     for (int i = 0; i < count(); i++) {
