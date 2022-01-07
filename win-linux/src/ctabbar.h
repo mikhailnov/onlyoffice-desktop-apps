@@ -106,12 +106,10 @@ signals:
 private:
     Q_DECLARE_PRIVATE(QTabBar);
     QWidget *parent;
-    QFrame *scrollerFrame;
-    QToolButton *leftButton,
-                *rightButton,
-                *newLeftButton,
-                *newRightButton;
     int scrollPos;
+    QFrame *scrollerFrame;
+    QToolButton *newLeftButton,
+                *newRightButton;
 };
 
 #endif // CTABBAR_H
