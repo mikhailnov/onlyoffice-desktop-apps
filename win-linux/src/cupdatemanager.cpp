@@ -39,6 +39,7 @@ CUpdateManager::CUpdateManager(QObject *parent):
     last_check(0)
 {
     timer = new QTimer(this);
+    timer->setSingleShot(false);
     connect(timer, SIGNAL(timeout()), this, SLOT(checkUpdates()));
     readUpdateSettings();
     //netManager = new QNetworkAccessManager(this);
@@ -88,7 +89,10 @@ void CUpdateManager::checkUpdates()
         curl_easy_cleanup(curl);
         fclose(fp);
     }*/
-    updateNeededCheking();
+    QTimer::singleShot(3000, this, [this]() {
+        updateNeededCheking();
+    });
+    qDebug() << "Checked ...\n";
 }
 
 void CUpdateManager::readUpdateSettings()
@@ -98,7 +102,9 @@ void CUpdateManager::readUpdateSettings()
     current_frequency = reg_user.value("Updates/frequency").toInt();
     last_check = time_t(reg_user.value("Updates/last_check").toLongLong());
     reg_user.endGroup();
-    updateNeededCheking();
+    QTimer::singleShot(3000, this, [this]() {
+        updateNeededCheking();
+    });
 }
 
 void CUpdateManager::setNewUpdateSetting(const int& frequency)
@@ -108,15 +114,17 @@ void CUpdateManager::setNewUpdateSetting(const int& frequency)
     reg_user.beginGroup("Updates");
     reg_user.setValue("Updates/frequency", current_frequency);
     reg_user.endGroup();
-    updateNeededCheking();
+    QTimer::singleShot(3000, this, [this]() {
+        updateNeededCheking();
+    });
 }
 
 void CUpdateManager::updateNeededCheking() {
     timer->stop();
     int interval = 0;
-    const time_t DAY_TO_SEC = 24*3600;
+    const time_t DAY_TO_SEC = 10; // для проверки поставил 10 сек (должно быть 24*3600)
     const time_t WEEK_TO_SEC = 7*24*3600;
-    time_t curr_time = time(nullptr);
+    const time_t curr_time = time(nullptr);
     const time_t elapsed_time = curr_time - last_check;
     switch (current_frequency) {
     case Frequency::DAY:

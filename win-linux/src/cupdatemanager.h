@@ -69,8 +69,6 @@ public:
 
     ~CUpdateManager();
 
-    void checkUpdates();
-
     void setNewUpdateSetting(const int& frequency);
 
 private:
@@ -96,6 +94,10 @@ private:
     };
 
     //QNetworkAccessManager *netManager;
+
+public slots:
+
+    void checkUpdates();
 
 private slots:
 

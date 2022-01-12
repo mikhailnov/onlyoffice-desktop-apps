@@ -45,13 +45,18 @@ namespace {
 
 class CAppUpdater: public QObject
 {
+    Q_OBJECT
+
 public:
+
     CAppUpdater();
+
     ~CAppUpdater();
 
     void checkUpdates();
 
 private:
+
     std::shared_ptr<CThreadProc> m_toaster;
 
     void startChecking();

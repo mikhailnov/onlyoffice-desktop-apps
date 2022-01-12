@@ -50,10 +50,11 @@
 #include "cmessage.h"
 
 #ifndef URL_APPCAST_UPDATES
-# define URL_APPCAST_UPDATES ""
+    #define URL_APPCAST_UPDATES "http://nct.onlyoffice.com/sh/XHh"
 #endif
 
 using namespace std::placeholders;
+
 
 namespace {
     class CThreadProc: public QThread
@@ -68,18 +69,19 @@ namespace {
 
             void start()
             {
-                started = !(complete = false);
+                started = !(complete == false);
                 error = 0;
             }
 
             void stop(int e = 0)
             {
-                started = !(complete = true);
+                started = !(complete == true);
                 error = e;
             }
         };
 
     private:
+
         sTick m_ct;
         std::wstring m_url;
 
@@ -92,14 +94,14 @@ namespace {
 
             std::shared_ptr<NSNetwork::NSFileTransport::CFileDownloader> _downloader = std::make_shared<NSNetwork::NSFileTransport::CFileDownloader>(m_url, false);
 
-//            _downloader->SetEvent_OnComplete(bind(&CThreadProc::callback_download_complete, this, _1));
+            //_downloader->SetEvent_OnComplete(std::bind(&CThreadProc::callback_download_complete, this, _1));
 #ifdef Q_OS_WIN
             _downloader->SetFilePath(_wtmpnam(nullptr));
 #else
             std::string xml_tmpname = tmpnam(nullptr);
             _downloader->SetFilePath(NSFile::CUtf8Converter::GetUnicodeStringFromUTF8((BYTE*)xml_tmpname.c_str(), static_cast<long>(xml_tmpname.length())));
 #endif
-//            _downloader->Start(0);
+            _downloader->Start(0);
 
             m_ct.start();
             while (!m_ct.complete) {
@@ -116,17 +118,19 @@ namespace {
         }
 
     public:
+
         void setUrl(const std::wstring& url)
         {
             m_url = {url};
         }
 
     public slots:
-    signals:
+
+           signals:
         void complete(int, const std::wstring&);
     };
-}
 
+}
 
 
 CAppUpdater::CAppUpdater()
@@ -170,13 +174,13 @@ void CAppUpdater::parse_app_cast(const std::wstring& xmlname)
 
     if ( xmlcontent.length() > 0 ) {
 #ifdef Q_OS_WIN
-# ifdef Q_OS_WIN64
-#  define UPDATE_TARGET_OS "windows-x64"
-# else
-#  define UPDATE_TARGET_OS "windows-x86"
-# endif
+    #ifdef Q_OS_WIN64
+        #define UPDATE_TARGET_OS "windows-x64"
+    #else
+        #define UPDATE_TARGET_OS "windows-x86"
+    #endif
 #elif defined(Q_OS_LINUX)
-# define UPDATE_TARGET_OS "linux-64"
+    #define UPDATE_TARGET_OS "linux-64"
 #endif
 
         std::regex _regex{"sparkle:os=\"" UPDATE_TARGET_OS "\"\\ssparkle:version=\"((\\d{1,3})(?:.(\\d+))?(?:.(\\d+))?(?:.(\\d+))?)"};

@@ -161,7 +161,11 @@ void CMainWindow::showEvent(QShowEvent * e)
     if (!windowActivated) {
         windowActivated = true;
 
-        updateManager->checkUpdates();
+        QTimer::singleShot(3000, this, [this]() { // для теста CUpdateManager
+            //updateManager->setNewUpdateSetting(0);
+            //updateManager->checkUpdates();
+        });
+
     }
 //    qDebug() << "SHOW EVENT: " << e->type();
 }
