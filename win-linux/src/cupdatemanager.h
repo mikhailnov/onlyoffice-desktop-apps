@@ -28,65 +28,79 @@
  * Creative Commons Attribution-ShareAlike 4.0 International. See the License
  * terms at http://creativecommons.org/licenses/by-sa/4.0/legalcode
  *
-*/
+ */
 
-#ifndef CMAINWINDOW_H
-#define CMAINWINDOW_H
+#ifndef CUPDATEMANAGER_H
+#define CUPDATEMANAGER_H
 
-#include "cx11decoration.h"
+#include <QObject>
+#include <QSettings>
+#include <QTimer>
+#include <QMessageBox>
+#include <QIcon>
+#include <QUrl>
+//#include <QSslConfiguration>
+#include <QDesktopServices>
+/*#include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QNetworkAccessManager>*/
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+//#include <QAbstractButton>
+//#include <QLabel>
+//#include <QSizePolicy>
+#include <QCheckBox>
+//#include <QSslSocket>
+#include <QDebug>
+//#include <curl/curl.h>
+//#include <curl/easy.h>
+#include <ctime>
+#include "defines.h"
 
-#include <QMainWindow>
-#include "applicationmanager.h"
-#include "cmainpanelimpl.h"
-#include "cwindowbase.h"
-#include "cmainwindowbase.h"
-#include "cupdatemanager.h"
-//#include "cappupdater.h"
 
-class CMainWindow : public QMainWindow, public CX11Decoration, public CMainWindowBase
+class CUpdateManager: public QObject
 {
     Q_OBJECT
 
 public:
-    explicit CMainWindow(QWidget *parent = 0);
-    explicit CMainWindow(const QRect&);
-    ~CMainWindow();
 
-    CMainPanel * mainPanel() const;
-    QRect windowRect() const;
-    bool isMaximized() const;
-    void sendSertificate(int viewid);
-    QWidget * handle() const;
-    void bringToTop() const override;
-    void show(bool maximized);
-    void applyTheme(const std::wstring&) override;
-    void updateScaling() override;
+    explicit CUpdateManager(QObject *parent = nullptr);
 
-protected:
-    void closeEvent(QCloseEvent *);
-    void showEvent(QShowEvent *);
-    bool event(QEvent *event);
-    void mouseMoveEvent(QMouseEvent *);
-    void mousePressEvent(QMouseEvent *);
-    void mouseReleaseEvent(QMouseEvent *);
-    void captureMouse(int tabindex) override;
+    ~CUpdateManager();
 
-    void dragEnterEvent(QDragEnterEvent *event);
-    void dropEvent(QDropEvent *event);
+    void checkUpdates();
 
-    void setScreenScalingFactor(double factor);
+    void setNewUpdateSetting(const int& frequency);
+
 private:
-    CMainPanelImpl *   m_pMainPanel;
-    double m_dpiRatio = 1;
-    bool windowActivated;
-    CUpdateManager *updateManager;
-    //CAppUpdater *appUpdater;
 
-signals:
-public slots:
-    void slot_windowChangeState(Qt::WindowState);
-    void slot_windowClose();
-    void slot_modalDialog(bool status, WId h);
+    void readUpdateSettings();
+
+    void updateNeededCheking();
+
+    void sendMessage();
+
+#if defined (Q_OS_WIN)
+    void updateProgram();
+#endif
+
+    QTimer *timer;
+
+    int current_frequency;
+
+    time_t last_check;
+
+    enum Frequency {
+        DAY, WEEK, DISABLED
+    };
+
+    //QNetworkAccessManager *netManager;
+
+private slots:
+
+    //void onResult(QNetworkReply *reply);
 };
 
-#endif // CMAINWINDOW_H
+
+#endif // CUPDATEMANAGER_H

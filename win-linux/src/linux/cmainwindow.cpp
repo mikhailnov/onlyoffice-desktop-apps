@@ -43,6 +43,8 @@
 #include <QMimeData>
 #include "singleapplication.h"
 
+
+
 #ifdef DOCUMENTSCORE_OPENSSL_SUPPORT
 # include "cdialogopenssl.h"
 #endif
@@ -50,9 +52,12 @@
 CMainWindow::CMainWindow(QWidget *parent)
     : QMainWindow(parent)
     , CX11Decoration(this)
+    , windowActivated(false)
 {
 //    resize(1200, 700);
     setAcceptDrops(true);
+    updateManager = new CUpdateManager(this);
+    //appUpdater = new CAppUpdater();
 }
 
 CMainWindow::CMainWindow(const QRect& geometry)
@@ -140,6 +145,7 @@ CMainWindow::CMainWindow(const QRect& geometry)
 
 CMainWindow::~CMainWindow()
 {
+    //delete appUpdater;
 }
 
 void CMainWindow::closeEvent(QCloseEvent * e)
@@ -152,6 +158,11 @@ void CMainWindow::showEvent(QShowEvent * e)
 {
     Q_UNUSED(e)
 
+    if (!windowActivated) {
+        windowActivated = true;
+
+        updateManager->checkUpdates();
+    }
 //    qDebug() << "SHOW EVENT: " << e->type();
 }
 
