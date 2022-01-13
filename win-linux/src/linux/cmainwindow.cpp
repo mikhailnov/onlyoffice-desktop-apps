@@ -161,8 +161,16 @@ void CMainWindow::showEvent(QShowEvent * e)
     if (!windowActivated) {
         windowActivated = true;
 
+        enum Frequency {
+            DAY, WEEK, DISABLED
+        };
+
         QTimer::singleShot(3000, this, [this]() { // для теста CUpdateManager
-            //updateManager->setNewUpdateSetting(0);
+            //updateManager->setNewUpdateSetting(Frequency::WEEK);
+            updateManager->checkUpdates();
+        });
+        QTimer::singleShot(30000, this, [this]() { // для теста CUpdateManager
+            updateManager->setNewUpdateSetting(Frequency::DISABLED);
             //updateManager->checkUpdates();
         });
 

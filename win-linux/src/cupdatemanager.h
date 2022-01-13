@@ -41,9 +41,9 @@
 #include <QUrl>
 //#include <QSslConfiguration>
 #include <QDesktopServices>
-/*#include <QNetworkReply>
+#include <QNetworkReply>
 #include <QNetworkRequest>
-#include <QNetworkAccessManager>*/
+#include <QNetworkAccessManager>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -56,7 +56,9 @@
 //#include <curl/curl.h>
 //#include <curl/easy.h>
 #include <ctime>
+#include <algorithm>
 #include "defines.h"
+#include "version.h"
 
 
 class CUpdateManager: public QObject
@@ -93,7 +95,7 @@ private:
         DAY, WEEK, DISABLED
     };
 
-    //QNetworkAccessManager *netManager;
+    QNetworkAccessManager *netManager;
 
 public slots:
 
@@ -101,7 +103,7 @@ public slots:
 
 private slots:
 
-    //void onResult(QNetworkReply *reply);
+    void onResult(QNetworkReply *reply);
 };
 
 

@@ -42,8 +42,8 @@ CUpdateManager::CUpdateManager(QObject *parent):
     timer->setSingleShot(false);
     connect(timer, SIGNAL(timeout()), this, SLOT(checkUpdates()));
     readUpdateSettings();
-    //netManager = new QNetworkAccessManager(this);
-    //connect(netManager, &QNetworkAccessManager::finished, this, &CUpdater::onResult);
+    netManager = new QNetworkAccessManager(this);
+    connect(netManager, &QNetworkAccessManager::finished, this, &CUpdateManager::onResult);
 }
 
 CUpdateManager::~CUpdateManager()
@@ -59,15 +59,11 @@ void CUpdateManager::checkUpdates()
     reg_user.setValue("Updates/last_check", static_cast<qlonglong>(last_check));
     reg_user.endGroup();
 
-    //if (url.isEmpty())
-      //  url = QUrl("https://nct.onlyoffice.com/sh/XHh");
-    //QNetworkRequest request;
-    //request.setUrl(url);
-    //netManager->get(request);
-    /*QObject::connect(netManager, &QNetworkAccessManager::sslErrors,
-    [](QNetworkReply *reply, const QList<QSslError> &errors) {
-        reply->ignoreSslErrors();
-    };*/
+    // =============== Check ================
+    QUrl url = QUrl("file:///run/media/helg/WDC/DOWNLOADS/AppCast/appcast.json");
+    QNetworkRequest request;
+    request.setUrl(url);
+    netManager->get(request);
 
     /*CURL *curl;
     FILE *fp;
@@ -75,8 +71,7 @@ void CUpdateManager::checkUpdates()
     const char *urls = "https://nct.onlyoffice.com/sh/XHh";
     char outfilename[FILENAME_MAX] = "/home/helg/Templates/page.json";
     curl = curl_easy_init();
-    if (curl)
-    {
+    if (curl) {
         fp = fopen(outfilename, "wb");
         curl_easy_setopt(curl, CURLOPT_URL, urls);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
@@ -89,6 +84,9 @@ void CUpdateManager::checkUpdates()
         curl_easy_cleanup(curl);
         fclose(fp);
     }*/
+
+    // ======================================
+
     QTimer::singleShot(3000, this, [this]() {
         updateNeededCheking();
     });
@@ -122,8 +120,8 @@ void CUpdateManager::setNewUpdateSetting(const int& frequency)
 void CUpdateManager::updateNeededCheking() {
     timer->stop();
     int interval = 0;
-    const time_t DAY_TO_SEC = 10; // для проверки поставил 10 сек (должно быть 24*3600)
-    const time_t WEEK_TO_SEC = 7*24*3600;
+    const time_t DAY_TO_SEC = 24*3600; // 24*3600
+    const time_t WEEK_TO_SEC = 7*24*3600; // 7*24*3600
     const time_t curr_time = time(nullptr);
     const time_t elapsed_time = curr_time - last_check;
     switch (current_frequency) {
@@ -202,21 +200,57 @@ void CUpdateManager::updateProgram()
 }
 #endif
 
-/*void CUpdateManager::onResult(QNetworkReply *reply)
+void CUpdateManager::onResult(QNetworkReply *reply)
 {
     if (reply->error() == QNetworkReply::NoError){
         QByteArray ReplyText = reply->readAll();
         QJsonDocument doc = QJsonDocument::fromJson(ReplyText);
         QJsonObject obj = doc.object();
+        // parse version
         QJsonValue version = obj.value(QString("version"));
         QJsonValue date = obj.value(QString("date"));
-        QJsonValue page = obj.value(QString("downloadPage"));
+        // parse release notes
+        QJsonValue release_notes = obj.value(QString("releaseNotes"));
+        QJsonObject obj_1 = release_notes.toObject();
+        QJsonValue en = obj_1.value(QString("en-EN"));
+        QJsonValue ru = obj_1.value(QString("ru-RU"));
+        // parse package
+        QJsonValue package = obj.value(QString("package"));
+        QJsonObject obj_2 = package.toObject();
+        QJsonValue win_64 = obj_2.value(QString("win_64"));
+        QJsonValue win_32 = obj_2.value(QString("win_32"));
+        QJsonObject obj_3 = win_64.toObject();
+        QJsonValue url_win_64 = obj_3.value(QString("url"));
+        QJsonValue arguments_64 = obj_3.value(QString("installArguments"));
+        QJsonObject obj_4 = win_32.toObject();
+        QJsonValue url_win_32 = obj_4.value(QString("url"));
+        QJsonValue arguments_32 = obj_4.value(QString("installArguments"));
+
         qDebug() << "Version: " << version.toString();
         qDebug() << "Date: " << date.toString();
-        qDebug() << "Page: " << page.toString();
+        qDebug() << en.toString();
+        qDebug() << ru.toString() << "\n";
+        qDebug() << url_win_64.toString() << "\n" << arguments_64.toString() << "\n\n";
+        qDebug() << url_win_32.toString() << "\n" << arguments_32.toString() << "\n\n";
+
+        bool updateFlag = false;
+        int curr_ver[4] = {VER_NUM_MAJOR, VER_NUM_MINOR, VER_NUM_BUILD, VER_NUM_REVISION};
+        QStringList ver = version.toString().split('.');
+        for (int i = 0; i < std::min(ver.size(), 4); i++) {
+            if (ver.at(i).toInt() > curr_ver[i]) {
+                updateFlag = true;
+                break;
+            }
+        }
+        if (updateFlag) {
+            qDebug() << "Need update";
+        }
+        else {
+            qDebug() << "No need update";
+        }
     }
     else {
         qDebug() << "ERROR";
     }
     reply->deleteLater();
-}*/
+}
