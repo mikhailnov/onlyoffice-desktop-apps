@@ -38,17 +38,30 @@ CUpdateManager::CUpdateManager(QObject *parent):
     current_frequency(Frequency::DAY),
     last_check(0)
 {
+    std::wstring url = L"http://nct.onlyoffice.com/sh/XHh";
+    //std::wstring url = L"http://download.onlyoffice.com/install/desktop/editors/windows/onlyoffice/updates/editors_update_x64.exe";
+    downloader = new Downloader(url, false);
+    downloader->SetEvent_OnComplete(onComplete);
+    downloader->SetEvent_OnProgress(onProgress);
+    //downloader->DownloadAsync();
+#if defined (Q_OS_WIN)
+    downloader->SetFilePath(_wtmpnam(nullptr));
+#else
+    const QString temp_file = QDir::homePath() + QString("/temp.json");
+    downloader->SetFilePath(temp_file.toStdWString());
+#endif
+
     timer = new QTimer(this);
     timer->setSingleShot(false);
     connect(timer, SIGNAL(timeout()), this, SLOT(checkUpdates()));
     readUpdateSettings();
-    netManager = new QNetworkAccessManager(this);
-    connect(netManager, &QNetworkAccessManager::finished, this, &CUpdateManager::onResult);
+    //netManager = new QNetworkAccessManager(this);
+    //connect(netManager, &QNetworkAccessManager::finished, this, &CUpdateManager::onResult);
 }
 
 CUpdateManager::~CUpdateManager()
 {
-
+    delete downloader;
 }
 
 void CUpdateManager::checkUpdates()
@@ -60,10 +73,13 @@ void CUpdateManager::checkUpdates()
     reg_user.endGroup();
 
     // =============== Check ================
-    QUrl url = QUrl("file:///run/media/helg/WDC/DOWNLOADS/AppCast/appcast.json");
-    QNetworkRequest request;
-    request.setUrl(url);
-    netManager->get(request);
+    //QUrl url = QUrl("");
+    //downloader->DownloadAsync();
+    downloader->Start(0);
+
+    //QNetworkRequest request;
+    //request.setUrl(url);
+    //netManager->get(request);
 
     /*CURL *curl;
     FILE *fp;
@@ -90,7 +106,7 @@ void CUpdateManager::checkUpdates()
     QTimer::singleShot(3000, this, [this]() {
         updateNeededCheking();
     });
-    qDebug() << "Checked ...\n";
+    qDebug() << "Checked ...";
 }
 
 void CUpdateManager::readUpdateSettings()
@@ -149,48 +165,6 @@ void CUpdateManager::updateNeededCheking() {
     }
 }
 
-void CUpdateManager::sendMessage()
-{
-    QMessageBox msgBox(nullptr);
-    msgBox.setWindowTitle("Only Office");
-    msgBox.setWindowIcon(QIcon(":/res/icons/app.ico"));
-    msgBox.setIcon(QMessageBox::Information);
-    msgBox.setFixedWidth(150);
-    msgBox.setTextFormat(Qt::RichText);
-    msgBox.setText(tr("A new version of the program is available.\n"));
-#if defined (Q_OS_LINUX)
-    msgBox.setInformativeText(tr("Go to the update download page?"));
-#elif defined (Q_OS_WIN)
-    msgBox.setInformativeText(tr("Update the program?"));
-#endif
-    msgBox.setDetailedText(tr("Changelog is loading, wait ..."));
-    QCheckBox *checkBox = new QCheckBox(&msgBox);
-    checkBox->setText(tr("Don't show this message."));
-    msgBox.setCheckBox(checkBox);
-    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    msgBox.setDefaultButton(QMessageBox::Yes);
-    msgBox.setModal(true);
-    switch (msgBox.exec()) {
-    case QMessageBox::Yes:
-        qDebug() << "Ok";
-#if defined (Q_OS_LINUX)
-        QDesktopServices::openUrl(QUrl("https://www.onlyoffice.com/en/download-desktop.aspx", QUrl::TolerantMode));
-#elif defined (Q_OS_WIN)
-        updateProgram();
-#endif
-        break;
-    case QMessageBox::No:
-        qDebug() << "No";
-        break;
-    default:
-        break;
-    }
-
-    /*
-    Отправка уведомления в окно About
-    */
-}
-
 #if defined (Q_OS_WIN)
 void CUpdateManager::updateProgram()
 {
@@ -200,10 +174,10 @@ void CUpdateManager::updateProgram()
 }
 #endif
 
-void CUpdateManager::onResult(QNetworkReply *reply)
+void CUpdateManager::onResult()
 {
-    if (reply->error() == QNetworkReply::NoError){
-        QByteArray ReplyText = reply->readAll();
+    if (true){
+        QByteArray ReplyText;
         QJsonDocument doc = QJsonDocument::fromJson(ReplyText);
         QJsonObject obj = doc.object();
         // parse version
@@ -242,15 +216,21 @@ void CUpdateManager::onResult(QNetworkReply *reply)
                 break;
             }
         }
-        if (updateFlag) {
-            qDebug() << "Need update";
-        }
-        else {
-            qDebug() << "No need update";
-        }
+        emit onSendMessage(updateFlag);
     }
     else {
         qDebug() << "ERROR";
     }
-    reply->deleteLater();
+    //reply->deleteLater();
+}
+
+void CUpdateManager::onComplete(int error)
+{
+    qDebug() << "Complete... " << error;
+}
+
+int CUpdateManager::onProgress(int percent)
+{
+    qDebug() << "Percent... " << percent;
+    return percent;
 }

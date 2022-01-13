@@ -39,11 +39,12 @@
 #include <QMessageBox>
 #include <QIcon>
 #include <QUrl>
+#include <QDir>
 //#include <QSslConfiguration>
 #include <QDesktopServices>
-#include <QNetworkReply>
+/*#include <QNetworkReply>
 #include <QNetworkRequest>
-#include <QNetworkAccessManager>
+#include <QNetworkAccessManager>*/
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -59,6 +60,9 @@
 #include <algorithm>
 #include "defines.h"
 #include "version.h"
+#include "Network/FileTransporter/include/FileTransporter.h"
+
+typedef NSNetwork::NSFileTransport::CFileDownloader Downloader;
 
 
 class CUpdateManager: public QObject
@@ -79,8 +83,6 @@ private:
 
     void updateNeededCheking();
 
-    void sendMessage();
-
 #if defined (Q_OS_WIN)
     void updateProgram();
 #endif
@@ -95,15 +97,26 @@ private:
         DAY, WEEK, DISABLED
     };
 
-    QNetworkAccessManager *netManager;
+    Downloader *downloader;
+
+    //QNetworkAccessManager *netManager;
 
 public slots:
 
     void checkUpdates();
 
+       signals:
+
+    void onSendMessage(const bool &updateFlag);
+
 private slots:
 
-    void onResult(QNetworkReply *reply);
+    void onResult();
+
+    static void onComplete(int error);
+
+    static int onProgress(int percent);
+
 };
 
 

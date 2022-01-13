@@ -42,6 +42,7 @@
 #include "cmainwindowbase.h"
 #include "cupdatemanager.h"
 //#include "cappupdater.h"
+#include "cmessage.h"
 
 class CMainWindow : public QMainWindow, public CX11Decoration, public CMainWindowBase
 {
@@ -60,7 +61,7 @@ public:
     void bringToTop() const override;
     void show(bool maximized);
     void applyTheme(const std::wstring&) override;
-    void updateScaling() override;
+    void updateScaling() override;    
 
 protected:
     void closeEvent(QCloseEvent *);
@@ -75,12 +76,14 @@ protected:
     void dropEvent(QDropEvent *event);
 
     void setScreenScalingFactor(double factor);
+
 private:
     CMainPanelImpl *   m_pMainPanel;
     double m_dpiRatio = 1;
     bool windowActivated;
     CUpdateManager *updateManager;
     //CAppUpdater *appUpdater;
+    void showMessage(const bool &updateFlag);
 
 signals:
 public slots:

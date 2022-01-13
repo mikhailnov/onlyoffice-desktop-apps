@@ -55,6 +55,8 @@ public:
 
     void checkUpdates();
 
+    static void onComplete(int error);
+
 private:
 
     std::shared_ptr<CThreadProc> m_toaster;

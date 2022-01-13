@@ -57,6 +57,7 @@ CMainWindow::CMainWindow(QWidget *parent)
 //    resize(1200, 700);
     setAcceptDrops(true);
     updateManager = new CUpdateManager(this);
+    connect(updateManager, &CUpdateManager::onSendMessage, this, &CMainWindow::showMessage);
     //appUpdater = new CAppUpdater();
 }
 
@@ -161,6 +162,8 @@ void CMainWindow::showEvent(QShowEvent * e)
     if (!windowActivated) {
         windowActivated = true;
 
+        //appUpdater->checkUpdates();
+
         enum Frequency {
             DAY, WEEK, DISABLED
         };
@@ -176,6 +179,62 @@ void CMainWindow::showEvent(QShowEvent * e)
 
     }
 //    qDebug() << "SHOW EVENT: " << e->type();
+}
+
+void CMainWindow::showMessage(const bool &updateFlag)
+{
+    if (updateFlag) {
+        /*QMessageBox msgBox(nullptr);
+        msgBox.setWindowTitle("Only Office");
+        msgBox.setWindowIcon(QIcon(":/res/icons/app.ico"));
+        msgBox.setIcon(QMessageBox::Information);
+        msgBox.setFixedWidth(150);
+        msgBox.setTextFormat(Qt::RichText);
+        msgBox.setText(tr("A new version of the program is available.\n"));
+    #if defined (Q_OS_LINUX)
+        msgBox.setInformativeText(tr("Go to the update download page?"));
+    #elif defined (Q_OS_WIN)
+        msgBox.setInformativeText(tr("Update the program?"));
+    #endif
+        msgBox.setDetailedText(tr("Changelog is loading, wait ..."));
+        QCheckBox *checkBox = new QCheckBox(&msgBox);
+        checkBox->setText(tr("Don't show this message."));
+        msgBox.setCheckBox(checkBox);
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        msgBox.setDefaultButton(QMessageBox::Yes);
+        msgBox.setModal(true);
+        switch (msgBox.exec()) {
+        case QMessageBox::Yes:
+            qDebug() << "Ok";
+    #if defined (Q_OS_LINUX)
+            QDesktopServices::openUrl(QUrl("https://www.onlyoffice.com/en/download-desktop.aspx", QUrl::TolerantMode));
+    #elif defined (Q_OS_WIN)
+            updateProgram();
+    #endif
+            break;
+        case QMessageBox::No:
+            qDebug() << "No";
+            break;
+        default:
+            break;
+        }*/
+
+
+        CMessage m(this, CMessageOpts::moButtons::mbYesNo);
+        m.setButtons({"Yes", "No", "Cancel"});
+        switch (m.info(tr("Do you want to install a new version of the program?"))) {
+        case MODAL_RESULT_CUSTOM + 0:
+            break;
+        case MODAL_RESULT_CUSTOM + 1:
+            break;
+        default:
+            break;
+        }
+    }
+
+    /*
+    Отправка уведомления в окно About
+    */
 }
 
 bool CMainWindow::event(QEvent * event)

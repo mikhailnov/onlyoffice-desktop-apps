@@ -94,12 +94,13 @@ namespace {
 
             std::shared_ptr<NSNetwork::NSFileTransport::CFileDownloader> _downloader = std::make_shared<NSNetwork::NSFileTransport::CFileDownloader>(m_url, false);
 
-            //_downloader->SetEvent_OnComplete(std::bind(&CThreadProc::callback_download_complete, this, _1));
+            _downloader->SetEvent_OnComplete(CAppUpdater::onComplete);
 #ifdef Q_OS_WIN
             _downloader->SetFilePath(_wtmpnam(nullptr));
 #else
             std::string xml_tmpname = tmpnam(nullptr);
-            _downloader->SetFilePath(NSFile::CUtf8Converter::GetUnicodeStringFromUTF8((BYTE*)xml_tmpname.c_str(), static_cast<long>(xml_tmpname.length())));
+            std::wstring path = L"/home/helg/Downloads/file.json";
+            _downloader->SetFilePath(path);
 #endif
             _downloader->Start(0);
 
@@ -127,6 +128,7 @@ namespace {
     public slots:
 
            signals:
+
         void complete(int, const std::wstring&);
     };
 
@@ -158,6 +160,11 @@ void CAppUpdater::checkUpdates()
 
     m_toaster->setUrl(WSTR(URL_APPCAST_UPDATES));
     m_toaster->start();
+}
+
+void CAppUpdater::onComplete(int error)
+{
+    qDebug() << "Complete... " << error;
 }
 
 void CAppUpdater::slot_complete(int e, const std::wstring& xmlname)
