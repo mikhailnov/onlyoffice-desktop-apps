@@ -39,17 +39,39 @@ CUpdateManager::CUpdateManager(QObject *parent):
     last_check(0),
     downloadMode(Mode::CHECK_UPDATES)
 {
-    WString url = L"http://nct.onlyoffice.com/sh/XHh";
-    //WString url = L"http://download.onlyoffice.com/install/desktop/editors/windows/onlyoffice/updates/editors_update_x64.exe";
+    //WString url = L"http://nct.onlyoffice.com/sh/XHh";
+    WString url = L"http://download.onlyoffice.com/install/desktop/editors/windows/onlyoffice/updates/editors_update_x64.exe";
     downloader = new Downloader(url, false);
-    downloader->SetEvent_OnComplete(onComplete);
-    downloader->SetEvent_OnProgress(onProgress);
+    downloader->SetEvent_OnComplete([this](int error) {
+        if (error == 0) {
+            qDebug() << "Download complete... ";
+            switch (downloadMode) {
+            case Mode::CHECK_UPDATES:
+                onResult();
+                break;
+            case Mode::DOWNLOAD_UPDATES:
+
+                break;
+            default:
+                break;
+            }
+        }
+        else {
+            qDebug() << "Download error code: " << error;
+        }
+    });
+    downloader->SetEvent_OnProgress([this](int percent) {   // не отрабатывает
+        qDebug() << "Precent... " << percent;
+
+
+    });
+    QString temp_file = QDir::homePath() + QString("/temp.bin");
 #if defined (Q_OS_WIN)
-    downloader->SetFilePath(_wtmpnam(nullptr));
+    temp_file = QDir::homePath() + QString("/temp.bin");
+    //downloader->SetFilePath(_wtmpnam(nullptr));
 #else
-    const QString temp_file = QDir::homePath() + QString("/temp.json");
-    downloader->SetFilePath(temp_file.toStdWString());
 #endif
+    downloader->SetFilePath(temp_file.toStdWString());
     timer = new QTimer(this);
     timer->setSingleShot(false);
     connect(timer, SIGNAL(timeout()), this, SLOT(checkUpdates()));
@@ -72,8 +94,10 @@ void CUpdateManager::checkUpdates()
     reg_user.endGroup();
 
     // =============== Check ================
-    WString url = L"http://nct.onlyoffice.com/sh/XHh";
+    //WString url = L"http://nct.onlyoffice.com/sh/XHh";
+    WString url = L"http://download.onlyoffice.com/install/desktop/editors/windows/onlyoffice/updates/editors_update_x64.exe";
     downloadMode = Mode::CHECK_UPDATES;
+    downloader->SetFileUrl(url);
     downloader->Start(0);
 
     //QNetworkRequest request;
@@ -227,27 +251,3 @@ void CUpdateManager::onResult()
     //reply->deleteLater();
 }
 
-void CUpdateManager::onComplete(int error)
-{
-    if (error == 0) {
-        qDebug() << "Download complete... ";
-        switch (downloadMode) {
-        case Mode::CHECK_UPDATES:
-            onResult();
-            break;
-        case Mode::DOWNLOAD_UPDATES:
-            break;
-        default:
-            break;
-        }
-    }
-    else {
-        qDebug() << "Download error code: " << error;
-    }
-}
-
-int CUpdateManager::onProgress(int percent)
-{
-    qDebug() << "Percent... " << percent;
-    return percent;
-}

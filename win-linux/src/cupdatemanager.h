@@ -84,6 +84,8 @@ private:
 
     void updateNeededCheking();
 
+    void onResult();
+
 #if defined (Q_OS_WIN)
     void updateProgram();
 #endif
@@ -115,15 +117,6 @@ public slots:
        signals:
 
     void onSendMessage(const bool &updateFlag);
-
-private slots:
-
-    void onResult();
-
-    void onComplete(int error);
-
-    int onProgress(int percent);
-
 };
 
 
