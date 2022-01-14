@@ -58,7 +58,6 @@ CMainWindow::CMainWindow(QWidget *parent)
     setAcceptDrops(true);
     updateManager = new CUpdateManager(this);
     connect(updateManager, &CUpdateManager::onSendMessage, this, &CMainWindow::showMessage);
-    //appUpdater = new CAppUpdater();
 }
 
 CMainWindow::CMainWindow(const QRect& geometry)
@@ -161,13 +160,9 @@ void CMainWindow::showEvent(QShowEvent * e)
 
     if (!windowActivated) {
         windowActivated = true;
-
-        //appUpdater->checkUpdates();
-
         enum Frequency {
             DAY, WEEK, DISABLED
         };
-
         QTimer::singleShot(3000, this, [this]() { // для теста CUpdateManager
             //updateManager->setNewUpdateSetting(Frequency::WEEK);
             updateManager->checkUpdates();

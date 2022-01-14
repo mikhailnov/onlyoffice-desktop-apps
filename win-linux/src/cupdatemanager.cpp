@@ -36,21 +36,20 @@
 CUpdateManager::CUpdateManager(QObject *parent):
     QObject(parent),
     current_frequency(Frequency::DAY),
-    last_check(0)
+    last_check(0),
+    downloadMode(Mode::CHECK_UPDATES)
 {
-    std::wstring url = L"http://nct.onlyoffice.com/sh/XHh";
-    //std::wstring url = L"http://download.onlyoffice.com/install/desktop/editors/windows/onlyoffice/updates/editors_update_x64.exe";
+    WString url = L"http://nct.onlyoffice.com/sh/XHh";
+    //WString url = L"http://download.onlyoffice.com/install/desktop/editors/windows/onlyoffice/updates/editors_update_x64.exe";
     downloader = new Downloader(url, false);
     downloader->SetEvent_OnComplete(onComplete);
     downloader->SetEvent_OnProgress(onProgress);
-    //downloader->DownloadAsync();
 #if defined (Q_OS_WIN)
     downloader->SetFilePath(_wtmpnam(nullptr));
 #else
     const QString temp_file = QDir::homePath() + QString("/temp.json");
     downloader->SetFilePath(temp_file.toStdWString());
 #endif
-
     timer = new QTimer(this);
     timer->setSingleShot(false);
     connect(timer, SIGNAL(timeout()), this, SLOT(checkUpdates()));
@@ -73,8 +72,8 @@ void CUpdateManager::checkUpdates()
     reg_user.endGroup();
 
     // =============== Check ================
-    //QUrl url = QUrl("");
-    //downloader->DownloadAsync();
+    WString url = L"http://nct.onlyoffice.com/sh/XHh";
+    downloadMode = Mode::CHECK_UPDATES;
     downloader->Start(0);
 
     //QNetworkRequest request;
@@ -176,6 +175,10 @@ void CUpdateManager::updateProgram()
 
 void CUpdateManager::onResult()
 {
+    WString path = downloader->GetFilePath();
+    qDebug() << QString::fromStdWString(path);
+    QFile file;
+
     if (true){
         QByteArray ReplyText;
         QJsonDocument doc = QJsonDocument::fromJson(ReplyText);
@@ -226,7 +229,21 @@ void CUpdateManager::onResult()
 
 void CUpdateManager::onComplete(int error)
 {
-    qDebug() << "Complete... " << error;
+    if (error == 0) {
+        qDebug() << "Download complete... ";
+        switch (downloadMode) {
+        case Mode::CHECK_UPDATES:
+            onResult();
+            break;
+        case Mode::DOWNLOAD_UPDATES:
+            break;
+        default:
+            break;
+        }
+    }
+    else {
+        qDebug() << "Download error code: " << error;
+    }
 }
 
 int CUpdateManager::onProgress(int percent)

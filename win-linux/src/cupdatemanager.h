@@ -62,6 +62,7 @@
 #include "version.h"
 #include "Network/FileTransporter/include/FileTransporter.h"
 
+typedef std::wstring WString;
 typedef NSNetwork::NSFileTransport::CFileDownloader Downloader;
 
 
@@ -97,6 +98,12 @@ private:
         DAY, WEEK, DISABLED
     };
 
+    enum Mode {
+        CHECK_UPDATES, DOWNLOAD_UPDATES
+    };
+
+    int downloadMode;
+
     Downloader *downloader;
 
     //QNetworkAccessManager *netManager;
@@ -113,9 +120,9 @@ private slots:
 
     void onResult();
 
-    static void onComplete(int error);
+    void onComplete(int error);
 
-    static int onProgress(int percent);
+    int onProgress(int percent);
 
 };
 

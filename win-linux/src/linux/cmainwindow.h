@@ -41,7 +41,6 @@
 #include "cwindowbase.h"
 #include "cmainwindowbase.h"
 #include "cupdatemanager.h"
-//#include "cappupdater.h"
 #include "cmessage.h"
 
 class CMainWindow : public QMainWindow, public CX11Decoration, public CMainWindowBase
@@ -82,7 +81,6 @@ private:
     double m_dpiRatio = 1;
     bool windowActivated;
     CUpdateManager *updateManager;
-    //CAppUpdater *appUpdater;
     void showMessage(const bool &updateFlag);
 
 signals:
