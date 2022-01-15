@@ -1468,11 +1468,21 @@ bool CAscApplicationManagerWrapper::applySettings(const wstring& wstrjson)
             params.append(L"&mode=view");
         }
 
-#ifdef _UPDMODULE
+/*#ifdef _UPDMODULE
         if ( objRoot.contains("checkupdatesrate") ) {
             CMainWindow::setAutocheckUpdatesInterval(objRoot.value("checkupdatesrate").toString());
         }
-#endif
+#endif*/
+        if ( objRoot.contains("checkupdatesrate") ) {
+            enum Frequency {
+                DAY, WEEK, DISABLED
+            };
+            const QString rate = objRoot.value("checkupdatesrate").toString();
+            qDebug() << rate;
+            const int frequency = (rate == "never") ? Frequency::DISABLED : (rate == "day") ? Frequency::DAY : Frequency::WEEK;
+            m_pMainWindow->updateManager->setNewUpdateSetting(frequency);
+        }
+
 
         InputArgs::set_webapps_params(params);
         AscAppManager::getInstance().InitAdditionalEditorParams( params );

@@ -165,7 +165,7 @@ void CMainWindow::showEvent(QShowEvent * e)
         };
         QTimer::singleShot(3000, this, [this]() { // для теста CUpdateManager
             //updateManager->setNewUpdateSetting(Frequency::WEEK);
-            updateManager->checkUpdates();
+            //updateManager->checkUpdates();
         });
         QTimer::singleShot(30000, this, [this]() { // для теста CUpdateManager
             //updateManager->setNewUpdateSetting(Frequency::DISABLED);
@@ -179,6 +179,12 @@ void CMainWindow::showEvent(QShowEvent * e)
 void CMainWindow::slot_mainPageReady()
 {
     AscAppManager::sendCommandTo(0, "updates:turn", "on");
+    GET_REGISTRY_USER(reg_user);
+    reg_user.beginGroup("Updates");
+    int current_frequency = reg_user.value("Updates/frequency").toInt(); // DAY, WEEK, DISABLED
+    reg_user.endGroup();
+    const QString keys[] = {"day", "week", "never"};
+    AscAppManager::sendCommandTo(0, "settings:check.updates", keys[current_frequency]);
 }
 
 void CMainWindow::showMessage(const bool &error, const bool &updateExist, const QString &changelog)

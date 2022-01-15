@@ -149,6 +149,7 @@ void CUpdateManager::setNewUpdateSetting(const int& frequency)
     QTimer::singleShot(3000, this, [this]() {
         updateNeededCheking();
     });
+    qDebug() << "Set new updates rate: " << current_frequency ;
 }
 
 void CUpdateManager::updateNeededCheking() {
