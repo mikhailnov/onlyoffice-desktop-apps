@@ -61,7 +61,8 @@ public:
     void bringToTop() const override;
     void show(bool maximized);
     void applyTheme(const std::wstring&) override;
-    void updateScaling() override;    
+    void updateScaling() override;
+    CUpdateManager *updateManager;
 
 protected:
     void closeEvent(QCloseEvent *);
@@ -81,7 +82,8 @@ private:
     CMainPanelImpl *   m_pMainPanel;
     double m_dpiRatio = 1;
     bool windowActivated;
-    CUpdateManager *updateManager;
+
+    void slot_mainPageReady();
     void showMessage(const bool &error, const bool &updateExist, const QString &changelog);
 
 signals:

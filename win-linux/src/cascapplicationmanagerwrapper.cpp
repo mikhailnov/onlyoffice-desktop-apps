@@ -264,11 +264,12 @@ bool CAscApplicationManagerWrapper::processCommonEvent(NSEditorApi::CAscCefMenuE
             return true;
         } else
         if ( !(cmd.find(L"update") == std::wstring::npos) ) {
-#ifdef _UPDMODULE
+/*#ifdef _UPDMODULE
             if ( QString::fromStdWString(pData->get_Param()) == "check" ) {
                 CMainWindow::checkUpdates();
             }
-#endif
+#endif*/
+            m_pMainWindow->updateManager->checkUpdates();
 
             return true;
         } else

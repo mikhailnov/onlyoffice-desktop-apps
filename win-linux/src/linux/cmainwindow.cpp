@@ -133,7 +133,7 @@ CMainWindow::CMainWindow(const QRect& geometry)
 //    restoreState(reg_user.value("windowstate").toByteArray());
 
     QMetaObject::connectSlotsByName(this);
-
+    connect(m_pMainPanel, &CMainPanel::mainPageReady, std::bind(&CMainWindow::slot_mainPageReady, this));
     connect(m_pMainPanel, &CMainPanel::mainWindowChangeState, this, &CMainWindow::slot_windowChangeState);
     connect(m_pMainPanel, &CMainPanel::mainWindowWantToClose, this, &CMainWindow::slot_windowClose);
     connect(&AscAppManager::getInstance().commonEvents(), &CEventDriver::onModalDialog, this, &CMainWindow::slot_modalDialog);
@@ -174,6 +174,11 @@ void CMainWindow::showEvent(QShowEvent * e)
 
     }
 //    qDebug() << "SHOW EVENT: " << e->type();
+}
+
+void CMainWindow::slot_mainPageReady()
+{
+    AscAppManager::sendCommandTo(0, "updates:turn", "on");
 }
 
 void CMainWindow::showMessage(const bool &error, const bool &updateExist, const QString &changelog)
