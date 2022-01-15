@@ -37,7 +37,7 @@ CUpdateManager::CUpdateManager(QObject *parent):
     QObject(parent),
     current_frequency(Frequency::DAY),
     downloadMode(Mode::CHECK_UPDATES),
-    language(Language::EN),
+    locale("en-EN"),
     last_check(0)
 {
 #if defined (Q_OS_WIN)
@@ -93,6 +93,8 @@ void CUpdateManager::checkUpdates()
     changelog_url = L"";
     last_check = time(nullptr);
     GET_REGISTRY_USER(reg_user);
+    locale = reg_user.value("locale").toString();
+    qDebug() << locale;
     reg_user.beginGroup("Updates");
     reg_user.setValue("Updates/last_check", static_cast<qlonglong>(last_check));
     reg_user.endGroup();
@@ -116,11 +118,13 @@ void CUpdateManager::checkUpdates()
 void CUpdateManager::readUpdateSettings()
 {
     GET_REGISTRY_USER(reg_user);
+    locale = reg_user.value("locale").toString();
+    qDebug() << locale;
     reg_user.beginGroup("Updates");
     current_frequency = reg_user.value("Updates/frequency").toInt();
     last_check = time_t(reg_user.value("Updates/last_check").toLongLong());
     reg_user.endGroup();
-//#if defined (Q_OS_WIN)
+#if defined (Q_OS_WIN)
     reg_user.beginGroup("Temp"); // Удаление пакета обновления при старте программы
     const QString tmp_file = reg_user.value("Temp/temp_file").toString();
     reg_user.endGroup();
@@ -130,7 +134,7 @@ void CUpdateManager::readUpdateSettings()
         reg_user.setValue("Temp/temp_file", QString(""));
         reg_user.endGroup();
     }
-//#endif
+#endif
     QTimer::singleShot(3000, this, [this]() {
         updateNeededCheking();
     });
@@ -232,8 +236,8 @@ void CUpdateManager::onLoadCheckFinished()
         // parse release notes
         QJsonValue release_notes = obj.value(QString("releaseNotes"));
         QJsonObject obj_1 = release_notes.toObject();
-        const QString pages[] = {"en-EN", "ru-RU"};
-        QJsonValue changelog = obj_1.value(pages[language]);
+        const QString page = (locale == "ru-RU") ? "ru-RU" : "en-EN";
+        QJsonValue changelog = obj_1.value(page);
         changelog_url = changelog.toString().toStdWString();
 
         // parse package

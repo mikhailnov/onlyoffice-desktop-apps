@@ -84,8 +84,9 @@ private:
 #endif
 
     int         current_frequency,
-                downloadMode,
-                language;
+                downloadMode;
+
+    QString     locale;
 
     time_t      last_check;
 
@@ -101,9 +102,6 @@ private:
     };
     enum Mode {
         CHECK_UPDATES, DOWNLOAD_CHANGELOG, DOWNLOAD_UPDATES
-    };
-    enum Language {
-        EN, RU
     };
 
 public slots:
