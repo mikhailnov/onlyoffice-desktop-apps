@@ -72,6 +72,8 @@ private:
 
     void updateNeededCheking();
 
+    void loadChangelog(const WString &changelog_url);
+
     void onLoadCheckFinished();
 
     void onLoadChangelogFinished();
@@ -90,8 +92,7 @@ private:
 
     time_t      last_check;
 
-    WString     check_url,
-                changelog_url;
+    WString     check_url;
 
     QTimer      *timer;
 
@@ -106,9 +107,7 @@ private:
 
 public slots:
 
-    void checkUpdates();
-
-    void loadChangelog();
+    void checkUpdates();    
 
 #if defined (Q_OS_WIN)
     void loadUpdates();
@@ -118,9 +117,7 @@ public slots:
 
        signals:
 
-    void checkFinished(const bool &updateFlag);
-
-    void changelogLoaded(const QString &html);
+    void checkFinished(const bool &error, const bool &updateExist, const QString &changelog);
 
     void progresChanged(const int &percent);
 };

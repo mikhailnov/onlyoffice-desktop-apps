@@ -43,7 +43,6 @@ CUpdateManager::CUpdateManager(QObject *parent):
 #if defined (Q_OS_WIN)
     package_url = L"";
 #endif
-    changelog_url = L"";
     check_url = CHECK_URL;
     downloader = new Downloader(check_url, false);
     downloader->SetEvent_OnComplete([this](int error) {
@@ -90,7 +89,6 @@ void CUpdateManager::checkUpdates()
     package_url = L"";
     package_args = L"";
 #endif
-    changelog_url = L"";
     last_check = time(nullptr);
     GET_REGISTRY_USER(reg_user);
     locale = reg_user.value("locale").toString();
@@ -100,6 +98,7 @@ void CUpdateManager::checkUpdates()
     reg_user.endGroup();
 
     // =========== Download JSON ============
+    downloader->Stop();
     downloadMode = Mode::CHECK_UPDATES;
     downloader->SetFileUrl(check_url);
     QUuid uuid = QUuid::createUuid();
@@ -187,6 +186,7 @@ void CUpdateManager::updateNeededCheking() {
 #if defined (Q_OS_WIN)
 void CUpdateManager::loadUpdates()
 {
+    downloader->Stop();
     if (package_url != L"") {
         downloadMode = Mode::DOWNLOAD_UPDATES;
         downloader->SetFileUrl(package_url);
@@ -238,7 +238,7 @@ void CUpdateManager::onLoadCheckFinished()
         QJsonObject obj_1 = release_notes.toObject();
         const QString page = (locale == "ru-RU") ? "ru-RU" : "en-EN";
         QJsonValue changelog = obj_1.value(page);
-        changelog_url = changelog.toString().toStdWString();
+        const WString changelog_url = changelog.toString().toStdWString();
 
         // parse package
 #if defined (Q_OS_WIN)
@@ -260,22 +260,29 @@ void CUpdateManager::onLoadCheckFinished()
         qDebug() << "Date: " << date.toString();
         qDebug() << "Changelog: " << changelog.toString();
 
-        bool updateFlag = false;
+        bool updateExist = false;
         int curr_ver[4] = {VER_NUM_MAJOR, VER_NUM_MINOR, VER_NUM_BUILD, VER_NUM_REVISION};
         QStringList ver = version.toString().split('.');
         for (int i = 0; i < std::min(ver.size(), 4); i++) {
             if (ver.at(i).toInt() > curr_ver[i]) {
-                updateFlag = true;
+                updateExist = true;
                 break;
             }
         }
-        emit checkFinished(updateFlag);
+        if (updateExist) {
+            loadChangelog(changelog_url);
+        } else {
+            emit checkFinished(false, false, QString(""));
+        }
+    } else {
+        emit checkFinished(true, false, QString(""));
     }
     if (QDir().exists(path)) QDir().remove(path);
 }
 
-void CUpdateManager::loadChangelog()
+void CUpdateManager::loadChangelog(const WString &changelog_url)
 {
+    downloader->Stop();
     if (changelog_url != L"") {
         downloadMode = Mode::DOWNLOAD_CHANGELOG;
         downloader->SetFileUrl(changelog_url);
@@ -294,7 +301,9 @@ void CUpdateManager::onLoadChangelogFinished()
     if (htmlFile.open(QIODevice::ReadOnly)) {
         const QString html = QString(htmlFile.readAll());
         htmlFile.close();
-        emit changelogLoaded(html);
+        emit checkFinished(false, true, html);
+    } else {
+        emit checkFinished(false, true, QString("No available description..."));
     }
     if (QDir().exists(path)) QDir().remove(path);
 }

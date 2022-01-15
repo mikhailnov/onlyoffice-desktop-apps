@@ -58,9 +58,6 @@ CMainWindow::CMainWindow(QWidget *parent)
     setAcceptDrops(true);
     updateManager = new CUpdateManager(this);
     connect(updateManager, &CUpdateManager::checkFinished, this, &CMainWindow::showMessage);
-    connect(updateManager, &CUpdateManager::changelogLoaded, [this](const QString &html) {
-        qDebug() << html;
-    });
 }
 
 CMainWindow::CMainWindow(const QRect& geometry)
@@ -172,20 +169,31 @@ void CMainWindow::showEvent(QShowEvent * e)
         });
         QTimer::singleShot(30000, this, [this]() { // для теста CUpdateManager
             //updateManager->setNewUpdateSetting(Frequency::DISABLED);
-            updateManager->checkUpdates();
+            //updateManager->checkUpdates();
         });
 
     }
 //    qDebug() << "SHOW EVENT: " << e->type();
 }
 
-void CMainWindow::showMessage(const bool &updateFlag)
+void CMainWindow::showMessage(const bool &error, const bool &updateExist, const QString &changelog)
 {
-    if (updateFlag) {
-        updateManager->loadChangelog();
-        CMessage m(this, CMessageOpts::moButtons::mbYesNo);
-        m.setButtons({"Yes", "No"});
-        switch (m.info(tr("Do you want to install a new version of the program?"))) {
+    if (updateExist) {
+        CMessage mbox(this, CMessageOpts::moButtons::mbYesNo);
+        mbox.setButtons({"Yes", "No", "Show Details..."});
+        QVBoxLayout *layout = mbox.findChild<QVBoxLayout*>("", Qt::FindChildrenRecursively);
+        QTextBrowser *browser = new QTextBrowser(&mbox);
+        layout->addWidget(browser);
+        browser->setOpenExternalLinks(true);
+        browser->setHtml(changelog);
+        QList<QPushButton*> buttons = mbox.findChildren<QPushButton*>("", Qt::FindChildrenRecursively);
+        foreach (QPushButton *btn, buttons) {
+            qDebug() << btn->objectName();
+        }
+        buttons[0]->setStyleSheet("background: #800000");
+        buttons[1]->setStyleSheet("background: #008000");
+        buttons[2]->setStyleSheet("background: #000080");
+        switch (mbox.info(tr("Do you want to install a new version of the program?"))) {
         case MODAL_RESULT_CUSTOM + 0:
             break;
         case MODAL_RESULT_CUSTOM + 1:

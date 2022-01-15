@@ -36,6 +36,7 @@
 #include "cx11decoration.h"
 
 #include <QMainWindow>
+#include <QTextBrowser>
 #include "applicationmanager.h"
 #include "cmainpanelimpl.h"
 #include "cwindowbase.h"
@@ -81,7 +82,7 @@ private:
     double m_dpiRatio = 1;
     bool windowActivated;
     CUpdateManager *updateManager;
-    void showMessage(const bool &updateFlag);
+    void showMessage(const bool &error, const bool &updateExist, const QString &changelog);
 
 signals:
 public slots:
