@@ -36,48 +36,47 @@
 CUpdateManager::CUpdateManager(QObject *parent):
     QObject(parent),
     current_frequency(Frequency::DAY),
-    last_check(0),
-    downloadMode(Mode::CHECK_UPDATES)
+    downloadMode(Mode::CHECK_UPDATES),
+    language(Language::EN),
+    last_check(0)
 {
-    //WString url = L"http://nct.onlyoffice.com/sh/XHh";
-    WString url = L"http://download.onlyoffice.com/install/desktop/editors/windows/onlyoffice/updates/editors_update_x64.exe";
-    downloader = new Downloader(url, false);
+#if defined (Q_OS_WIN)
+    package_url = L"";
+#endif
+    changelog_url = L"";
+    check_url = CHECK_URL;
+    downloader = new Downloader(check_url, false);
     downloader->SetEvent_OnComplete([this](int error) {
         if (error == 0) {
             qDebug() << "Download complete... ";
             switch (downloadMode) {
             case Mode::CHECK_UPDATES:
-                onResult();
+                onLoadCheckFinished();
                 break;
+            case Mode::DOWNLOAD_CHANGELOG:
+                onLoadChangelogFinished();
+                break;
+#if defined (Q_OS_WIN)
             case Mode::DOWNLOAD_UPDATES:
-
+                onLoadUpdateFinished();
                 break;
+#endif
             default:
                 break;
             }
         }
         else {
-            qDebug() << "Download error code: " << error;
+            qDebug() << "Download error: " << error;
         }
     });
     downloader->SetEvent_OnProgress([this](int percent) {   // не отрабатывает
         qDebug() << "Precent... " << percent;
-
-
+        emit progresChanged(percent);
     });
-    QString temp_file = QDir::homePath() + QString("/temp.bin");
-#if defined (Q_OS_WIN)
-    temp_file = QDir::homePath() + QString("/temp.bin");
-    //downloader->SetFilePath(_wtmpnam(nullptr));
-#else
-#endif
-    downloader->SetFilePath(temp_file.toStdWString());
     timer = new QTimer(this);
     timer->setSingleShot(false);
     connect(timer, SIGNAL(timeout()), this, SLOT(checkUpdates()));
     readUpdateSettings();
-    //netManager = new QNetworkAccessManager(this);
-    //connect(netManager, &QNetworkAccessManager::finished, this, &CUpdateManager::onResult);
 }
 
 CUpdateManager::~CUpdateManager()
@@ -87,49 +86,31 @@ CUpdateManager::~CUpdateManager()
 
 void CUpdateManager::checkUpdates()
 {
+#if defined (Q_OS_WIN)
+    package_url = L"";
+    package_args = L"";
+#endif
+    changelog_url = L"";
     last_check = time(nullptr);
     GET_REGISTRY_USER(reg_user);
     reg_user.beginGroup("Updates");
     reg_user.setValue("Updates/last_check", static_cast<qlonglong>(last_check));
     reg_user.endGroup();
 
-    // =============== Check ================
-    //WString url = L"http://nct.onlyoffice.com/sh/XHh";
-    WString url = L"http://download.onlyoffice.com/install/desktop/editors/windows/onlyoffice/updates/editors_update_x64.exe";
+    // =========== Download JSON ============
     downloadMode = Mode::CHECK_UPDATES;
-    downloader->SetFileUrl(url);
-    downloader->Start(0);
-
-    //QNetworkRequest request;
-    //request.setUrl(url);
-    //netManager->get(request);
-
-    /*CURL *curl;
-    FILE *fp;
-    CURLcode res;
-    const char *urls = "https://nct.onlyoffice.com/sh/XHh";
-    char outfilename[FILENAME_MAX] = "/home/helg/Templates/page.json";
-    curl = curl_easy_init();
-    if (curl) {
-        fp = fopen(outfilename, "wb");
-        curl_easy_setopt(curl, CURLOPT_URL, urls);
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
-        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
-        res = curl_easy_perform(curl);
-        if(res != CURLE_OK) {
-            qDebug() << stderr << curl_easy_strerror(res);
-        }
-        curl_easy_cleanup(curl);
-        fclose(fp);
-    }*/
-
+    downloader->SetFileUrl(check_url);
+    QUuid uuid = QUuid::createUuid();
+    const QString tmp_name = uuid.toString().replace(QRegularExpression("[{|}]+"), "") + QString(".json");
+    const QString tmp_file = QDir::tempPath() + QDir::separator() + tmp_name;
+    downloader->SetFilePath(tmp_file.toStdWString());
+    downloader->Start(0);   
     // ======================================
 
     QTimer::singleShot(3000, this, [this]() {
         updateNeededCheking();
     });
-    qDebug() << "Checked ...";
+    qDebug() << "Updates checked ...";
 }
 
 void CUpdateManager::readUpdateSettings()
@@ -139,6 +120,17 @@ void CUpdateManager::readUpdateSettings()
     current_frequency = reg_user.value("Updates/frequency").toInt();
     last_check = time_t(reg_user.value("Updates/last_check").toLongLong());
     reg_user.endGroup();
+//#if defined (Q_OS_WIN)
+    reg_user.beginGroup("Temp"); // Удаление пакета обновления при старте программы
+    const QString tmp_file = reg_user.value("Temp/temp_file").toString();
+    reg_user.endGroup();
+    if (!tmp_file.isEmpty()) {
+        if (QDir().exists(tmp_file)) QDir().remove(tmp_file);
+        reg_user.beginGroup("Temp");
+        reg_user.setValue("Temp/temp_file", QString(""));
+        reg_user.endGroup();
+    }
+//#endif
     QTimer::singleShot(3000, this, [this]() {
         updateNeededCheking();
     });
@@ -189,50 +181,80 @@ void CUpdateManager::updateNeededCheking() {
 }
 
 #if defined (Q_OS_WIN)
-void CUpdateManager::updateProgram()
+void CUpdateManager::loadUpdates()
 {
+    if (package_url != L"") {
+        downloadMode = Mode::DOWNLOAD_UPDATES;
+        downloader->SetFileUrl(package_url);
+        QUuid uuid = QUuid::createUuid();
+        const QString tmp_name = uuid.toString().replace(QRegularExpression("[{|}]+"), "") + QString(".exe");
+        const QString tmp_file = QDir::tempPath() + QDir::separator() + tmp_name;
+        downloader->SetFilePath(tmp_file.toStdWString());
+        downloader->Start(0);
+    }
+}
+
+void CUpdateManager::cancelLoading()
+{
+    const QString path = QString::fromStdWString(downloader->GetFilePath());
+    downloader->Stop();
+    if (QDir().exists(path)) QDir().remove(path);
+}
+
+void CUpdateManager::onLoadUpdateFinished()
+{
+    const QString path = QString::fromStdWString(downloader->GetFilePath());
+    GET_REGISTRY_USER(reg_user);
+    reg_user.beginGroup("Temp");
+    reg_user.setValue("Temp/temp_file", path);
+    reg_user.endGroup();
     /*
-    Реализация
+    * Реализация
     */
 }
 #endif
 
-void CUpdateManager::onResult()
+void CUpdateManager::onLoadCheckFinished()
 {
-    WString path = downloader->GetFilePath();
-    qDebug() << QString::fromStdWString(path);
-    QFile file;
-
-    if (true){
-        QByteArray ReplyText;
+    const QString path = QString::fromStdWString(downloader->GetFilePath());
+    qDebug() << path;
+    QFile jsonFile(path);
+    if (jsonFile.open(QIODevice::ReadOnly)) {
+        QByteArray ReplyText = jsonFile.readAll();
+        jsonFile.close();
         QJsonDocument doc = QJsonDocument::fromJson(ReplyText);
         QJsonObject obj = doc.object();
+
         // parse version
         QJsonValue version = obj.value(QString("version"));
         QJsonValue date = obj.value(QString("date"));
+
         // parse release notes
         QJsonValue release_notes = obj.value(QString("releaseNotes"));
         QJsonObject obj_1 = release_notes.toObject();
-        QJsonValue en = obj_1.value(QString("en-EN"));
-        QJsonValue ru = obj_1.value(QString("ru-RU"));
+        const QString pages[] = {"en-EN", "ru-RU"};
+        QJsonValue changelog = obj_1.value(pages[language]);
+        changelog_url = changelog.toString().toStdWString();
+
         // parse package
+#if defined (Q_OS_WIN)
         QJsonValue package = obj.value(QString("package"));
         QJsonObject obj_2 = package.toObject();
-        QJsonValue win_64 = obj_2.value(QString("win_64"));
-        QJsonValue win_32 = obj_2.value(QString("win_32"));
-        QJsonObject obj_3 = win_64.toObject();
-        QJsonValue url_win_64 = obj_3.value(QString("url"));
-        QJsonValue arguments_64 = obj_3.value(QString("installArguments"));
-        QJsonObject obj_4 = win_32.toObject();
-        QJsonValue url_win_32 = obj_4.value(QString("url"));
-        QJsonValue arguments_32 = obj_4.value(QString("installArguments"));
-
+    #if defined (Q_OS_WIN64)
+        QJsonValue win = obj_2.value(QString("win_64"));
+    #elif defined (Q_OS_WIN32)
+        QJsonValue win = obj_2.value(QString("win_32"));
+    #endif
+        QJsonObject obj_3 = win.toObject();
+        QJsonValue url_win = obj_3.value(QString("url"));
+        QJsonValue arguments = obj_3.value(QString("installArguments"));
+        package_url = url_win.toString().toStdWString();
+        package_args = arguments.toString().toStdWString();
+        qDebug() << url_win.toString() << "\n" << arguments.toString();
+#endif
         qDebug() << "Version: " << version.toString();
         qDebug() << "Date: " << date.toString();
-        qDebug() << en.toString();
-        qDebug() << ru.toString() << "\n";
-        qDebug() << url_win_64.toString() << "\n" << arguments_64.toString() << "\n\n";
-        qDebug() << url_win_32.toString() << "\n" << arguments_32.toString() << "\n\n";
+        qDebug() << "Changelog: " << changelog.toString();
 
         bool updateFlag = false;
         int curr_ver[4] = {VER_NUM_MAJOR, VER_NUM_MINOR, VER_NUM_BUILD, VER_NUM_REVISION};
@@ -243,11 +265,32 @@ void CUpdateManager::onResult()
                 break;
             }
         }
-        emit onSendMessage(updateFlag);
+        emit checkFinished(updateFlag);
     }
-    else {
-        qDebug() << "ERROR";
-    }
-    //reply->deleteLater();
+    if (QDir().exists(path)) QDir().remove(path);
 }
 
+void CUpdateManager::loadChangelog()
+{
+    if (changelog_url != L"") {
+        downloadMode = Mode::DOWNLOAD_CHANGELOG;
+        downloader->SetFileUrl(changelog_url);
+        QUuid uuid = QUuid::createUuid();
+        const QString tmp_name = uuid.toString().replace(QRegularExpression("[{|}]+"), "") + QString(".html");
+        const QString tmp_file = QDir::tempPath() + QDir::separator() + tmp_name;
+        downloader->SetFilePath(tmp_file.toStdWString());
+        downloader->Start(0);
+    }
+}
+
+void CUpdateManager::onLoadChangelogFinished()
+{
+    const QString path = QString::fromStdWString(downloader->GetFilePath());
+    QFile htmlFile(path);
+    if (htmlFile.open(QIODevice::ReadOnly)) {
+        const QString html = QString(htmlFile.readAll());
+        htmlFile.close();
+        emit changelogLoaded(html);
+    }
+    if (QDir().exists(path)) QDir().remove(path);
+}

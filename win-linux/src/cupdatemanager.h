@@ -36,34 +36,22 @@
 #include <QObject>
 #include <QSettings>
 #include <QTimer>
-#include <QMessageBox>
-#include <QIcon>
-#include <QUrl>
 #include <QDir>
-//#include <QSslConfiguration>
-#include <QDesktopServices>
-/*#include <QNetworkReply>
-#include <QNetworkRequest>
-#include <QNetworkAccessManager>*/
+#include <QUuid>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QJsonArray>
-//#include <QAbstractButton>
-//#include <QLabel>
-//#include <QSizePolicy>
-#include <QCheckBox>
-//#include <QSslSocket>
+#include <QRegularExpression>
 #include <QDebug>
-//#include <curl/curl.h>
-//#include <curl/easy.h>
 #include <ctime>
 #include <algorithm>
 #include "defines.h"
 #include "version.h"
 #include "Network/FileTransporter/include/FileTransporter.h"
 
+#define CHECK_URL L"http://nct.onlyoffice.com/sh/XHh"
 typedef std::wstring WString;
 typedef NSNetwork::NSFileTransport::CFileDownloader Downloader;
+
 
 
 class CUpdateManager: public QObject
@@ -84,39 +72,59 @@ private:
 
     void updateNeededCheking();
 
-    void onResult();
+    void onLoadCheckFinished();
+
+    void onLoadChangelogFinished();
 
 #if defined (Q_OS_WIN)
-    void updateProgram();
+    void onLoadUpdateFinished();
+
+    WString     package_url,
+                package_args;
 #endif
 
-    QTimer *timer;
+    int         current_frequency,
+                downloadMode,
+                language;
 
-    int current_frequency;
+    time_t      last_check;
 
-    time_t last_check;
+    WString     check_url,
+                changelog_url;
+
+    QTimer      *timer;
+
+    Downloader  *downloader;
 
     enum Frequency {
         DAY, WEEK, DISABLED
     };
-
     enum Mode {
-        CHECK_UPDATES, DOWNLOAD_UPDATES
+        CHECK_UPDATES, DOWNLOAD_CHANGELOG, DOWNLOAD_UPDATES
     };
-
-    int downloadMode;
-
-    Downloader *downloader;
-
-    //QNetworkAccessManager *netManager;
+    enum Language {
+        EN, RU
+    };
 
 public slots:
 
     void checkUpdates();
 
+    void loadChangelog();
+
+#if defined (Q_OS_WIN)
+    void loadUpdates();
+
+    void cancelLoading();
+#endif
+
        signals:
 
-    void onSendMessage(const bool &updateFlag);
+    void checkFinished(const bool &updateFlag);
+
+    void changelogLoaded(const QString &html);
+
+    void progresChanged(const int &percent);
 };
 
 

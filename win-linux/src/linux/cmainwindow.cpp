@@ -57,7 +57,7 @@ CMainWindow::CMainWindow(QWidget *parent)
 //    resize(1200, 700);
     setAcceptDrops(true);
     updateManager = new CUpdateManager(this);
-    connect(updateManager, &CUpdateManager::onSendMessage, this, &CMainWindow::showMessage);
+    connect(updateManager, &CUpdateManager::checkFinished, this, &CMainWindow::showMessage);
 }
 
 CMainWindow::CMainWindow(const QRect& geometry)
