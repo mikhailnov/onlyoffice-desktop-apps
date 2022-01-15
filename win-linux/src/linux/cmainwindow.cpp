@@ -185,19 +185,29 @@ void CMainWindow::showMessage(const bool &error, const bool &updateExist, const 
 {
     if (updateExist) {
         CMessage mbox(this, CMessageOpts::moButtons::mbYesNo);
-        mbox.setButtons({"Yes", "No", "Show Details..."});
+        mbox.setButtons({"Yes", "No"});//, "Show Details..."
         QVBoxLayout *layout = mbox.findChild<QVBoxLayout*>("", Qt::FindChildrenRecursively);
-        QTextBrowser *browser = new QTextBrowser(&mbox);
-        layout->addWidget(browser);
-        browser->setOpenExternalLinks(true);
-        browser->setHtml(changelog);
-        QList<QPushButton*> buttons = mbox.findChildren<QPushButton*>("", Qt::FindChildrenRecursively);
-        foreach (QPushButton *btn, buttons) {
-            qDebug() << btn->objectName();
+        QList<QHBoxLayout*> h_layouts = mbox.findChildren<QHBoxLayout*>("", Qt::FindChildrenRecursively);
+        if (layout != nullptr && h_layouts.size() > 2) {
+            QTextBrowser *browser = new QTextBrowser(&mbox);
+            layout->addWidget(browser);
+            browser->hide();
+            browser->setFixedHeight(180);
+            browser->setOpenExternalLinks(true);
+            browser->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+            browser->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+            browser->setHtml(changelog);
+            QPushButton *btn = new QPushButton(&mbox);
+            btn->setText("Show Details...");
+            h_layouts[2]->addWidget(btn);
+            connect(btn, &QPushButton::clicked, [browser]() {
+                if (browser->isHidden()) {
+                    browser->show();
+                } else {
+                    browser->hide();
+                }
+            });
         }
-        buttons[0]->setStyleSheet("background: #800000");
-        buttons[1]->setStyleSheet("background: #008000");
-        buttons[2]->setStyleSheet("background: #000080");
         switch (mbox.info(tr("Do you want to install a new version of the program?"))) {
         case MODAL_RESULT_CUSTOM + 0:
             break;
