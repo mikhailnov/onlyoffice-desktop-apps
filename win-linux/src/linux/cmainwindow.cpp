@@ -52,7 +52,6 @@
 CMainWindow::CMainWindow(QWidget *parent)
     : QMainWindow(parent)
     , CX11Decoration(this)
-    , windowActivated(false)
 {
 //    resize(1200, 700);
     setAcceptDrops(true);
@@ -157,22 +156,6 @@ void CMainWindow::closeEvent(QCloseEvent * e)
 void CMainWindow::showEvent(QShowEvent * e)
 {
     Q_UNUSED(e)
-
-    if (!windowActivated) {
-        windowActivated = true;
-        enum Frequency {
-            DAY, WEEK, DISABLED
-        };
-        QTimer::singleShot(3000, this, [this]() { // для теста CUpdateManager
-            //updateManager->setNewUpdateSetting(Frequency::WEEK);
-            //updateManager->checkUpdates();
-        });
-        QTimer::singleShot(30000, this, [this]() { // для теста CUpdateManager
-            //updateManager->setNewUpdateSetting(Frequency::DISABLED);
-            //updateManager->checkUpdates();
-        });
-
-    }
 //    qDebug() << "SHOW EVENT: " << e->type();
 }
 
@@ -181,17 +164,17 @@ void CMainWindow::slot_mainPageReady()
     AscAppManager::sendCommandTo(0, "updates:turn", "on");
     GET_REGISTRY_USER(reg_user);
     reg_user.beginGroup("Updates");
-    int current_frequency = reg_user.value("Updates/frequency").toInt(); // DAY, WEEK, DISABLED
+    int current_rate = reg_user.value("Updates/rate").toInt(); // DAY, WEEK, DISABLED
     reg_user.endGroup();
     const QString keys[] = {"day", "week", "never"};
-    AscAppManager::sendCommandTo(0, "settings:check.updates", keys[current_frequency]);
+    AscAppManager::sendCommandTo(0, "settings:check.updates", keys[current_rate]);
 }
 
 void CMainWindow::showMessage(const bool &error, const bool &updateExist, const QString &changelog)
 {
-    if (updateExist) {
+    if (!error && updateExist) {
         CMessage mbox(this, CMessageOpts::moButtons::mbYesNo);
-        mbox.setButtons({"Yes", "No"});//, "Show Details..."
+        mbox.setButtons({"Yes", "No"});
         QVBoxLayout *layout = mbox.findChild<QVBoxLayout*>("", Qt::FindChildrenRecursively);
         QList<QHBoxLayout*> h_layouts = mbox.findChildren<QHBoxLayout*>("", Qt::FindChildrenRecursively);
         if (layout != nullptr && h_layouts.size() > 2) {
@@ -216,17 +199,17 @@ void CMainWindow::showMessage(const bool &error, const bool &updateExist, const 
         }
         switch (mbox.info(tr("Do you want to install a new version of the program?"))) {
         case MODAL_RESULT_CUSTOM + 0:
+            QDesktopServices::openUrl(QUrl(DOWNLOAD_PAGE, QUrl::TolerantMode));
             break;
         case MODAL_RESULT_CUSTOM + 1:
             break;
         default:
             break;
         }
+    } else
+    if (error) {
+        qDebug() << changelog;
     }
-
-    /*
-    Отправка уведомления в окно About
-    */
 }
 
 bool CMainWindow::event(QEvent * event)

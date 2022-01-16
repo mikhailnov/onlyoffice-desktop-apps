@@ -41,6 +41,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QRegularExpression>
+#include <QProcess>
 #include <QDebug>
 #include <ctime>
 #include <algorithm>
@@ -64,7 +65,7 @@ public:
 
     ~CUpdateManager();
 
-    void setNewUpdateSetting(const int& frequency);
+    void setNewUpdateSetting(const int& rate);
 
 private:
 
@@ -85,7 +86,7 @@ private:
                 package_args;
 #endif
 
-    int         current_frequency,
+    int         current_rate,
                 downloadMode;
 
     QString     locale;
@@ -98,7 +99,7 @@ private:
 
     Downloader  *downloader;
 
-    enum Frequency {
+    enum Rate {
         DAY, WEEK, DISABLED
     };
     enum Mode {
@@ -120,6 +121,7 @@ public slots:
     void checkFinished(const bool &error, const bool &updateExist, const QString &changelog);
 
     void progresChanged(const int &percent);
+
 };
 
 

@@ -37,12 +37,15 @@
 
 #include <QMainWindow>
 #include <QTextBrowser>
+#include <QDesktopServices>
 #include "applicationmanager.h"
 #include "cmainpanelimpl.h"
 #include "cwindowbase.h"
 #include "cmainwindowbase.h"
 #include "cupdatemanager.h"
 #include "cmessage.h"
+
+
 
 class CMainWindow : public QMainWindow, public CX11Decoration, public CMainWindowBase
 {
@@ -81,7 +84,6 @@ protected:
 private:
     CMainPanelImpl *   m_pMainPanel;
     double m_dpiRatio = 1;
-    bool windowActivated;
 
     void slot_mainPageReady();
     void showMessage(const bool &error, const bool &updateExist, const QString &changelog);

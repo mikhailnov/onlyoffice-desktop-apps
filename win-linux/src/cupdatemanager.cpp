@@ -35,7 +35,7 @@
 
 CUpdateManager::CUpdateManager(QObject *parent):
     QObject(parent),
-    current_frequency(Frequency::DAY),
+    current_rate(Rate::DAY),
     downloadMode(Mode::CHECK_UPDATES),
     locale("en-EN"),
     last_check(0)
@@ -120,7 +120,7 @@ void CUpdateManager::readUpdateSettings()
     locale = reg_user.value("locale").toString();
     qDebug() << locale;
     reg_user.beginGroup("Updates");
-    current_frequency = reg_user.value("Updates/frequency").toInt();
+    current_rate = reg_user.value("Updates/rate").toInt();
     last_check = time_t(reg_user.value("Updates/last_check").toLongLong());
     reg_user.endGroup();
 #if defined (Q_OS_WIN)
@@ -139,17 +139,17 @@ void CUpdateManager::readUpdateSettings()
     });
 }
 
-void CUpdateManager::setNewUpdateSetting(const int& frequency)
+void CUpdateManager::setNewUpdateSetting(const int& rate)
 {
-    current_frequency = frequency;
+    current_rate = rate;
     GET_REGISTRY_USER(reg_user);
     reg_user.beginGroup("Updates");
-    reg_user.setValue("Updates/frequency", current_frequency);
+    reg_user.setValue("Updates/rate", current_rate);
     reg_user.endGroup();
     QTimer::singleShot(3000, this, [this]() {
         updateNeededCheking();
     });
-    qDebug() << "Set new updates rate: " << current_frequency ;
+    qDebug() << "Set new updates rate: " << current_rate;
 }
 
 void CUpdateManager::updateNeededCheking() {
@@ -159,8 +159,8 @@ void CUpdateManager::updateNeededCheking() {
     const time_t WEEK_TO_SEC = 7*24*3600; // 7*24*3600
     const time_t curr_time = time(nullptr);
     const time_t elapsed_time = curr_time - last_check;
-    switch (current_frequency) {
-    case Frequency::DAY:
+    switch (current_rate) {
+    case Rate::DAY:
         if (elapsed_time > DAY_TO_SEC) {
             checkUpdates();
         } else {
@@ -169,7 +169,7 @@ void CUpdateManager::updateNeededCheking() {
             timer->start();
         }
         break;
-    case Frequency::WEEK:
+    case Rate::WEEK:
         if (elapsed_time > WEEK_TO_SEC) {
             checkUpdates();
         } else {
@@ -178,7 +178,7 @@ void CUpdateManager::updateNeededCheking() {
             timer->start();
         }
         break;
-    case Frequency::DISABLED:
+    case Rate::DISABLED:
     default:
         break;
     }
@@ -213,9 +213,15 @@ void CUpdateManager::onLoadUpdateFinished()
     reg_user.beginGroup("Temp");
     reg_user.setValue("Temp/temp_file", path);
     reg_user.endGroup();
-    /*
-    * Реализация
-    */
+
+    // =========== Start installation ============
+    QStringList arguments;
+    arguments << "/s";  // параметры установки
+    if (QProcess::startDetached(path, arguments)) {
+        exit(0);
+    } else {
+        qDebug() << "Install command not found!";
+    }
 }
 #endif
 
@@ -276,7 +282,7 @@ void CUpdateManager::onLoadCheckFinished()
             emit checkFinished(false, false, QString(""));
         }
     } else {
-        emit checkFinished(true, false, QString(""));
+        emit checkFinished(true, false, QString("Error receiving updates..."));
     }
     if (QDir().exists(path)) QDir().remove(path);
 }

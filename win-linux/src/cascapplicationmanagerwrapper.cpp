@@ -1474,13 +1474,13 @@ bool CAscApplicationManagerWrapper::applySettings(const wstring& wstrjson)
         }
 #endif*/
         if ( objRoot.contains("checkupdatesrate") ) {
-            enum Frequency {
+            enum Rate {
                 DAY, WEEK, DISABLED
             };
             const QString rate = objRoot.value("checkupdatesrate").toString();
             qDebug() << rate;
-            const int frequency = (rate == "never") ? Frequency::DISABLED : (rate == "day") ? Frequency::DAY : Frequency::WEEK;
-            m_pMainWindow->updateManager->setNewUpdateSetting(frequency);
+            const int _rate = (rate == "never") ? Rate::DISABLED : (rate == "day") ? Rate::DAY : Rate::WEEK;
+            m_pMainWindow->updateManager->setNewUpdateSetting(_rate);
         }
 
 
