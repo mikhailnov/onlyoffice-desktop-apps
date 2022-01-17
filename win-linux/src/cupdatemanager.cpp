@@ -38,6 +38,7 @@ CUpdateManager::CUpdateManager(QObject *parent):
     current_rate(Rate::DAY),
     downloadMode(Mode::CHECK_UPDATES),
     locale("en-EN"),
+    new_version(""),
     last_check(0)
 {
 #if defined (Q_OS_WIN)
@@ -92,7 +93,7 @@ void CUpdateManager::checkUpdates()
     last_check = time(nullptr);
     GET_REGISTRY_USER(reg_user);
     locale = reg_user.value("locale").toString();
-    qDebug() << locale;
+    qDebug() << "Locale: " << locale;
     reg_user.beginGroup("Updates");
     reg_user.setValue("Updates/last_check", static_cast<qlonglong>(last_check));
     reg_user.endGroup();
@@ -118,7 +119,7 @@ void CUpdateManager::readUpdateSettings()
 {
     GET_REGISTRY_USER(reg_user);
     locale = reg_user.value("locale").toString();
-    qDebug() << locale;
+    qDebug() << "Locale: " << locale;
     reg_user.beginGroup("Updates");
     current_rate = reg_user.value("Updates/rate").toInt();
     last_check = time_t(reg_user.value("Updates/last_check").toLongLong());
@@ -277,12 +278,13 @@ void CUpdateManager::onLoadCheckFinished()
             }
         }
         if (updateExist) {
+            new_version = version.toString();
             loadChangelog(changelog_url);
         } else {
-            emit checkFinished(false, false, QString(""));
+            emit checkFinished(false, false, QString(""), QString(""));
         }
     } else {
-        emit checkFinished(true, false, QString("Error receiving updates..."));
+        emit checkFinished(true, false, QString(""), QString("Error receiving updates..."));
     }
     if (QDir().exists(path)) QDir().remove(path);
 }
@@ -308,9 +310,9 @@ void CUpdateManager::onLoadChangelogFinished()
     if (htmlFile.open(QIODevice::ReadOnly)) {
         const QString html = QString(htmlFile.readAll());
         htmlFile.close();
-        emit checkFinished(false, true, html);
+        emit checkFinished(false, true, new_version, html);
     } else {
-        emit checkFinished(false, true, QString("No available description..."));
+        emit checkFinished(false, true, new_version, QString("No available description..."));
     }
     if (QDir().exists(path)) QDir().remove(path);
 }

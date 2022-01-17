@@ -52,6 +52,7 @@
 CMainWindow::CMainWindow(QWidget *parent)
     : QMainWindow(parent)
     , CX11Decoration(this)
+    , mainPageReady_flag(false)
 {
 //    resize(1200, 700);
     setAcceptDrops(true);
@@ -161,6 +162,7 @@ void CMainWindow::showEvent(QShowEvent * e)
 
 void CMainWindow::slot_mainPageReady()
 {
+    mainPageReady_flag = true;
     AscAppManager::sendCommandTo(0, "updates:turn", "on");
     GET_REGISTRY_USER(reg_user);
     reg_user.beginGroup("Updates");
@@ -170,9 +172,13 @@ void CMainWindow::slot_mainPageReady()
     AscAppManager::sendCommandTo(0, "settings:check.updates", keys[current_rate]);
 }
 
-void CMainWindow::showMessage(const bool &error, const bool &updateExist, const QString &changelog)
+void CMainWindow::showMessage(const bool &error, const bool &updateExist,
+                              const QString &version, const QString &changelog)
 {
     if (!error && updateExist) {
+        if (mainPageReady_flag) {
+            AscAppManager::sendCommandTo(0, "updates:checking", QString("{\"version\":\"%1\"}").arg(version));
+        }
         CMessage mbox(this, CMessageOpts::moButtons::mbYesNo);
         mbox.setButtons({"Yes", "No"});
         QVBoxLayout *layout = mbox.findChild<QVBoxLayout*>("", Qt::FindChildrenRecursively);
@@ -205,6 +211,11 @@ void CMainWindow::showMessage(const bool &error, const bool &updateExist, const 
             break;
         default:
             break;
+        }
+    } else
+    if (!error && !updateExist) {
+        if (mainPageReady_flag) {
+            AscAppManager::sendCommandTo(0, "updates:checking", "{\"version\":\"no\"}");
         }
     } else
     if (error) {

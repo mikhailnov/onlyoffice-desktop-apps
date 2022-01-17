@@ -89,7 +89,8 @@ private:
     int         current_rate,
                 downloadMode;
 
-    QString     locale;
+    QString     locale,
+                new_version;
 
     time_t      last_check;
 
@@ -118,7 +119,8 @@ public slots:
 
        signals:
 
-    void checkFinished(const bool &error, const bool &updateExist, const QString &changelog);
+    void checkFinished(const bool &error, const bool &updateExist,
+                       const QString &version, const QString &changelog);
 
     void progresChanged(const int &percent);
 
