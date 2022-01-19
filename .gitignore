@@ -1,7 +1,14 @@
 
+win-linux/Makefile
+win-linux/Makefile.*
+win-linux/3dparty/WinSparkle/win_32
+win-linux/3dparty/WinSparkle/win_64
+win-linux/extras/projicons/build
+win-linux/extras/projicons/*.stash
+win-linux/extras/projicons/Makefile.*
 win-linux/build
-win-linux/build/Release/*
-win-linux/build/Debug/*
+#win-linux/build/Release/*
+#win-linux/build/Debug/*
 win-linux/ASCDocumentEditor.build/*
 
 win-linux/*.user

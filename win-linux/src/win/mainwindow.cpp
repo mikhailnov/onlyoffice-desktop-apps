@@ -85,6 +85,8 @@ CMainWindow::CMainWindow(QRect& rect) :
     visible( false ),
     m_pWinPanel(NULL)
 {
+    updateManager = new CUpdateManager(this);
+    connect(updateManager, &CUpdateManager::checkFinished, this, &CMainWindow::showMessage);
     // adjust window size
     QRect _window_rect = rect;
     m_dpiRatio = CSplash::startupDpiRatio();
