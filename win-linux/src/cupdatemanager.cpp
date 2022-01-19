@@ -46,9 +46,10 @@ CUpdateManager::CUpdateManager(QObject *parent):
 #endif
     check_url = CHECK_URL;
     downloader = new Downloader(check_url, false);
-    downloader->SetEvent_OnComplete([this](int error) {
+    downloader->SetEvent_OnComplete([=](int error) {
+        qDebug() << "Mode: " << downloadMode;
         if (error == 0) {
-            qDebug() << "Download complete... ";
+            qDebug() << "Download complete... Mode: " << downloadMode;
             switch (downloadMode) {
             case Mode::CHECK_UPDATES:
                 onLoadCheckFinished();
@@ -69,7 +70,7 @@ CUpdateManager::CUpdateManager(QObject *parent):
             qDebug() << "Download error: " << error;
         }
     });
-    downloader->SetEvent_OnProgress([this](int percent) {   // не отрабатывает
+    downloader->SetEvent_OnProgress([=](int percent) {   // не отрабатывает
         qDebug() << "Precent... " << percent;
         emit progresChanged(percent);
     });
@@ -106,7 +107,7 @@ void CUpdateManager::checkUpdates()
     const QString tmp_name = uuid.toString().replace(QRegularExpression("[{|}]+"), "") + QString(".json");
     const QString tmp_file = QDir::tempPath() + QDir::separator() + tmp_name;
     downloader->SetFilePath(tmp_file.toStdWString());
-    downloader->Start(0);   
+    downloader->DownloadSync();
     // ======================================
 
     QTimer::singleShot(3000, this, [this]() {
@@ -196,7 +197,7 @@ void CUpdateManager::loadUpdates()
         const QString tmp_name = uuid.toString().replace(QRegularExpression("[{|}]+"), "") + QString(".exe");
         const QString tmp_file = QDir::tempPath() + QDir::separator() + tmp_name;
         downloader->SetFilePath(tmp_file.toStdWString());
-        downloader->Start(0);
+        downloader->DownloadSync();
     }
 }
 
@@ -291,6 +292,7 @@ void CUpdateManager::onLoadCheckFinished()
 
 void CUpdateManager::loadChangelog(const WString &changelog_url)
 {
+    qDebug() << "Load changelog... " << changelog_url;
     downloader->Stop();
     if (changelog_url != L"") {
         downloadMode = Mode::DOWNLOAD_CHANGELOG;
@@ -299,12 +301,13 @@ void CUpdateManager::loadChangelog(const WString &changelog_url)
         const QString tmp_name = uuid.toString().replace(QRegularExpression("[{|}]+"), "") + QString(".html");
         const QString tmp_file = QDir::tempPath() + QDir::separator() + tmp_name;
         downloader->SetFilePath(tmp_file.toStdWString());
-        downloader->Start(0);
+        downloader->DownloadSync();
     }
 }
 
 void CUpdateManager::onLoadChangelogFinished()
 {
+    qDebug() << "Load changelog complete... ";
     const QString path = QString::fromStdWString(downloader->GetFilePath());
     QFile htmlFile(path);
     if (htmlFile.open(QIODevice::ReadOnly)) {

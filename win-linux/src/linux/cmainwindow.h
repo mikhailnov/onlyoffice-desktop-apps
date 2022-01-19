@@ -36,15 +36,10 @@
 #include "cx11decoration.h"
 
 #include <QMainWindow>
-#include <QTextBrowser>
-#include <QDesktopServices>
 #include "applicationmanager.h"
 #include "cmainpanelimpl.h"
 #include "cwindowbase.h"
 #include "cmainwindowbase.h"
-#include "cupdatemanager.h"
-#include "cmessage.h"
-
 
 
 class CMainWindow : public QMainWindow, public CX11Decoration, public CMainWindowBase
@@ -65,7 +60,6 @@ public:
     void show(bool maximized);
     void applyTheme(const std::wstring&) override;
     void updateScaling() override;
-    CUpdateManager *updateManager;
 
 protected:
     void closeEvent(QCloseEvent *);
@@ -87,8 +81,6 @@ private:
 
     bool mainPageReady_flag;
     void slot_mainPageReady();
-    void showMessage(const bool &error, const bool &updateExist,
-                     const QString &version, const QString &changelog);
 
 signals:
 public slots:

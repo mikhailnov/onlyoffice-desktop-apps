@@ -269,7 +269,7 @@ bool CAscApplicationManagerWrapper::processCommonEvent(NSEditorApi::CAscCefMenuE
                 CMainWindow::checkUpdates();
             }
 #endif*/
-            m_pMainWindow->updateManager->checkUpdates();
+            m_pMainWindow->mainPanel()->updateManager->checkUpdates();
 
             return true;
         } else
@@ -1480,7 +1480,7 @@ bool CAscApplicationManagerWrapper::applySettings(const wstring& wstrjson)
             const QString rate = objRoot.value("checkupdatesrate").toString();
             qDebug() << rate;
             const int _rate = (rate == "never") ? Rate::DISABLED : (rate == "day") ? Rate::DAY : Rate::WEEK;
-            m_pMainWindow->updateManager->setNewUpdateSetting(_rate);
+            m_pMainWindow->mainPanel()->updateManager->setNewUpdateSetting(_rate);
         }
 
 

@@ -56,8 +56,6 @@ CMainWindow::CMainWindow(QWidget *parent)
 {
 //    resize(1200, 700);
     setAcceptDrops(true);
-    updateManager = new CUpdateManager(this);
-    connect(updateManager, &CUpdateManager::checkFinished, this, &CMainWindow::showMessage);
 }
 
 CMainWindow::CMainWindow(const QRect& geometry)
@@ -170,57 +168,6 @@ void CMainWindow::slot_mainPageReady()
     reg_user.endGroup();
     const QString keys[] = {"day", "week", "never"};
     AscAppManager::sendCommandTo(0, "settings:check.updates", keys[current_rate]);
-}
-
-void CMainWindow::showMessage(const bool &error, const bool &updateExist,
-                              const QString &version, const QString &changelog)
-{
-    if (!error && updateExist) {
-        if (mainPageReady_flag) {
-            AscAppManager::sendCommandTo(0, "updates:checking", QString("{\"version\":\"%1\"}").arg(version));
-        }
-        CMessage mbox(this, CMessageOpts::moButtons::mbYesNo);
-        mbox.setButtons({"Yes", "No"});
-        QVBoxLayout *layout = mbox.findChild<QVBoxLayout*>("", Qt::FindChildrenRecursively);
-        QList<QHBoxLayout*> h_layouts = mbox.findChildren<QHBoxLayout*>("", Qt::FindChildrenRecursively);
-        if (layout != nullptr && h_layouts.size() > 2) {
-            QTextBrowser *browser = new QTextBrowser(&mbox);
-            layout->addWidget(browser);
-            browser->hide();
-            browser->setFixedHeight(180);
-            browser->setOpenExternalLinks(true);
-            browser->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-            browser->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-            browser->setHtml(changelog);
-            QPushButton *btn = new QPushButton(&mbox);
-            btn->setText("Show Details...");
-            h_layouts[2]->addWidget(btn);
-            connect(btn, &QPushButton::clicked, [browser]() {
-                if (browser->isHidden()) {
-                    browser->show();
-                } else {
-                    browser->hide();
-                }
-            });
-        }
-        switch (mbox.info(tr("Do you want to install a new version of the program?"))) {
-        case MODAL_RESULT_CUSTOM + 0:
-            QDesktopServices::openUrl(QUrl(DOWNLOAD_PAGE, QUrl::TolerantMode));
-            break;
-        case MODAL_RESULT_CUSTOM + 1:
-            break;
-        default:
-            break;
-        }
-    } else
-    if (!error && !updateExist) {
-        if (mainPageReady_flag) {
-            AscAppManager::sendCommandTo(0, "updates:checking", "{\"version\":\"no\"}");
-        }
-    } else
-    if (error) {
-        qDebug() << changelog;
-    }
 }
 
 bool CMainWindow::event(QEvent * event)

@@ -205,6 +205,60 @@ CMainPanel::CMainPanel(QWidget *parent, bool isCustomWindow, double dpi_ratio)
     mainGridLayout->addWidget( centralWidget );
 
 //    RecalculatePlaces();
+    updateManager = new CUpdateManager(this);
+    connect(updateManager, &CUpdateManager::checkFinished, this, &CMainPanel::showMessage);
+}
+
+void CMainPanel::showMessage(const bool &error, const bool &updateExist,
+                              const QString &version, const QString &changelog)
+{
+    qDebug() << changelog;
+    if (!error && updateExist) {
+        //if (mainPageReady_flag) {
+            AscAppManager::sendCommandTo(0, "updates:checking", QString("{\"version\":\"%1\"}").arg(version));
+        //}
+        CMessage mbox(TOP_NATIVE_WINDOW_HANDLE, CMessageOpts::moButtons::mbYesNo);
+        mbox.setButtons({"Yes", "No"});
+        /*QVBoxLayout *layout = mbox.findChild<QVBoxLayout*>("", Qt::FindChildrenRecursively);
+        QList<QHBoxLayout*> h_layouts = mbox.findChildren<QHBoxLayout*>("", Qt::FindChildrenRecursively);
+        if (layout != nullptr && h_layouts.size() > 2) {
+            QTextBrowser *browser = new QTextBrowser(&mbox);
+            layout->addWidget(browser);
+            browser->hide();
+            browser->setFixedHeight(180);
+            browser->setOpenExternalLinks(true);
+            browser->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+            browser->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+            browser->setHtml(changelog);
+            QPushButton *btn = new QPushButton(&mbox);
+            btn->setText("Show Details...");
+            h_layouts[2]->addWidget(btn);
+            connect(btn, &QPushButton::clicked, [browser]() {
+                if (browser->isHidden()) {
+                    browser->show();
+                } else {
+                    browser->hide();
+                }
+            });
+        }*/
+        switch (mbox.info(tr("Do you want to install a new version of the program?"))) {
+        case MODAL_RESULT_CUSTOM + 0:
+            updateManager->loadUpdates();
+            break;
+        case MODAL_RESULT_CUSTOM + 1:
+            break;
+        default:
+            break;
+        }
+    } else
+    if (!error && !updateExist) {
+        //if (mainPageReady_flag) {
+            AscAppManager::sendCommandTo(0, "updates:checking", "{\"version\":\"no\"}");
+        //}
+    } else
+    if (error) {
+        qDebug() << changelog;
+    }
 }
 
 void CMainPanel::attachStartPanel(QCefView * const view)

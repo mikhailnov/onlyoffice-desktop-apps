@@ -38,6 +38,8 @@
 #include <QHBoxLayout>
 #include <QSettings>
 
+#include <QTextBrowser>
+#include <QDesktopServices>
 #include "asctabwidget.h"
 #include "cdownloadwidget.h"
 #include "cpushbutton.h"
@@ -45,6 +47,7 @@
 #include "cscalingwrapper.h"
 #include "csvgpushbutton.h"
 #include <math.h>
+#include "cupdatemanager.h"
 
 
 struct printdata;
@@ -77,6 +80,7 @@ public:
     virtual void applyTheme(const std::wstring&);
     virtual void updateScaling(double);
 
+
 #ifdef __linux
     QWidget * getTitleWidget();
     void setMouseTracking(bool);
@@ -95,6 +99,8 @@ private:
 
     int  trySaveDocument(int);
     void RecalculatePlaces();
+    void showMessage(const bool &error, const bool &updateExist,
+                     const QString &version, const QString &changelog);
 
 signals:
 //    void downloadEvent(NSEditorApi::CAscDownloadFileInfo *);
@@ -185,7 +191,7 @@ public:
     {
         return ((QWidget*)m_pTabs->parent())->winId();
     }
-
+    CUpdateManager *updateManager;
 };
 
 #endif // CMAINPANEL_H

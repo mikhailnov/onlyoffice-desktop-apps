@@ -30,11 +30,11 @@
  *
 */
 
-#include "MainWindow.h"
+#include "mainwindow.h"
 
 #include <dwmapi.h>
 #include <windowsx.h>
-#include <windows.h>
+//#include <windows.h>
 #include <stdexcept>
 #include <functional>
 
@@ -85,8 +85,6 @@ CMainWindow::CMainWindow(QRect& rect) :
     visible( false ),
     m_pWinPanel(NULL)
 {
-    updateManager = new CUpdateManager(this);
-    connect(updateManager, &CUpdateManager::checkFinished, this, &CMainWindow::showMessage);
     // adjust window size
     QRect _window_rect = rect;
     m_dpiRatio = CSplash::startupDpiRatio();
@@ -856,7 +854,15 @@ void CMainWindow::slot_mainPageReady()
             }
         }
 
-        AscAppManager::sendCommandTo(0, L"settings:check.updates", _wstr_rate);
+        //AscAppManager::sendCommandTo(0, L"settings:check.updates", _wstr_rate);
+
+        //AscAppManager::sendCommandTo(0, "updates:turn", "on");
+        GET_REGISTRY_USER(reg_user);
+        reg_user.beginGroup("Updates");
+        int current_rate = reg_user.value("Updates/rate").toInt(); // DAY, WEEK, DISABLED
+        reg_user.endGroup();
+        const QString keys[] = {"day", "week", "never"};
+        AscAppManager::sendCommandTo(0, "settings:check.updates", keys[current_rate]);
     }
 #endif
 }

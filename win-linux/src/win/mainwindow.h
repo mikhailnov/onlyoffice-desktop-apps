@@ -40,8 +40,6 @@
 #include "qwinwidget.h"
 #include "cwindowbase.h"
 #include "cmainwindowbase.h"
-#include "cupdatemanager.h"
-#include "cmessage.h"
 
 #include <QtWidgets/QApplication>
 
@@ -82,7 +80,8 @@ public:
     bool isMaximized() const;
     HWND handle() const;
     void bringToTop() const override;
-    CUpdateManager *updateManager;
+    CWinPanel * m_pWinPanel;
+
 
 #if (QT_VERSION < QT_VERSION_CHECK(5, 10, 0))
     // because of QTBUG-67211
@@ -112,10 +111,10 @@ private:
     static void updateError();
 #endif
 
-public:
-    CWinPanel * m_pWinPanel;
+/*public:
+    CWinPanel * m_pWinPanel;*/
 
-private:
+//private:
     bool closed;
     bool visible;
     bool skipsizing = false;
