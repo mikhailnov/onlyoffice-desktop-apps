@@ -159,10 +159,10 @@ public:
 
     void updateScaling(double) override;
 protected:
-    void resizeEvent(QResizeEvent* e);
     bool eventFilter(QObject *, QEvent *) override;
-    void tabInserted(int index);
-    void tabRemoved(int index);
+    void resizeEvent(QResizeEvent* e) override;
+    void tabInserted(int index) override;
+    void tabRemoved(int index) override;
     void closeEditor(int, bool, bool);
 
 public:
@@ -221,4 +221,3 @@ public slots:
 };
 
 #endif // ASCTABWIDGET
-
