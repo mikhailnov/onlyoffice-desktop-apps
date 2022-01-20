@@ -79,11 +79,11 @@ auto refresh_window_scaling_factor(CMainWindow * window) -> void {
 CMainWindow::CMainWindow(QRect& rect) :
     hWnd(nullptr),
     hInstance(GetModuleHandle(nullptr)),
-    borderless( true ),
-    borderlessResizeable( true ),
+    m_pWinPanel(NULL),
     closed( false ),
     visible( false ),
-    m_pWinPanel(NULL)
+    borderless( true ),
+    borderlessResizeable( true )
 {
     // adjust window size
     QRect _window_rect = rect;
@@ -832,7 +832,7 @@ void CMainWindow::slot_mainPageReady()
             win_sparkle_init();
         }
 
-        AscAppManager::sendCommandTo(0, "updates:turn", "on");
+        //AscAppManager::sendCommandTo(0, "updates:turn", "on");
         CLogger::log("updates is on: " + _appcast_url);
 
 #define RATE_MS_DAY 3600*24
@@ -856,15 +856,17 @@ void CMainWindow::slot_mainPageReady()
 
         //AscAppManager::sendCommandTo(0, L"settings:check.updates", _wstr_rate);
 
-        //AscAppManager::sendCommandTo(0, "updates:turn", "on");
-        GET_REGISTRY_USER(reg_user);
-        reg_user.beginGroup("Updates");
-        int current_rate = reg_user.value("Updates/rate").toInt(); // DAY, WEEK, DISABLED
-        reg_user.endGroup();
-        const QString keys[] = {"day", "week", "never"};
-        AscAppManager::sendCommandTo(0, "settings:check.updates", keys[current_rate]);
+
     }
 #endif
+
+    AscAppManager::sendCommandTo(0, "updates:turn", "on");
+    GET_REGISTRY_USER(reg_user);
+    reg_user.beginGroup("Updates");
+    int current_rate = reg_user.value("Updates/rate").toInt(); // DAY, WEEK, DISABLED
+    reg_user.endGroup();
+    const QString keys[] = {"day", "week", "never"};
+    AscAppManager::sendCommandTo(0, "settings:check.updates", keys[current_rate]);
 }
 
 #if defined(_UPDMODULE)
@@ -947,6 +949,7 @@ HWND CMainWindow::handle() const
 {
     return hWnd;
 }
+
 void CMainWindow::captureMouse(int tabindex)
 {
     CMainWindowBase::captureMouse(tabindex);

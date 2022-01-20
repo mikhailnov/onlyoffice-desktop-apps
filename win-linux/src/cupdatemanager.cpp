@@ -47,7 +47,6 @@ CUpdateManager::CUpdateManager(QObject *parent):
     check_url = CHECK_URL;
     downloader = new Downloader(check_url, false);
     downloader->SetEvent_OnComplete([=](int error) {
-        qDebug() << "Mode: " << downloadMode;
         if (error == 0) {
             qDebug() << "Download complete... Mode: " << downloadMode;
             switch (downloadMode) {
@@ -87,6 +86,7 @@ CUpdateManager::~CUpdateManager()
 
 void CUpdateManager::checkUpdates()
 {
+    qDebug() << "Check updates...";
 #if defined (Q_OS_WIN)
     package_url = L"";
     package_args = L"";
@@ -107,13 +107,12 @@ void CUpdateManager::checkUpdates()
     const QString tmp_name = uuid.toString().replace(QRegularExpression("[{|}]+"), "") + QString(".json");
     const QString tmp_file = QDir::tempPath() + QDir::separator() + tmp_name;
     downloader->SetFilePath(tmp_file.toStdWString());
-    downloader->DownloadSync();
+    downloader->Start(0);
     // ======================================
 
     QTimer::singleShot(3000, this, [this]() {
         updateNeededCheking();
     });
-    qDebug() << "Updates checked ...";
 }
 
 void CUpdateManager::readUpdateSettings()
@@ -189,6 +188,7 @@ void CUpdateManager::updateNeededCheking() {
 #if defined (Q_OS_WIN)
 void CUpdateManager::loadUpdates()
 {
+    qDebug() << "Load updates...";
     downloader->Stop();
     if (package_url != L"") {
         downloadMode = Mode::DOWNLOAD_UPDATES;
@@ -197,12 +197,13 @@ void CUpdateManager::loadUpdates()
         const QString tmp_name = uuid.toString().replace(QRegularExpression("[{|}]+"), "") + QString(".exe");
         const QString tmp_file = QDir::tempPath() + QDir::separator() + tmp_name;
         downloader->SetFilePath(tmp_file.toStdWString());
-        downloader->DownloadSync();
+        downloader->Start(0);
     }
 }
 
 void CUpdateManager::cancelLoading()
 {
+    qDebug() << "Loading cancel...";
     const QString path = QString::fromStdWString(downloader->GetFilePath());
     downloader->Stop();
     if (QDir().exists(path)) QDir().remove(path);
@@ -210,6 +211,7 @@ void CUpdateManager::cancelLoading()
 
 void CUpdateManager::onLoadUpdateFinished()
 {
+    qDebug() << "Load updates finished...";
     const QString path = QString::fromStdWString(downloader->GetFilePath());
     GET_REGISTRY_USER(reg_user);
     reg_user.beginGroup("Temp");
@@ -218,9 +220,9 @@ void CUpdateManager::onLoadUpdateFinished()
 
     // =========== Start installation ============
     QStringList arguments;
-    arguments << "/s";  // параметры установки
+    arguments << QString::fromStdWString(package_args).split(" ");  // параметры установки
     if (QProcess::startDetached(path, arguments)) {
-        exit(0);
+        qDebug() << "Start installation...";
     } else {
         qDebug() << "Install command not found!";
     }
@@ -229,8 +231,8 @@ void CUpdateManager::onLoadUpdateFinished()
 
 void CUpdateManager::onLoadCheckFinished()
 {
+    qDebug() << "Check updates finished...";
     const QString path = QString::fromStdWString(downloader->GetFilePath());
-    qDebug() << path;
     QFile jsonFile(path);
     if (jsonFile.open(QIODevice::ReadOnly)) {
         QByteArray ReplyText = jsonFile.readAll();
@@ -247,7 +249,7 @@ void CUpdateManager::onLoadCheckFinished()
         QJsonObject obj_1 = release_notes.toObject();
         const QString page = (locale == "ru-RU") ? "ru-RU" : "en-EN";
         QJsonValue changelog = obj_1.value(page);
-        const WString changelog_url = changelog.toString().toStdWString();
+        //const WString changelog_url = changelog.toString().toStdWString();
 
         // parse package
 #if defined (Q_OS_WIN)
@@ -280,7 +282,8 @@ void CUpdateManager::onLoadCheckFinished()
         }
         if (updateExist) {
             new_version = version.toString();
-            loadChangelog(changelog_url);
+            emit checkFinished(false, true, new_version, changelog.toString());
+            //loadChangelog(changelog_url);
         } else {
             emit checkFinished(false, false, QString(""), QString(""));
         }
@@ -301,13 +304,13 @@ void CUpdateManager::loadChangelog(const WString &changelog_url)
         const QString tmp_name = uuid.toString().replace(QRegularExpression("[{|}]+"), "") + QString(".html");
         const QString tmp_file = QDir::tempPath() + QDir::separator() + tmp_name;
         downloader->SetFilePath(tmp_file.toStdWString());
-        downloader->DownloadSync();
+        downloader->Start(0);
     }
 }
 
 void CUpdateManager::onLoadChangelogFinished()
 {
-    qDebug() << "Load changelog complete... ";
+    qDebug() << "Load changelog finished... ";
     const QString path = QString::fromStdWString(downloader->GetFilePath());
     QFile htmlFile(path);
     if (htmlFile.open(QIODevice::ReadOnly)) {
