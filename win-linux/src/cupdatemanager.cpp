@@ -47,31 +47,10 @@ CUpdateManager::CUpdateManager(QObject *parent):
     check_url = CHECK_URL;
     downloader = new Downloader(check_url, false);
     downloader->SetEvent_OnComplete([=](int error) {
-        if (error == 0) {
-            qDebug() << "Download complete... Mode: " << downloadMode;
-            switch (downloadMode) {
-            case Mode::CHECK_UPDATES:
-                onLoadCheckFinished();
-                break;
-            case Mode::DOWNLOAD_CHANGELOG:
-                onLoadChangelogFinished();
-                break;
-#if defined (Q_OS_WIN)
-            case Mode::DOWNLOAD_UPDATES:
-                onLoadUpdateFinished();
-                break;
-#endif
-            default:
-                break;
-            }
-        }
-        else {
-            qDebug() << "Download error: " << error;
-        }
+        QMetaObject::invokeMethod(this, "onCompleteSlot", Qt::QueuedConnection, Q_ARG(int, error));
     });
-    downloader->SetEvent_OnProgress([=](int percent) {   // не отрабатывает
-        qDebug() << "Precent... " << percent;
-        emit progresChanged(percent);
+    downloader->SetEvent_OnProgress([=](int percent) {
+        QMetaObject::invokeMethod(this, "onProgressSlot", Qt::QueuedConnection, Q_ARG(int, percent));
     });
     timer = new QTimer(this);
     timer->setSingleShot(false);
@@ -82,6 +61,37 @@ CUpdateManager::CUpdateManager(QObject *parent):
 CUpdateManager::~CUpdateManager()
 {
     delete downloader;
+}
+
+void CUpdateManager::onCompleteSlot(const int &error)
+{
+    if (error == 0) {
+        qDebug() << "Download complete... Mode: " << downloadMode;
+        switch (downloadMode) {
+        case Mode::CHECK_UPDATES:
+            onLoadCheckFinished();
+            break;
+        /*case Mode::DOWNLOAD_CHANGELOG:
+            onLoadChangelogFinished();
+            break;*/
+#if defined (Q_OS_WIN)
+        case Mode::DOWNLOAD_UPDATES:
+            onLoadUpdateFinished();
+            break;
+#endif
+        default:
+            break;
+        }
+    }
+    else {
+        qDebug() << "Download error: " << error;
+    }
+}
+
+void CUpdateManager::onProgressSlot(const int &percent)
+{
+    qDebug() << "Precent... " << percent;
+    emit progresChanged(percent);
 }
 
 void CUpdateManager::checkUpdates()
@@ -110,7 +120,7 @@ void CUpdateManager::checkUpdates()
     downloader->Start(0);
     // ======================================
 
-    QTimer::singleShot(3000, this, [this]() {
+    QTimer::singleShot(3000, this, [=]() {
         updateNeededCheking();
     });
 }
@@ -135,7 +145,7 @@ void CUpdateManager::readUpdateSettings()
         reg_user.endGroup();
     }
 #endif
-    QTimer::singleShot(3000, this, [this]() {
+    QTimer::singleShot(3000, this, [=]() {
         updateNeededCheking();
     });
 }
@@ -147,7 +157,7 @@ void CUpdateManager::setNewUpdateSetting(const int& rate)
     reg_user.beginGroup("Updates");
     reg_user.setValue("Updates/rate", current_rate);
     reg_user.endGroup();
-    QTimer::singleShot(3000, this, [this]() {
+    QTimer::singleShot(3000, this, [=]() {
         updateNeededCheking();
     });
     qDebug() << "Set new updates rate: " << current_rate;
@@ -156,8 +166,8 @@ void CUpdateManager::setNewUpdateSetting(const int& rate)
 void CUpdateManager::updateNeededCheking() {
     timer->stop();
     int interval = 0;
-    const time_t DAY_TO_SEC = 24*3600; // 24*3600
-    const time_t WEEK_TO_SEC = 7*24*3600; // 7*24*3600
+    const time_t DAY_TO_SEC = 24*3600;
+    const time_t WEEK_TO_SEC = 7*24*3600;
     const time_t curr_time = time(nullptr);
     const time_t elapsed_time = curr_time - last_check;
     switch (current_rate) {
@@ -220,7 +230,7 @@ void CUpdateManager::onLoadUpdateFinished()
 
     // =========== Start installation ============
     QStringList arguments;
-    arguments << QString::fromStdWString(package_args).split(" ");  // параметры установки
+    arguments << QString::fromStdWString(package_args).split(" ");
     if (QProcess::startDetached(path, arguments)) {
         qDebug() << "Start installation...";
     } else {
@@ -293,9 +303,9 @@ void CUpdateManager::onLoadCheckFinished()
     if (QDir().exists(path)) QDir().remove(path);
 }
 
-void CUpdateManager::loadChangelog(const WString &changelog_url)
+/*void CUpdateManager::loadChangelog(const WString &changelog_url)
 {
-    qDebug() << "Load changelog... " << changelog_url;
+    qDebug() << "Load changelog... " << QString::fromStdWString(changelog_url);
     downloader->Stop();
     if (changelog_url != L"") {
         downloadMode = Mode::DOWNLOAD_CHANGELOG;
@@ -321,4 +331,4 @@ void CUpdateManager::onLoadChangelogFinished()
         emit checkFinished(false, true, new_version, QString("No available description..."));
     }
     if (QDir().exists(path)) QDir().remove(path);
-}
+}*/

@@ -214,7 +214,7 @@ void CMainPanel::showMessage(const bool &error, const bool &updateExist,
         AscAppManager::sendCommandTo(0, "updates:checking", QString("{\"version\":\"%1\"}").arg(version));
         CMessage mbox(TOP_NATIVE_WINDOW_HANDLE, CMessageOpts::moButtons::mbYesNo);
         mbox.setButtons({"Yes", "No"});
-        switch (mbox.info(tr("Do you want to install a new version of the program?"))) {
+        switch (mbox.info(tr("Do you want to install a new version %1 of the program?").arg(version))) {
         case MODAL_RESULT_CUSTOM + 0:
 #if defined (Q_OS_WIN)
             updateManager->loadUpdates();

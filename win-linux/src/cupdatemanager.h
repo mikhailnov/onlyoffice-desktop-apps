@@ -73,11 +73,11 @@ private:
 
     void updateNeededCheking();
 
-    void loadChangelog(const WString &changelog_url);
+    //void loadChangelog(const WString &changelog_url);
 
     void onLoadCheckFinished();
 
-    void onLoadChangelogFinished();
+    //void onLoadChangelogFinished();
 
 #if defined (Q_OS_WIN)
     void onLoadUpdateFinished();
@@ -124,6 +124,11 @@ public slots:
 
     void progresChanged(const int &percent);
 
+private slots:
+
+    void onCompleteSlot(const int& error);
+
+    void onProgressSlot(const int& percent);
 };
 
 
