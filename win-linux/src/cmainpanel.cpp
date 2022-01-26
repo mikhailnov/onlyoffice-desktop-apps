@@ -205,6 +205,13 @@ CMainPanel::CMainPanel(QWidget *parent, bool isCustomWindow, double dpi_ratio)
 //    RecalculatePlaces();
     updateManager = new CUpdateManager(this);
     connect(updateManager, &CUpdateManager::checkFinished, this, &CMainPanel::showMessage);
+    connect(updateManager, &CUpdateManager::progresChanged, this, [=](const int &percent) {
+        if (percent < 100) {
+            AscAppManager::sendCommandTo(0, "updates:download", QString("{\"progress\":\"%1\"}").arg(percent));
+        } else {
+            AscAppManager::sendCommandTo(0, "updates:download", "{\"progress\":\"done\"}");
+        }
+    });
 }
 
 void CMainPanel::showMessage(const bool &error, const bool &updateExist,
