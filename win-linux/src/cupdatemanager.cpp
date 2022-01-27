@@ -228,14 +228,10 @@ void CUpdateManager::onLoadUpdateFinished()
     reg_user.setValue("Temp/temp_file", path);
     reg_user.endGroup();
 
-    // =========== Start installation ============
+    // ========== Start installation signal ============
     QStringList arguments;
     arguments << QString::fromStdWString(package_args).split(" ");
-    if (QProcess::startDetached(path, arguments)) {
-        qDebug() << "Start installation...";
-    } else {
-        qDebug() << "Install command not found!";
-    }
+    emit updateLoaded(path, arguments);
 }
 #endif
 

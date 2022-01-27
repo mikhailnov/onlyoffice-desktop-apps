@@ -204,17 +204,15 @@ CMainPanel::CMainPanel(QWidget *parent, bool isCustomWindow, double dpi_ratio)
 
 //    RecalculatePlaces();
     updateManager = new CUpdateManager(this);
-    connect(updateManager, &CUpdateManager::checkFinished, this, &CMainPanel::showMessage);
+    connect(updateManager, &CUpdateManager::checkFinished, this, &CMainPanel::showUpdateMessage);
+    connect(updateManager, &CUpdateManager::updateLoaded, this, &CMainPanel::showStartInstallMessage);
     connect(updateManager, &CUpdateManager::progresChanged, this, [=](const int &percent) {
-        if (percent < 100) {
-            AscAppManager::sendCommandTo(0, "updates:download", QString("{\"progress\":\"%1\"}").arg(percent));
-        } else {
-            AscAppManager::sendCommandTo(0, "updates:download", "{\"progress\":\"done\"}");
-        }
+        AscAppManager::sendCommandTo(0, "updates:download", QString("{\"progress\":\"%1\"}").arg(QString::number(percent)));
     });
+
 }
 
-void CMainPanel::showMessage(const bool &error, const bool &updateExist,
+void CMainPanel::showUpdateMessage(const bool &error, const bool &updateExist,
                               const QString &version, const QString &changelog)
 {
     if (!error && updateExist) {
@@ -229,8 +227,6 @@ void CMainPanel::showMessage(const bool &error, const bool &updateExist,
             QDesktopServices::openUrl(QUrl(DOWNLOAD_PAGE, QUrl::TolerantMode));
 #endif
             break;
-        case MODAL_RESULT_CUSTOM + 1:
-            break;
         default:
             break;
         }
@@ -240,6 +236,22 @@ void CMainPanel::showMessage(const bool &error, const bool &updateExist,
     } else
     if (error) {
         qDebug() << "Error while loading check file...";
+    }
+}
+
+void CMainPanel::showStartInstallMessage(const QString &path, const QStringList &args)
+{
+    AscAppManager::sendCommandTo(0, "updates:download", "{\"progress\":\"done\"}");
+    CMessage mbox(TOP_NATIVE_WINDOW_HANDLE, CMessageOpts::moButtons::mbYesNo);
+    mbox.setButtons({"Yes", "No"});
+    switch (mbox.info(tr("To continue the installation, you must to close current session."))) {
+    case MODAL_RESULT_CUSTOM + 0: {
+        CAscApplicationManagerWrapper::setUpdateState(true, path, args);
+        onAppCloseRequest();
+        break;
+    }
+    default:
+        break;
     }
 }
 

@@ -113,6 +113,18 @@ CAscApplicationManagerWrapper::~CAscApplicationManagerWrapper()
 //    m_vecEditors.clear();
 }
 
+bool CAscApplicationManagerWrapper::need_update_flag = false;
+QString CAscApplicationManagerWrapper::update_file_path = QString("");
+QStringList CAscApplicationManagerWrapper::update_arguments = QStringList();
+
+void CAscApplicationManagerWrapper::setUpdateState(const bool &need_update_flag, const QString &update_file_path,
+                                                   const QStringList &update_arguments)
+{
+    CAscApplicationManagerWrapper::need_update_flag = need_update_flag;
+    CAscApplicationManagerWrapper::update_file_path = update_file_path;
+    CAscApplicationManagerWrapper::update_arguments = update_arguments;
+}
+
 void CAscApplicationManagerWrapper::StartSaveDialog(const std::wstring& sName, unsigned int nId)
 {
     CAscSaveDialog * data = new CAscSaveDialog;
@@ -1183,6 +1195,17 @@ void CAscApplicationManagerWrapper::launchAppClose()
             }
         } else
         if ( !(m_countViews > 1) ) {
+
+            // ========== Start update installation ============
+            if (need_update_flag) {
+                if (QProcess::startDetached(update_file_path, update_arguments)) {
+                    qDebug() << "Start installation...";
+                } else {
+                    qDebug() << "Install command not found!";
+                }
+            }
+            // =================================================
+
             DestroyCefView(-1);
 
             if ( m_pMainWindow ) {

@@ -193,11 +193,18 @@ public:
 
     void OnEvent(NSEditorApi::CAscCefMenuEvent *);
     bool event(QEvent *event);
+    static void setUpdateState(const bool &need_update_flag,
+                               const QString &update_file_path,
+                               const QStringList &update_arguments);
 private:
     friend class CAscApplicationManagerWrapper_Private;
     std::unique_ptr<CAscApplicationManagerWrapper_Private> m_private;
 
     CAscApplicationManagerWrapper(CAscApplicationManagerWrapper_Private *);
+
+    static bool need_update_flag;
+    static QString update_file_path;
+    static QStringList update_arguments;
 };
 
 #endif // QASCAPPLICATIONMANAGER

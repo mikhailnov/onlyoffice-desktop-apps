@@ -41,8 +41,6 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QRegularExpression>
-#include <QProcess>
-#include <QDebug>
 #include <ctime>
 #include <algorithm>
 #include "defines.h"
@@ -123,6 +121,8 @@ public slots:
                        const QString &version, const QString &changelog);
 
     void progresChanged(const int &percent);
+
+    void updateLoaded(const QString &path, const QStringList &args);
 
 private slots:
 
