@@ -47,7 +47,6 @@
 #include "cscalingwrapper.h"
 #include "csvgpushbutton.h"
 #include <math.h>
-#include "cupdatemanager.h"
 
 
 struct printdata;
@@ -99,9 +98,7 @@ private:
 
     int  trySaveDocument(int);
     void RecalculatePlaces();
-    void showStartInstallMessage(const QString &path, const QStringList &args);
-    void showUpdateMessage(const bool &error, const bool &updateExist,
-                           const QString &version, const QString &changelog);
+
 
 signals:
 //    void downloadEvent(NSEditorApi::CAscDownloadFileInfo *);
@@ -192,7 +189,7 @@ public:
     {
         return ((QWidget*)m_pTabs->parent())->winId();
     }
-    CUpdateManager *updateManager;
+
 };
 
 #endif // CMAINPANEL_H

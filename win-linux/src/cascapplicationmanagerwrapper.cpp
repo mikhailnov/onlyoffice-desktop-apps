@@ -64,6 +64,9 @@ CAscApplicationManagerWrapper::CAscApplicationManagerWrapper(CAscApplicationMana
     , CCefEventsTransformer(nullptr)
     , m_queueToClose(new CWindowsQueue<sWinTag>)
     , m_private(ptrprivate)
+    , need_update_flag(false)
+    , update_file_path(QString(""))
+    , update_arguments(QStringList())
 {
     m_private->init();
     CAscApplicationManager::SetEventListener(this);
@@ -77,6 +80,13 @@ CAscApplicationManagerWrapper::CAscApplicationManagerWrapper(CAscApplicationMana
     NSBaseVideoLibrary::Init(nullptr);
 
     m_themes = std::make_shared<CThemes>();
+
+    updateManager = new CUpdateManager(this);
+    connect(updateManager, &CUpdateManager::checkFinished, this, &CAscApplicationManagerWrapper::showUpdateMessage);
+    connect(updateManager, &CUpdateManager::updateLoaded, this, &CAscApplicationManagerWrapper::showStartInstallMessage);
+    connect(updateManager, &CUpdateManager::progresChanged, this, [=](const int &percent) {
+        AscAppManager::sendCommandTo(0, "updates:download", QString("{\"progress\":\"%1\"}").arg(QString::number(percent)));
+    });
 }
 
 CAscApplicationManagerWrapper::~CAscApplicationManagerWrapper()
@@ -108,18 +118,6 @@ CAscApplicationManagerWrapper::~CAscApplicationManagerWrapper()
     }
 
 //    m_vecEditors.clear();
-}
-
-bool CAscApplicationManagerWrapper::need_update_flag = false;
-QString CAscApplicationManagerWrapper::update_file_path = QString("");
-QStringList CAscApplicationManagerWrapper::update_arguments = QStringList();
-
-void CAscApplicationManagerWrapper::setUpdateState(const bool &need_update_flag, const QString &update_file_path,
-                                                   const QStringList &update_arguments)
-{
-    CAscApplicationManagerWrapper::need_update_flag = need_update_flag;
-    CAscApplicationManagerWrapper::update_file_path = update_file_path;
-    CAscApplicationManagerWrapper::update_arguments = update_arguments;
 }
 
 void CAscApplicationManagerWrapper::StartSaveDialog(const std::wstring& sName, unsigned int nId)
@@ -289,7 +287,7 @@ bool CAscApplicationManagerWrapper::processCommonEvent(NSEditorApi::CAscCefMenuE
                 CMainWindow::checkUpdates();
             }
 #endif*/
-            m_pMainWindow->mainPanel()->updateManager->checkUpdates();
+            updateManager->checkUpdates();
 
             return true;
         } else
@@ -1572,7 +1570,7 @@ bool CAscApplicationManagerWrapper::applySettings(const wstring& wstrjson)
             const QString rate = objRoot.value("checkupdatesrate").toString();
             qDebug() << rate;
             const int _rate = (rate == "never") ? Rate::DISABLED : (rate == "day") ? Rate::DAY : Rate::WEEK;
-            m_pMainWindow->mainPanel()->updateManager->setNewUpdateSetting(_rate);
+            updateManager->setNewUpdateSetting(_rate);
         }
 
 
@@ -1931,4 +1929,49 @@ void CAscApplicationManagerWrapper::addStylesheets(CScalingFactor f, const std::
         m_mapStyles[f] = {path};
     } else m_mapStyles[f].push_back(path);
 
+}
+
+void CAscApplicationManagerWrapper::showUpdateMessage(const bool &error, const bool &updateExist,
+                              const QString &version, const QString &changelog)
+{
+    if (!error && updateExist) {
+        AscAppManager::sendCommandTo(0, "updates:checking", QString("{\"version\":\"%1\"}").arg(version));
+        CMessage mbox(mainWindow()->handle(), CMessageOpts::moButtons::mbYesNo);
+        mbox.setButtons({"Yes", "No"});
+        switch (mbox.info(tr("Do you want to install a new version %1 of the program?").arg(version))) {
+        case MODAL_RESULT_CUSTOM + 0:
+#if defined (Q_OS_WIN)
+            updateManager->loadUpdates();
+#else
+            QDesktopServices::openUrl(QUrl(DOWNLOAD_PAGE, QUrl::TolerantMode));
+#endif
+            break;
+        default:
+            break;
+        }
+    } else
+    if (!error && !updateExist) {
+        AscAppManager::sendCommandTo(0, "updates:checking", "{\"version\":\"no\"}");
+    } else
+    if (error) {
+        qDebug() << "Error while loading check file...";
+    }
+}
+
+void CAscApplicationManagerWrapper::showStartInstallMessage(const QString &path, const QStringList &args)
+{
+    AscAppManager::sendCommandTo(0, "updates:download", "{\"progress\":\"done\"}");
+    CMessage mbox(mainWindow()->handle(), CMessageOpts::moButtons::mbYesNo);
+    mbox.setButtons({"Yes", "No"});
+    switch (mbox.info(tr("To continue the installation, you must to close current session."))) {
+    case MODAL_RESULT_CUSTOM + 0: {
+        need_update_flag = true;
+        update_file_path = path;
+        update_arguments = args;
+        CAscApplicationManagerWrapper::closeMainWindow();
+        break;
+    }
+    default:
+        break;
+    }
 }

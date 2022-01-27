@@ -201,56 +201,6 @@ CMainPanel::CMainPanel(QWidget *parent, bool isCustomWindow, double dpi_ratio)
     mainGridLayout->addWidget( centralWidget );
 
 //    RecalculatePlaces();
-    updateManager = new CUpdateManager(this);
-    connect(updateManager, &CUpdateManager::checkFinished, this, &CMainPanel::showUpdateMessage);
-    connect(updateManager, &CUpdateManager::updateLoaded, this, &CMainPanel::showStartInstallMessage);
-    connect(updateManager, &CUpdateManager::progresChanged, this, [=](const int &percent) {
-        AscAppManager::sendCommandTo(0, "updates:download", QString("{\"progress\":\"%1\"}").arg(QString::number(percent)));
-    });
-
-}
-
-void CMainPanel::showUpdateMessage(const bool &error, const bool &updateExist,
-                              const QString &version, const QString &changelog)
-{
-    if (!error && updateExist) {
-        AscAppManager::sendCommandTo(0, "updates:checking", QString("{\"version\":\"%1\"}").arg(version));
-        CMessage mbox(TOP_NATIVE_WINDOW_HANDLE, CMessageOpts::moButtons::mbYesNo);
-        mbox.setButtons({"Yes", "No"});
-        switch (mbox.info(tr("Do you want to install a new version %1 of the program?").arg(version))) {
-        case MODAL_RESULT_CUSTOM + 0:
-#if defined (Q_OS_WIN)
-            updateManager->loadUpdates();
-#else
-            QDesktopServices::openUrl(QUrl(DOWNLOAD_PAGE, QUrl::TolerantMode));
-#endif
-            break;
-        default:
-            break;
-        }
-    } else
-    if (!error && !updateExist) {
-        AscAppManager::sendCommandTo(0, "updates:checking", "{\"version\":\"no\"}");
-    } else
-    if (error) {
-        qDebug() << "Error while loading check file...";
-    }
-}
-
-void CMainPanel::showStartInstallMessage(const QString &path, const QStringList &args)
-{
-    AscAppManager::sendCommandTo(0, "updates:download", "{\"progress\":\"done\"}");
-    CMessage mbox(TOP_NATIVE_WINDOW_HANDLE, CMessageOpts::moButtons::mbYesNo);
-    mbox.setButtons({"Yes", "No"});
-    switch (mbox.info(tr("To continue the installation, you must to close current session."))) {
-    case MODAL_RESULT_CUSTOM + 0: {
-        CAscApplicationManagerWrapper::setUpdateState(true, path, args);
-        onAppCloseRequest();
-        break;
-    }
-    default:
-        break;
-    }
 }
 
 void CMainPanel::attachStartPanel(QCefView * const view)

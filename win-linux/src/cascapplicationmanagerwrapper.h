@@ -43,6 +43,8 @@
 #include "ceditorwindow.h"
 #include "cwindowsqueue.h"
 #include "ceventdriver.h"
+#include "cupdatemanager.h"
+
 
 #ifdef _WIN32
     #include "win/mainwindow.h"
@@ -150,6 +152,10 @@ public slots:
     void onFileChecked(const QString&, int, bool);
     void onEditorWidgetClosed();
 
+private slots:
+    void showStartInstallMessage(const QString &path, const QStringList &args);
+    void showUpdateMessage(const bool &error, const bool &updateExist,
+                           const QString &version, const QString &changelog);
 
 public:
     static CAscApplicationManagerWrapper & getInstance();
@@ -194,18 +200,17 @@ public:
 
     void OnEvent(NSEditorApi::CAscCefMenuEvent *);
     bool event(QEvent *event);
-    static void setUpdateState(const bool &need_update_flag,
-                               const QString &update_file_path,
-                               const QStringList &update_arguments);
+
 private:
     friend class CAscApplicationManagerWrapper_Private;
     std::unique_ptr<CAscApplicationManagerWrapper_Private> m_private;
 
     CAscApplicationManagerWrapper(CAscApplicationManagerWrapper_Private *);
 
-    static bool need_update_flag;
-    static QString update_file_path;
-    static QStringList update_arguments;
+    bool need_update_flag;
+    QString update_file_path;
+    QStringList update_arguments;
+    CUpdateManager *updateManager;
 };
 
 #endif // QASCAPPLICATIONMANAGER
