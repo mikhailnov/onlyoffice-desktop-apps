@@ -90,7 +90,7 @@ void CUpdateManager::onCompleteSlot(const int &error)
 
 void CUpdateManager::onProgressSlot(const int &percent)
 {
-    qDebug() << "Precent... " << percent;
+    qDebug() << "Percent... " << percent;
     emit progresChanged(percent);
 }
 

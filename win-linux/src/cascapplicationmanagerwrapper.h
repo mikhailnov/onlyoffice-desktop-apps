@@ -45,12 +45,12 @@
 #include "ceventdriver.h"
 
 #ifdef _WIN32
-#include "win/mainwindow.h"
-#include "win/csinglewindow.h"
+    #include "win/mainwindow.h"
+    #include "win/csinglewindow.h"
 #else
-#include "linux/cmainwindow.h"
-#include "linux/singleapplication.h"
-#include "linux/csinglewindow.h"
+    #include "linux/cmainwindow.h"
+    #include "linux/singleapplication.h"
+    #include "linux/csinglewindow.h"
 #endif
 
 #include "cappupdater.h"
@@ -59,13 +59,14 @@
 #define SEND_TO_ALL_START_PAGE nullptr
 
 #ifdef Q_OS_WIN
-typedef HWND ParentHandle;
+    typedef HWND ParentHandle;
 #else
-typedef QWidget* ParentHandle;
+    typedef QWidget* ParentHandle;
 #endif
 
 
-struct sWinTag {
+struct sWinTag
+{
     int     type;
     size_t  handle;
 
@@ -185,7 +186,7 @@ public:
     static void             destroyViewer(QCefView * v);
 
     static void             cancelClose();
-    static void checkUpdates();
+    static void             checkUpdates();
 
     uint logoutCount(const std::wstring& portal) const;
     void Logout(const std::wstring& portal);

@@ -1,6 +1,5 @@
 
 #include "cascapplicationmanagerwrapper.h"
-//#include "src/cascapplicationmanagerwrapper_private.h"
 #include "cascapplicationmanagerwrapperintf.h"
 
 #include <QMutexLocker>
@@ -29,19 +28,17 @@
 #include "OfficeFileFormats.h"
 
 #ifdef _WIN32
-# include <io.h>
-# include "csplash.h"
-# include <VersionHelpers.h>
-
-# ifdef _UPDMODULE
-   #include "3dparty/WinSparkle/include/winsparkle.h"
-# endif
+    #include <io.h>
+    #include "csplash.h"
+    #include <VersionHelpers.h>
+    /*#ifdef _UPDMODULE
+       #include "3dparty/WinSparkle/include/winsparkle.h"
+    #endif*/
 #else
-# include <unistd.h>
-
-# ifdef DOCUMENTSCORE_OPENSSL_SUPPORT
-#  include "linux/cdialogcertificateinfo.h"
-# endif
+    #include <unistd.h>
+    #ifdef DOCUMENTSCORE_OPENSSL_SUPPORT
+        #include "linux/cdialogcertificateinfo.h"
+    #endif
 #endif
 
 #include "../../../desktop-sdk/ChromiumBasedEditors/videoplayerlib/qascvideoview.h"
@@ -1666,12 +1663,12 @@ CThemes& CAscApplicationManagerWrapper::themes()
 bool CAscApplicationManagerWrapper::canAppClose()
 {
 #ifdef Q_OS_WIN
-# ifdef _UPDMODULE
+    /*#ifdef _UPDMODULE
     if ( win_sparkle_is_processing() ) {
         CMessage mess(mainWindow()->handle(), CMessageOpts::moButtons::mbYesNo);
         return mess.confirm(tr("Update is running. Break update and close the app?")) == MODAL_RESULT_CUSTOM;
     }
-# endif
+    #endif*/
 #endif
 
     APP_CAST(_app);

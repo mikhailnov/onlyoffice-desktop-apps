@@ -58,10 +58,10 @@
 #include <QSettings>
 #include <QDebug>
 
-#ifdef _UPDMODULE
+/*#ifdef _UPDMODULE
   #include "3dparty/WinSparkle/include/winsparkle.h"
   #include "../version.h"
-#endif
+#endif*/
 
 using namespace std::placeholders;
 
@@ -794,7 +794,7 @@ void CMainWindow::slot_mainPageReady()
 {
     CSplash::hideSplash();
 
-#ifdef _UPDMODULE
+/*#ifdef _UPDMODULE
     GET_REGISTRY_SYSTEM(reg_system)
 
     OSVERSIONINFO osvi;
@@ -834,7 +834,7 @@ void CMainWindow::slot_mainPageReady()
             win_sparkle_init();
         }
 
-        //AscAppManager::sendCommandTo(0, "updates:turn", "on");
+        AscAppManager::sendCommandTo(0, "updates:turn", "on");
         CLogger::log("updates is on: " + _appcast_url);
 
 #define RATE_MS_DAY 3600*24
@@ -855,12 +855,9 @@ void CMainWindow::slot_mainPageReady()
                     win_sparkle_set_update_check_interval(RATE_MS_DAY);
             }
         }
-
-        //AscAppManager::sendCommandTo(0, L"settings:check.updates", _wstr_rate);
-
-
+        AscAppManager::sendCommandTo(0, L"settings:check.updates", _wstr_rate);
     }
-#endif
+#endif*/
 
     AscAppManager::sendCommandTo(0, "updates:turn", "on");
     GET_REGISTRY_USER(reg_user);
@@ -871,7 +868,7 @@ void CMainWindow::slot_mainPageReady()
     AscAppManager::sendCommandTo(0, "settings:check.updates", keys[current_rate]);
 }
 
-#if defined(_UPDMODULE)
+/*#if defined(_UPDMODULE)
 void CMainWindow::updateFound()
 {
     CLogger::log("updates found");
@@ -905,7 +902,7 @@ void CMainWindow::setAutocheckUpdatesInterval(const QString& s)
 
     }
 }
-#endif
+#endif*/
 
 void CMainWindow::doClose()
 {
