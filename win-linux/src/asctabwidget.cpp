@@ -468,7 +468,7 @@ int CAscTabWidget::insertPanel(QWidget * panel, int index)
     return tabindex;
 }
 
-void CAscTabWidget::resizeEvent(QResizeEvent* e)
+/*void CAscTabWidget::resizeEvent(QResizeEvent* e)
 {
     //(e);
     QTabWidget::resizeEvent(e);
@@ -489,45 +489,21 @@ void CAscTabWidget::resizeEvent(QResizeEvent* e)
 //            }
 //        }
     //    }
-}
-
-bool CAscTabWidget::eventFilter(QObject *object, QEvent *event)
-{
-    switch (event->type()) {
-    case QEvent::HoverEnter: {
-        if (object->objectName() == QString("leftButton") ||
-                object->objectName() == QString("rightButton")) {
-            this->setCursor(QCursor(Qt::ArrowCursor));
-        }
-        break;
-    }
-    case QEvent::HoverLeave: {
-        if (object->objectName() == QString("leftButton") ||
-                object->objectName() == QString("rightButton")) {
-            QApplication::restoreOverrideCursor();
-        }
-        break;
-    }
-    default:
-        break;
-    }
-
-    return QTabWidget::eventFilter(object, event);
-}
+}*/
 
 void CAscTabWidget::tabInserted(int index)
 {
-    adjustTabsSize();
+    //adjustTabsSize();
     emit editorInserted(index, count());
 }
 
 void CAscTabWidget::tabRemoved(int index)
 {
-    adjustTabsSize();
+    //adjustTabsSize();
     emit editorRemoved(index, count());
 }
 
-void CAscTabWidget::adjustTabsSize()
+/*void CAscTabWidget::adjustTabsSize()
 {
 //    int nMin = 41 * g_dpi_ratio;    // min tab width
 //    int nMax = 135 * g_dpi_ratio;   // max tab width
@@ -550,15 +526,15 @@ void CAscTabWidget::adjustTabsSize()
                 - m_widthParams.title_width - m_widthParams.tools_width - m_widthParams.custom_offset :
                 nControlWidth - m_widthParams.main_button_width;
 
-//        int nTabWidth = (nTabBarWidth - /*(2+2)*/10 * nCountTabs) / nCountTabs;      // magic (2+2)
+//        int nTabWidth = (nTabBarWidth - 10 * nCountTabs) / nCountTabs;      // magic (2+2)
 //        if (nTabWidth > m_widthParams.tab.max) nTabWidth = m_widthParams.tab.max;
 //        if (nTabWidth < m_widthParams.tab.min) nTabWidth = m_widthParams.tab.min;
 
-        int nMinTabBarWidth = (nTabWidth + /*(2+2)*/(10 * scaling()/*?*/)) * nCountTabs;
+        int nMinTabBarWidth = (nTabWidth + (10 * scaling())) * nCountTabs;
         if (nTabBarWidth > nMinTabBarWidth) nTabBarWidth = nMinTabBarWidth;
     }
 
-/*#if 1
+#if 1
     QString cssStyle = styleSheet();
     cssStyle
         .replace(QRegExp("QTabWidget::tab-bar\\s?\\{\\s?width\\:\\s?(\\-?\\d+px|auto)", Qt::CaseInsensitive),
@@ -569,8 +545,8 @@ void CAscTabWidget::adjustTabsSize()
     QTabWidget::setStyleSheet(cssStyle);
 #else
     tabBar()->setFixedWidth(nTabBarWidth);
-#endif*/
-}
+#endif
+}*/
 
 void CAscTabWidget::setCustomWindowParams(bool iscustom)
 {
@@ -1080,7 +1056,7 @@ void CAscTabWidget::activate(bool a)
         m_pMainButton->style()->polish(m_pMainButton);
         m_pMainButton->update();
     }
-    updateTabIcon(tabs->currentIndex());
+    updateTabIcon(currentIndex());
 
     tabs->activate(a);
     tabs->customColors().setCurrentColorGroup(a ? QPalette::Normal : QPalette::Disabled );

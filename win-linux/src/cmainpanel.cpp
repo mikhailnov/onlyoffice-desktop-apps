@@ -436,10 +436,26 @@ void CMainPanel::focus() {
     }
 }
 
-void CMainPanel::resizeEvent(QResizeEvent * event)
+/*void CMainPanel::resizeEvent(QResizeEvent * event)
 {
     QWidget::resizeEvent(event);
     //RecalculatePlaces();
+}*/
+
+bool CMainPanel::eventFilter(QObject *object, QEvent *event)
+{
+    switch (event->type()) {
+    case QEvent::HoverEnter: {
+        if (object->objectName() == QString("leftButton") ||
+                object->objectName() == QString("rightButton")) {
+            scrollerFrame->setCursor(QCursor(Qt::ArrowCursor));
+        }
+        break;
+    }
+    default:
+        break;
+    }
+    return QWidget::eventFilter(object, event);
 }
 
 void CMainPanel::onTabClicked(int index)
@@ -481,7 +497,7 @@ void CMainPanel::onEditorAllowedClose(int uid)
             _view->deleteLater();
 
             m_pTabs->removeTab(_index);
-            m_pTabs->adjustTabsSize();
+            //m_pTabs->adjustTabsSize();
             if ( !m_pTabs->count() ) {
                 m_pTabs->setProperty("empty", true);
                 m_pTabs->style()->polish(m_pTabs);

@@ -90,9 +90,8 @@ private:
 //    bool nativeEvent(const QByteArray &, void *msg, long *result);
 //    void mousePressEvent( QMouseEvent *event );
 
-    void resizeEvent(QResizeEvent* event);
-//    bool eventFilter(QObject *obj, QEvent *event);
-
+    //void resizeEvent(QResizeEvent* event);
+    bool eventFilter(QObject *, QEvent *) override;
     int  trySaveDocument(int);
     void RecalculatePlaces();
 

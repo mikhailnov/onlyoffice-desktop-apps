@@ -161,8 +161,7 @@ public:
 
     void updateScaling(double) override;
 protected:
-    void resizeEvent(QResizeEvent* e);
-    bool eventFilter(QObject *, QEvent *) override;
+    //void resizeEvent(QResizeEvent* e);
     void tabInserted(int index);
     void tabRemoved(int index);
     void closeEditor(int, bool, bool);
@@ -191,7 +190,7 @@ public:
     int         findProcessed() const;
     bool        isProcessed(int index) const;
 
-    void adjustTabsSize();
+    //void adjustTabsSize();
     void activate(bool);
     bool isActiveWidget();
 

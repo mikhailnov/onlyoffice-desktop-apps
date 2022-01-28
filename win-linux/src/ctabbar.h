@@ -115,7 +115,7 @@ private:
     QFrame *scrollerFrame;
     QToolButton *newLeftButton,
                 *newRightButton;
-    void changeCustomButtons();
+    void changeCustomScrollerState();
 };
 
 #endif // CTABBAR_H
