@@ -20,11 +20,11 @@ CTabPanel::CTabPanel(QWidget *parent)
     : QWidget(parent)
     , m_pViewer(AscAppManager::createViewer(this))
 {
-//    QGridLayout * _layout = new QGridLayout(this);
-//    setLayout(_layout);
-
-//    _layout->setMargin(0);
-//    _layout->addWidget(m_pViewer);
+    QGridLayout * _layout = new QGridLayout(this);
+    setLayout(_layout);
+    _layout->setSpacing(0);
+    _layout->setContentsMargins(0,0,0,0);
+    _layout->addWidget(m_pViewer);
 
     m_pViewer->SetBackgroundCefColor(244, 244, 244);
 }
@@ -87,7 +87,7 @@ void CTabPanel::initAsEditor()
 # endif
 
     m_pLoader = new QCefView(this);
-    m_pLoader->setGeometry(0,0, width(), height());
+    //m_pLoader->setGeometry(0,0, width(), height());
     m_pLoader->Create(&AscAppManager::getInstance(), cvwtSimple);
     m_pLoader->GetCefView()->load(_loader_path.toStdWString());
 
@@ -134,7 +134,8 @@ bool CTabPanel::openRecentFile(int id)
 
 void CTabPanel::resizeEvent(QResizeEvent *event)
 {
-    m_pViewer->resize(event->size());
+    //m_pViewer->resize(event->size());
+    QWidget::resizeEvent(event);
 }
 
 void CTabPanel::showEvent(QShowEvent *)
@@ -152,14 +153,14 @@ void CTabPanel::paintEvent(QPaintEvent *)
 
 void CTabPanel::timerEvent(QTimerEvent *)
 {
-     if ( m_startSize == m_lastSize ) {
+     /*if ( m_startSize == m_lastSize ) {
         cef()->resizeEvent();
 
         QObject::killTimer(m_idTimerResize);
         m_idTimerResize = 0;
     } else {
         m_startSize = m_lastSize;
-    }
+    }*/
 }
 
 void CTabPanel::closeEvent(QCloseEvent *event)
@@ -169,12 +170,12 @@ void CTabPanel::closeEvent(QCloseEvent *event)
 
 void CTabPanel::resize(int w, int h)
 {
-    if ( m_idTimerResize == 0 ) {
+    /*if ( m_idTimerResize == 0 ) {
         m_startSize = QSize(w, h);
         m_idTimerResize = QObject::startTimer(200);
     }
 
-    m_lastSize = QSize(w, h);
+    m_lastSize = QSize(w, h);*/
 }
 
 void CTabPanel::applyLoader(const QString& cmd, const QString& args)
@@ -193,7 +194,7 @@ void CTabPanel::showFullScreen()
 {
     QWidget::setWindowTitle(data()->title());
     QWidget::showFullScreen();
-    m_pViewer->setGeometry(QRect(0,0,width(),height()));
+    //m_pViewer->setGeometry(QRect(0,0,width(),height()));
 }
 
 void CTabPanel::showNormal()

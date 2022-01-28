@@ -43,6 +43,7 @@
 #include <QMimeData>
 #include "singleapplication.h"
 
+
 #ifdef DOCUMENTSCORE_OPENSSL_SUPPORT
 # include "cdialogopenssl.h"
 #endif
@@ -110,6 +111,7 @@ CMainWindow::CMainWindow(const QRect& geometry)
     setGeometry(_window_rect);
 
     m_pMainPanel = new CMainPanelImpl(this, !CX11Decoration::isDecorated(), m_dpiRatio);
+    m_pMainPanel->setObjectName(QString::fromUtf8("centralwidget"));
     setCentralWidget(m_pMainPanel);
 
     if ( !CX11Decoration::isDecorated() ) {
@@ -118,8 +120,11 @@ CMainWindow::CMainWindow(const QRect& geometry)
         setMouseTracking(true);
 
         QPalette _palette(palette());
-        _palette.setColor(QPalette::Background, AscAppManager::themes().current().color(CTheme::ColorRole::ecrWindowBackground));
-        setStyleSheet(QString("QMainWindow{border:1px solid %1;}").arg(QString::fromStdWString(AscAppManager::themes().current().value(CTheme::ColorRole::ecrWindowBorder))));
+        _palette.setColor(QPalette::Background, AscAppManager::themes()
+                          .current().color(CTheme::ColorRole::ecrWindowBackground));
+        setStyleSheet(QString("QMainWindow{border:1px solid %1;}")
+                      .arg(QString::fromStdWString(AscAppManager::themes()
+                      .current().value(CTheme::ColorRole::ecrWindowBorder))));
         setAutoFillBackground(true);
         setPalette(_palette);
     }
@@ -136,10 +141,13 @@ CMainWindow::CMainWindow(const QRect& geometry)
     m_pMainPanel->setStyleSheet(AscAppManager::getWindowStylesheets(m_dpiRatio));
     m_pMainPanel->updateScaling(m_dpiRatio);
     m_pMainPanel->goStart();
+
+
 }
 
 CMainWindow::~CMainWindow()
 {
+
 }
 
 void CMainWindow::closeEvent(QCloseEvent * e)

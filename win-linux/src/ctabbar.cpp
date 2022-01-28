@@ -247,33 +247,6 @@ CTabBar::CTabBar(QWidget *parent) :
         this->setProperty("scroll", "var2");
     }
     connect(this, &QTabBar::currentChanged, this, &CTabBar::onCurrentChanged);
-
-    // Bypassing the bug with tab scroller
-    scrollerFrame = parent->findChild<QFrame*>("scrollerFrame");
-    newLeftButton = parent->findChild<QToolButton*>("leftButton");
-    newRightButton = parent->findChild<QToolButton*>("rightButton");
-    Q_ASSERT(scrollerFrame != nullptr);
-    Q_ASSERT(newLeftButton != nullptr);
-    Q_ASSERT(newRightButton != nullptr);
-
-    scrollerFrame->setGeometry(this->width() + 80, this->y(), 32, this->height());
-    scrollerFrame->show();
-    scrollerFrame->raise();
-    newLeftButton->show();
-    newLeftButton->raise();
-    newRightButton->show();
-    newRightButton->raise();
-    scrollerFrame->setVisible(false);
-    connect(newLeftButton, &QToolButton::clicked, this, [this](){
-        Q_D(QTabBar);
-        d->leftB->click();
-        scrollPos = d->scrollOffset;
-    });
-    connect(newRightButton, &QToolButton::clicked, this, [this](){
-        Q_D(QTabBar);
-        d->rightB->click();
-        scrollPos = d->scrollOffset;
-    }); // End bypassing the bug
 }
 
 CTabBar::~CTabBar()
@@ -281,10 +254,38 @@ CTabBar::~CTabBar()
 
 }
 
+void CTabBar::initCustomScroll(QFrame *sFrame, QToolButton *lButton, QToolButton *rButton)
+{
+    // Bypassing the bug with tab scroller
+    scrollerFrame = sFrame;
+    newLeftButton = lButton;
+    newRightButton = rButton;
+    /*scrollerFrame = parent->findChild<QFrame*>("scrollerFrame");
+    newLeftButton = parent->findChild<QToolButton*>("leftButton");
+    newRightButton = parent->findChild<QToolButton*>("rightButton");*/
+    scrollerFrame->show();
+    scrollerFrame->raise();
+    newLeftButton->show();
+    newLeftButton->raise();
+    newRightButton->show();
+    newRightButton->raise();
+    scrollerFrame->setVisible(false);
+    connect(newLeftButton, &QToolButton::clicked, this, [=](){
+        Q_D(QTabBar);
+        d->leftB->click();
+        scrollPos = d->scrollOffset;
+    });
+    connect(newRightButton, &QToolButton::clicked, this, [=](){
+        Q_D(QTabBar);
+        d->rightB->click();
+        scrollPos = d->scrollOffset;
+    }); // End bypassing the bug
+}
+
 void CTabBar::mouseMoveEvent(QMouseEvent * event)
 {
     Q_D(QTabBar);
-
+    this->setCursor(QCursor(Qt::ArrowCursor));
     if (verticalTabs(d->shape)) {
         QTabBar::mouseMoveEvent(event);
         return;
@@ -607,30 +608,18 @@ void CTabBar::paintEvent(QPaintEvent * event)
         d->leftB->setGeometry(d->rightB->geometry().adjusted(0,0,-24,0));
         d->leftB->raise();
     }*/
+    changeCustomButtons();
+}
 
-    // Bypassing the bug with tab scroller
-    if (d->leftB->isVisible()) {
-        QPushButton *toolButtonMain = parent->parent()->findChild<QPushButton*>("toolButtonMain");
-        Q_ASSERT(toolButtonMain != nullptr);
-        const int toolButtonMainWidth = (toolButtonMain != nullptr) ? toolButtonMain->width() : 112;
-        const int scrollerWidth = static_cast<int>(round(1.143f*this->height()));
-        scrollerFrame->setGeometry(this->width() + toolButtonMainWidth - 32, this->y(),
-                                   scrollerWidth, this->height());
-        scrollerFrame->setVisible(true);
-    } else {
-        scrollerFrame->setVisible(false);
-        scrollerFrame->setGeometry(0, 0, 0, 0);
-    }
-    if (d->leftB->isEnabled()) {
-        newLeftButton->setEnabled(true);
-    } else {
-        newLeftButton->setEnabled(false);
-    }
-    if (d->rightB->isEnabled()) {
-        newRightButton->setEnabled(true);
-    } else {
-        newRightButton->setEnabled(false);
-    }   // End bypassing the bug
+void CTabBar::resizeEvent(QResizeEvent *event)
+{
+    Q_D(QTabBar);
+    scrollPos = d->scrollOffset;
+    //style()->polish(this);
+    //qDebug() << "Resize: " << this->width() << " " << scrollPos;
+
+    //changeCustomButtons();
+    QTabBar::resizeEvent(event);
 }
 
 void CTabBar::fillTabColor(QPainter * p, const QStyleOptionTab& tab, uint index, const QColor& color)
@@ -695,6 +684,7 @@ void CTabBar::onCurrentChanged(int index)
     Q_D(QTabBar);
     scrollPos = d->scrollOffset;
 
+
     QWidget * b = TAB_BTNCLOSE(m_current);
 //    if ( tabData(m_current).isNull() )
     {
@@ -716,6 +706,38 @@ void CTabBar::onCurrentChanged(int index)
     }
 
     m_current = index;
+    //changeCustomButtons();
+}
+
+void CTabBar::changeCustomButtons()
+{
+    // Bypassing the bug with tab scroller
+    Q_D(QTabBar);
+    if (scrollerFrame && newLeftButton && newRightButton) {
+        if (d->leftB->isVisible()) {
+            //QPushButton *toolButtonMain = parent->parent()->findChild<QPushButton*>("toolButtonMain", Qt::FindChildrenRecursively);
+            //Q_ASSERT(toolButtonMain != nullptr);
+            //const int toolButtonMainWidth = (m_pMainButton != nullptr) ? m_pMainButton->width() : 112;
+            //const int scrollerWidth = static_cast<int>(round(1.143f*this->height()));
+            //scrollerFrame->setGeometry(this->width() + toolButtonMainWidth - 32, this->y(),
+            //                           scrollerWidth, this->height());
+            //scrollerFrame->setFixedWidth(scrollerWidth);
+            scrollerFrame->setVisible(true);
+        } else {
+            scrollerFrame->setVisible(false);
+        }
+        if (d->leftB->isEnabled()) {
+            newLeftButton->setEnabled(true);
+        } else {
+            newLeftButton->setEnabled(false);
+        }
+        if (d->rightB->isEnabled()) {
+            newRightButton->setEnabled(true);
+        } else {
+            newRightButton->setEnabled(false);
+        }
+    }
+    // End bypassing the bug
 }
 
 void CTabBar::tabRemoved(int index)
@@ -887,8 +909,15 @@ void CTabBar::updateScaling(double f)
 
 bool CTabBar::event(QEvent * e)
 {
+    /*if (e->type() == QEvent::Resize) {
+
+    } else*/
     if ( e->type() == QEvent::StyleChange ) {
-        QTimer::singleShot(20, this, [this](){
+        if (newLeftButton && newRightButton) {
+            newLeftButton->style()->polish(newLeftButton);
+            newRightButton->style()->polish(newRightButton);
+        }
+        QTimer::singleShot(30, this, [=](){
             Q_D(QTabBar);
             if (d->scrollOffset != scrollPos) {
                 const int tabWidth = this->tabSizeHint(0).width();

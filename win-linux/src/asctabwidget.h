@@ -130,6 +130,8 @@ private:
     CTabIconSet m_mapTabIcons;
     QSize m_tabIconSize;
     CTabBar *tabs;
+    QWidget* createTabPanel(QWidget *parent, CTabPanel *panel = nullptr);
+    CTabPanel* panelfromwidget(QWidget *panelwidget);
 
 signals:
 //    void sendAddEditor();
@@ -138,7 +140,7 @@ signals:
     void editorRemoved(int, int);
 
 public:
-    CAscTabWidget(QWidget *parent = 0);
+    CAscTabWidget(QWidget *parent = nullptr, CTabBar *bar = nullptr, QPushButton *m_button = nullptr);
 
     CTabPanel * panel(int) const;
 

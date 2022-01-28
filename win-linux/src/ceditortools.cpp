@@ -219,8 +219,8 @@ namespace CEditorTools
 
 
             panel->setData(data);
-            if ( !rect.isEmpty() )
-                panel->setGeometry(rect);
+            //if ( !rect.isEmpty() )
+                //panel->setGeometry(rect);
         } else {
             delete panel, panel = nullptr;
         }

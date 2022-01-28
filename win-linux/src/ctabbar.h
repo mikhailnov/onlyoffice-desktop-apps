@@ -48,7 +48,7 @@ class CTabBar : public QTabBar, public CScalingWrapper
     Q_OBJECT
 
 public:
-    explicit CTabBar(QWidget * parent = 0);
+    explicit CTabBar(QWidget * parent = nullptr);
     virtual ~CTabBar();
 
     void setTabTextColor(QPalette::ColorGroup, const QColor&);
@@ -71,6 +71,7 @@ public:
     void changeTabTheme(int, TabTheme);
     void setTabTheme(int, TabTheme);
     void setUIThemeType(bool islight);
+    void initCustomScroll(QFrame *sFrame, QToolButton *lButton, QToolButton *rButton);
 
 protected:
     bool event(QEvent * e) override;
@@ -78,6 +79,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *) override;
     void mouseReleaseEvent (QMouseEvent *) override;
     void paintEvent(QPaintEvent *) override;
+    void resizeEvent(QResizeEvent *) override;
     void tabInserted(int) override;
     void tabRemoved(int index) override;
     void drawTabCaption(QPainter *, const QString&, const QStyleOptionTab&);
@@ -110,6 +112,7 @@ private:
     QFrame *scrollerFrame;
     QToolButton *newLeftButton,
                 *newRightButton;
+    void changeCustomButtons();
 };
 
 #endif // CTABBAR_H

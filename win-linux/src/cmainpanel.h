@@ -152,6 +152,7 @@ public slots:
     void onWebTitleChanged(int, std::wstring json){}
 
 protected:
+    CTabBar*        bar;
     CAscTabWidget * m_pTabs;
     CSVGPushButton* m_pButtonMain;
     bool            m_isCustomWindow;
@@ -160,6 +161,7 @@ private:
     std::wstring    m_sDownloadName;
 
     QWidget*        m_pMainWidget = nullptr;
+    QGridLayout*    gridLayout;
 
     QPushButton*    m_pButtonMinimize = nullptr;
     QPushButton*    m_pButtonMaximize = nullptr;
