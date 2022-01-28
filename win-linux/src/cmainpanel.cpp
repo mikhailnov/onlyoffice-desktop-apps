@@ -134,7 +134,7 @@ CMainPanel::CMainPanel(QWidget *parent, bool isCustomWindow, double dpi_ratio)
     frame->setLayout(framelayout);
 
     // Bypassing the bug with tab scroller
-    QFrame *scrollerFrame = new QFrame(frame);
+    scrollerFrame = new QFrame(frame);
     scrollerFrame->setObjectName("scrollerFrame");
     scrollerFrame->setStyleSheet("QFrame {border: none; background: transparent;}");
     QHBoxLayout *layout = new QHBoxLayout(scrollerFrame);
@@ -142,8 +142,8 @@ CMainPanel::CMainPanel(QWidget *parent, bool isCustomWindow, double dpi_ratio)
     layout->setSpacing(0);
     layout->setContentsMargins(0,0,0,0);
 
-    QToolButton *newLeftButton = new QToolButton(scrollerFrame);
-    QToolButton *newRightButton = new QToolButton(scrollerFrame);
+    QToolButton* newLeftButton = new QToolButton(scrollerFrame);
+    QToolButton* newRightButton = new QToolButton(scrollerFrame);
     newLeftButton->setObjectName("leftButton");
     newRightButton->setObjectName("rightButton");
 
@@ -1351,8 +1351,12 @@ void CMainPanel::updateScaling(double dpiratio)
 
     QFile styleFile(_tabs_stylesheets);
     styleFile.open( QFile::ReadOnly );
-    m_pTabs->setStyleSheet(QString(styleFile.readAll()));
+    const QString _style = QString(styleFile.readAll());
+    bar->setStyleSheet(_style);
+    scrollerFrame->setStyleSheet(_style);
+    m_pTabs->setStyleSheet(_style);
     m_pTabs->updateScaling(dpiratio);
+
     styleFile.close();
 
 //    std::map<int, std::pair<QString, QString> > icons;

@@ -111,7 +111,6 @@ CMainWindow::CMainWindow(const QRect& geometry)
     setGeometry(_window_rect);
 
     m_pMainPanel = new CMainPanelImpl(this, !CX11Decoration::isDecorated(), m_dpiRatio);
-    m_pMainPanel->setObjectName(QString::fromUtf8("centralwidget"));
     setCentralWidget(m_pMainPanel);
 
     if ( !CX11Decoration::isDecorated() ) {

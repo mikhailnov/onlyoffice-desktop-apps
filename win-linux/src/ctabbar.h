@@ -39,6 +39,7 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QTimer>
+#include <QWheelEvent>
 #include "cscalingwrapper.h"
 #include <math.h>
 //class CTabBarPrivate;
@@ -78,6 +79,7 @@ protected:
     void mousePressEvent (QMouseEvent *) override;
     void mouseMoveEvent(QMouseEvent *) override;
     void mouseReleaseEvent (QMouseEvent *) override;
+    void wheelEvent(QWheelEvent *event) override;
     void paintEvent(QPaintEvent *) override;
     void resizeEvent(QResizeEvent *) override;
     void tabInserted(int) override;
@@ -104,6 +106,7 @@ private:
 
 signals:
     void tabUndock(int, bool *);
+    void onCurrentChangedByWhell(int index);
 
 private:
     Q_DECLARE_PRIVATE(QTabBar);

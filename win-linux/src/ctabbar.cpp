@@ -260,9 +260,6 @@ void CTabBar::initCustomScroll(QFrame *sFrame, QToolButton *lButton, QToolButton
     scrollerFrame = sFrame;
     newLeftButton = lButton;
     newRightButton = rButton;
-    /*scrollerFrame = parent->findChild<QFrame*>("scrollerFrame");
-    newLeftButton = parent->findChild<QToolButton*>("leftButton");
-    newRightButton = parent->findChild<QToolButton*>("rightButton");*/
     scrollerFrame->show();
     scrollerFrame->raise();
     newLeftButton->show();
@@ -380,6 +377,12 @@ void CTabBar::mouseReleaseEvent(QMouseEvent * e)
 {
     QTabBar::mouseReleaseEvent(e);
     releaseMouse();
+}
+
+void CTabBar::wheelEvent(QWheelEvent *event)
+{
+    QTabBar::wheelEvent(event);
+    emit onCurrentChangedByWhell(currentIndex());
 }
 
 void CTabBar::drawTabCaption(QPainter * p, const QString& s, const QStyleOptionTab& t)
@@ -715,13 +718,6 @@ void CTabBar::changeCustomButtons()
     Q_D(QTabBar);
     if (scrollerFrame && newLeftButton && newRightButton) {
         if (d->leftB->isVisible()) {
-            //QPushButton *toolButtonMain = parent->parent()->findChild<QPushButton*>("toolButtonMain", Qt::FindChildrenRecursively);
-            //Q_ASSERT(toolButtonMain != nullptr);
-            //const int toolButtonMainWidth = (m_pMainButton != nullptr) ? m_pMainButton->width() : 112;
-            //const int scrollerWidth = static_cast<int>(round(1.143f*this->height()));
-            //scrollerFrame->setGeometry(this->width() + toolButtonMainWidth - 32, this->y(),
-            //                           scrollerWidth, this->height());
-            //scrollerFrame->setFixedWidth(scrollerWidth);
             scrollerFrame->setVisible(true);
         } else {
             scrollerFrame->setVisible(false);
@@ -909,15 +905,12 @@ void CTabBar::updateScaling(double f)
 
 bool CTabBar::event(QEvent * e)
 {
-    /*if (e->type() == QEvent::Resize) {
-
-    } else*/
     if ( e->type() == QEvent::StyleChange ) {
         if (newLeftButton && newRightButton) {
             newLeftButton->style()->polish(newLeftButton);
             newRightButton->style()->polish(newRightButton);
         }
-        QTimer::singleShot(30, this, [=](){
+        QTimer::singleShot(30, this, [=]() {
             Q_D(QTabBar);
             if (d->scrollOffset != scrollPos) {
                 const int tabWidth = this->tabSizeHint(0).width();

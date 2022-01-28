@@ -153,6 +153,7 @@ public slots:
 
 protected:
     CTabBar*        bar;
+    QFrame*         scrollerFrame;
     CAscTabWidget * m_pTabs;
     CSVGPushButton* m_pButtonMain;
     bool            m_isCustomWindow;

@@ -19,12 +19,9 @@ QTabBar[active=false]::tab:selected:hover {background-color: #cecece;}
 #mainPanel[uitheme=theme-classic-light] QTabBar::tab {border-right-color:#cbcbcb;}
 
 #mainPanel[uitheme=theme-dark] QTabWidget::pane {background-color: #404040;}
-#mainPanel[uitheme=theme-dark] QTabBar[active=true]::tab {background-color: #404040; border-right-color: #505050;}
-#mainPanel[uitheme=theme-dark] QTabBar[active=false]::tab {background-color: #404040;}
-#mainPanel[uitheme=theme-dark] QTabBar[active=true]::tab:hover {background-color: #555;}
-#mainPanel[uitheme=theme-dark] QTabBar[active=false]::tab:hover {background-color: #555;}
-#mainPanel[uitheme=theme-dark] QTabBar[active=true]::tab:selected {background-color: #404040;}
-#mainPanel[uitheme=theme-dark] QTabBar[active=false]::tab:selected {background-color: #404040;}
+#mainPanel[uitheme=theme-dark] QTabBar::tab {background-color: #404040; border-right-color: #505050;}
+#mainPanel[uitheme=theme-dark] QTabBar::tab:hover {background-color: #555;}
+#mainPanel[uitheme=theme-dark] QTabBar::tab:selected {background-color: #404040;}
 #mainPanel[uitheme=theme-dark] QTabBar[active=false]::tab:selected:hover {background-color: #555;}
 
 #mainPanel[uitheme=theme-dark] #scrollerFrame>QToolButton {background-color: #606060;}

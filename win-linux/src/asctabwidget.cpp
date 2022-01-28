@@ -189,6 +189,9 @@ CAscTabWidget::CAscTabWidget(QWidget *parent, CTabBar *bar, QPushButton *m_butto
     QObject::connect(tabs, &CTabBar::tabBarClicked, this, [=](int index) {
         this->setCurrentIndex(index);
     });
+    QObject::connect(tabs, &CTabBar::onCurrentChangedByWhell, this, [=](int index) {
+        this->setCurrentIndex(index);
+    });
     QObject::connect(tabs, &CTabBar::tabMoved, this, [=](int from, int to) {
         this->tabBar()->moveTab(from, to);
     });
@@ -1337,7 +1340,6 @@ void CAscTabWidget::updateScaling(double f)
 
 void CAscTabWidget::setStyleSheet(const QString& stylesheet)
 {
-    tabs->setStyleSheet(stylesheet); // + g_dark_theme_stylesheet);
     QTabWidget::setStyleSheet(stylesheet); // + g_dark_theme_stylesheet);
 
     auto _string_to_color = [](const QString& str) -> QColor {
