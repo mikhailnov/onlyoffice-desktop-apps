@@ -73,7 +73,7 @@ public:
     int  tabCloseRequest(int index = -1);
     void toggleButtonMain(bool, bool delay = false);
     CAscTabWidget * tabWidget();
-
+    CTabBar*        bar;
     virtual void applyTheme(const std::wstring&);
     virtual void updateScaling(double);
 
@@ -151,7 +151,6 @@ public slots:
     void onWebTitleChanged(int, std::wstring json){}
 
 protected:
-    CTabBar*        bar;
     QFrame*         scrollerFrame;
     CAscTabWidget * m_pTabs;
     CSVGPushButton* m_pButtonMain;
