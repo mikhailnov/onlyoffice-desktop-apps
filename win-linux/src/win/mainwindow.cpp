@@ -946,8 +946,8 @@ void CMainWindow::captureMouse(int tabindex)
     if ( !(tabindex < 0) &&
             tabindex < mainPanel()->tabWidget()->count() )
     {
-        QPoint spt = mainPanel()->tabWidget()->tabBar()->tabRect(tabindex).topLeft() + QPoint(30, 10);
-        QPoint gpt = mainPanel()->tabWidget()->tabBar()->mapToGlobal(spt);
+        QPoint spt = mainPanel()->bar->tabRect(tabindex).topLeft() + QPoint(30, 10);
+        QPoint gpt = mainPanel()->bar->mapToGlobal(spt);
 #if (QT_VERSION < QT_VERSION_CHECK(5, 10, 0))
         gpt = m_pWinPanel->mapToGlobal(gpt);
 #endif
@@ -955,7 +955,7 @@ void CMainWindow::captureMouse(int tabindex)
         SetCursorPos(gpt.x(), gpt.y());
         //SendMessage(hWnd, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM(gpt.x(), gpt.y()));
       
-        QWidget * _widget = mainPanel()->tabWidget()->tabBar();
+        QWidget * _widget = mainPanel()->bar;
         QTimer::singleShot(0,[_widget,spt] {
             INPUT _input{INPUT_MOUSE};
             _input.mi.dwFlags = MOUSEEVENTF_ABSOLUTE|MOUSEEVENTF_LEFTDOWN;
@@ -972,7 +972,7 @@ void CMainWindow::captureMouse(int tabindex)
 bool CMainWindow::pointInTabs(const QPoint& pt) const
 {
     QRect _rc_title(mainPanel()->geometry());
-    _rc_title.setHeight(mainPanel()->tabWidget()->tabBar()->height());
+    _rc_title.setHeight(mainPanel()->bar->height());
 
     return _rc_title.contains(m_pWinPanel->mapFromGlobal(pt));
 }
