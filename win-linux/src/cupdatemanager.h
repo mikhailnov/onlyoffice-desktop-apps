@@ -33,6 +33,7 @@
 #ifndef CUPDATEMANAGER_H
 #define CUPDATEMANAGER_H
 
+#include <QCoreApplication>
 #include <QObject>
 #include <QSettings>
 #include <QTimer>
@@ -47,7 +48,6 @@
 #include "version.h"
 #include "Network/FileTransporter/include/FileTransporter.h"
 
-#define CHECK_URL L"http://nct.onlyoffice.com/sh/XHh"
 typedef std::wstring WString;
 typedef NSNetwork::NSFileTransport::CFileDownloader Downloader;
 

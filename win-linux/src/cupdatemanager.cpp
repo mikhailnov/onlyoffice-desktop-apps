@@ -44,7 +44,23 @@ CUpdateManager::CUpdateManager(QObject *parent):
 #if defined (Q_OS_WIN)
     package_url = L"";
 #endif
-    check_url = CHECK_URL;
+    // =========== Set updates URL ============
+    bool cmd_flag = false;  // updates URL set from command line argument
+    const QStringList args = QCoreApplication::arguments();
+    foreach (const QString &arg, args) {
+        const QStringList params = arg.split('=');
+        if (params.size() == 2) {
+            if (params.at(0) == QString("--updates-appcast-url")) {
+                check_url = params.at(1).toStdWString();
+                cmd_flag = true;
+                break;
+            }
+        }
+    }
+    if (!cmd_flag) check_url = QString(URL_APPCAST_UPDATES).toStdWString();
+    qDebug() << "URL_APPCAST_UPDATES: " << check_url;
+    // ========================================
+
     downloader = new Downloader(check_url, false);
     downloader->SetEvent_OnComplete([=](int error) {
         QMetaObject::invokeMethod(this, "onCompleteSlot", Qt::QueuedConnection, Q_ARG(int, error));

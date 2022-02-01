@@ -50,7 +50,7 @@
 #include "cmessage.h"
 
 #ifndef URL_APPCAST_UPDATES
-    #define URL_APPCAST_UPDATES "http://nct.onlyoffice.com/sh/XHh"
+    //#define URL_APPCAST_UPDATES "http://nct.onlyoffice.com/sh/XHh"
 #endif
 
 using namespace std::placeholders;
