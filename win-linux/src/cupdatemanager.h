@@ -99,7 +99,7 @@ private:
     Downloader  *downloader;
 
     enum Rate {
-        DISABLED, ONSTARTUP, DAY, WEEK
+        DISABLED, ONSTARTUP//, DAY, WEEK
     };
     enum Mode {
         CHECK_UPDATES, DOWNLOAD_CHANGELOG, DOWNLOAD_UPDATES

@@ -864,8 +864,8 @@ void CMainWindow::slot_mainPageReady()
     reg_user.beginGroup("Updates");
     int current_rate = reg_user.value("Updates/rate").toInt(); // DISABLED, ONSTARTUP, DAY, WEEK
     reg_user.endGroup();
-    Q_ASSERT(current_rate <= 3);
-    const QString keys[] = {"never", "day", "day", "week"};
+    Q_ASSERT(current_rate <= 1);
+    const QString keys[] = {"never", "day"/*, "day", "week"*/};
     AscAppManager::sendCommandTo(0, "settings:check.updates", keys[current_rate]);
 }
 

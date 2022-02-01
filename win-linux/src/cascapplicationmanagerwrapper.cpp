@@ -1199,6 +1199,7 @@ void CAscApplicationManagerWrapper::launchAppClose()
                     qDebug() << "Install command not found!";
                 }
             }
+            updateManager->cancelLoading();
             // =================================================
 
             DestroyCefView(-1);
@@ -1565,7 +1566,7 @@ bool CAscApplicationManagerWrapper::applySettings(const wstring& wstrjson)
 #endif*/
         if ( objRoot.contains("checkupdatesrate") ) {
             enum Rate {
-                DISABLED, ONSTARTUP, DAY, WEEK
+                DISABLED, ONSTARTUP//, DAY, WEEK
             };
             const QString rate = objRoot.value("checkupdatesrate").toString();
             qDebug() << rate;

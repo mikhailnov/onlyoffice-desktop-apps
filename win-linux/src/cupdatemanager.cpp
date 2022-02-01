@@ -170,16 +170,16 @@ void CUpdateManager::setNewUpdateSetting(const int& rate)
 
 void CUpdateManager::updateNeededCheking() {
     timer->stop();
-    int interval = 0;
+    /*int interval = 0;
     const time_t DAY_TO_SEC = 24*3600;
     const time_t WEEK_TO_SEC = 7*24*3600;
     const time_t curr_time = time(nullptr);
-    const time_t elapsed_time = curr_time - last_check;
+    const time_t elapsed_time = curr_time - last_check;*/
     switch (current_rate) {
     case Rate::ONSTARTUP:
         checkUpdates();
         break;
-    case Rate::DAY:
+    /*case Rate::DAY:
         if (elapsed_time > DAY_TO_SEC) {
             checkUpdates();
         } else {
@@ -196,7 +196,7 @@ void CUpdateManager::updateNeededCheking() {
             timer->setInterval(interval*1000);
             timer->start();
         }
-        break;
+        break;*/
     case Rate::DISABLED:
     default:
         break;
