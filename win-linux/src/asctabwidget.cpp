@@ -1369,13 +1369,6 @@ void CAscTabWidget::applyUITheme(const std::wstring& theme)
     tabs->style()->polish(tabs);
     style()->polish(this);
 
-    /*QToolButton *newLeftButton = this->findChild<QToolButton*>("leftButton");
-    QToolButton *newRightButton = this->findChild<QToolButton*>("rightButton");
-    Q_ASSERT(newLeftButton != nullptr);
-    Q_ASSERT(newRightButton != nullptr);
-    style()->polish(newLeftButton);
-    style()->polish(newRightButton);*/
-
     QColor back_color = AscAppManager::themes().current().color(CTheme::ColorRole::ecrWindowBackground);
     for (int i(count()); i-- > 0; ) {
         panel(i)->setBackground(back_color);

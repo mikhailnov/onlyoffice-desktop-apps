@@ -162,9 +162,12 @@ CMainPanel::CMainPanel(QWidget *parent, bool isCustomWindow, double dpi_ratio)
     QWidget *paddingWidget = new QWidget(frame);
     paddingWidget->setObjectName("paddingWidget");
     paddingWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    paddingWidget->setStyleSheet("QWidget {border: none; background: transparent;}");
     QHBoxLayout *tab_layout = new QHBoxLayout(frame);
+#ifdef Q_OS_WIN
+    tab_layout->setSpacing(32);
+#else
     tab_layout->setSpacing(0);
+#endif
     tab_layout->setContentsMargins(0,0,0,0);
     tab_layout->addWidget(bar);
     tab_layout->addWidget(paddingWidget);
@@ -1372,7 +1375,6 @@ void CMainPanel::updateScaling(double dpiratio)
     scrollerFrame->setStyleSheet(_style);
     m_pTabs->setStyleSheet(_style);
     m_pTabs->updateScaling(dpiratio);
-
     styleFile.close();
 
 //    std::map<int, std::pair<QString, QString> > icons;

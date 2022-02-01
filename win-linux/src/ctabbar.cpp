@@ -833,6 +833,36 @@ void CTabBar::setTabTheme(int index, TabTheme theme)
 void CTabBar::setUIThemeType(bool islight)
 {
     m_isUIThemeDark = !islight;
+    if (newLeftButton && newRightButton) {
+        newLeftButton->style()->polish(newLeftButton);
+        newRightButton->style()->polish(newRightButton);
+    }
+    QTimer::singleShot(20, this, [=]() {
+        Q_D(QTabBar);
+        if (d->scrollOffset != scrollPos) {
+            const int tabWidth = this->tabSizeHint(0).width();
+            if (scrollPos % tabWidth == 0) {
+                for (int i = 0; i < count(); i++) {
+                    if (!d->rightB->isEnabled()) break;
+                    d->rightB->click();
+                }
+                for (int i = 0; i < count(); i++) {
+                    if (d->scrollOffset == scrollPos) break;
+                    d->leftB->click();
+                }
+
+            } else {
+                for (int i = 0; i < count(); i++) {
+                    if (!d->leftB->isEnabled()) break;
+                    d->leftB->click();
+                }
+                for (int i = 0; i < count(); i++) {
+                    if (d->scrollOffset == scrollPos) break;
+                    d->rightB->click();
+                }
+            }
+        }
+    });
 }
 
 void CTabBar::setActiveTabColor(const QString& color)
@@ -908,39 +938,6 @@ void CTabBar::updateScaling(double f)
 
 bool CTabBar::event(QEvent * e)
 {
-    if ( e->type() == QEvent::StyleChange ) {
-        if (newLeftButton && newRightButton) {
-            newLeftButton->style()->polish(newLeftButton);
-            newRightButton->style()->polish(newRightButton);
-        }
-        QTimer::singleShot(20, this, [=]() {
-            Q_D(QTabBar);
-            if (d->scrollOffset != scrollPos) {
-                const int tabWidth = this->tabSizeHint(0).width();
-                if (scrollPos % tabWidth == 0) {
-                    for (int i = 0; i < count(); i++) {
-                        if (!d->rightB->isEnabled()) break;
-                        d->rightB->click();
-                    }
-                    for (int i = 0; i < count(); i++) {
-                        if (d->scrollOffset == scrollPos) break;
-                        d->leftB->click();
-                    }
-
-                } else {
-                    for (int i = 0; i < count(); i++) {
-                        if (!d->leftB->isEnabled()) break;
-                        d->leftB->click();
-                    }
-                    for (int i = 0; i < count(); i++) {
-                        if (d->scrollOffset == scrollPos) break;
-                        d->rightB->click();
-                    }
-                }
-            }
-        });
-
-    } else
     if ( e->type() == QEvent::HoverMove ) {
         Q_D(QTabBar);
 

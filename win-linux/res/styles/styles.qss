@@ -156,6 +156,8 @@ QTabBar QToolButton[class=tab-close]{
 #paddingWidget {
     min-width: 0px;
     max-width: 0px;
+    border: none;
+    background: transparent;
 }
 
 #scrollerFrame {
