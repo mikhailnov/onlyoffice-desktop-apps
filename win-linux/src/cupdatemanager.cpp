@@ -35,7 +35,7 @@
 
 CUpdateManager::CUpdateManager(QObject *parent):
     QObject(parent),
-    current_rate(Rate::DAY),
+    current_rate(Rate::ONSTARTUP),
     downloadMode(Mode::CHECK_UPDATES),
     locale("en-EN"),
     new_version(""),
@@ -50,7 +50,9 @@ CUpdateManager::CUpdateManager(QObject *parent):
         QMetaObject::invokeMethod(this, "onCompleteSlot", Qt::QueuedConnection, Q_ARG(int, error));
     });
     downloader->SetEvent_OnProgress([=](int percent) {
-        QMetaObject::invokeMethod(this, "onProgressSlot", Qt::QueuedConnection, Q_ARG(int, percent));
+        if (downloadMode == Mode::DOWNLOAD_UPDATES) {
+            QMetaObject::invokeMethod(this, "onProgressSlot", Qt::QueuedConnection, Q_ARG(int, percent));
+        }
     });
     timer = new QTimer(this);
     timer->setSingleShot(false);
@@ -119,10 +121,11 @@ void CUpdateManager::checkUpdates()
     downloader->SetFilePath(tmp_file.toStdWString());
     downloader->Start(0);
     // ======================================
-
-    QTimer::singleShot(3000, this, [=]() {
-        updateNeededCheking();
-    });
+    if (current_rate != Rate::ONSTARTUP) {
+        QTimer::singleShot(3000, this, [=]() {
+            updateNeededCheking();
+        });
+    }
 }
 
 void CUpdateManager::readUpdateSettings()
@@ -157,9 +160,11 @@ void CUpdateManager::setNewUpdateSetting(const int& rate)
     reg_user.beginGroup("Updates");
     reg_user.setValue("Updates/rate", current_rate);
     reg_user.endGroup();
-    QTimer::singleShot(3000, this, [=]() {
-        updateNeededCheking();
-    });
+    if (current_rate != Rate::ONSTARTUP) {
+        QTimer::singleShot(3000, this, [=]() {
+            updateNeededCheking();
+        });
+    }
     qDebug() << "Set new updates rate: " << current_rate;
 }
 
@@ -171,6 +176,9 @@ void CUpdateManager::updateNeededCheking() {
     const time_t curr_time = time(nullptr);
     const time_t elapsed_time = curr_time - last_check;
     switch (current_rate) {
+    case Rate::ONSTARTUP:
+        checkUpdates();
+        break;
     case Rate::DAY:
         if (elapsed_time > DAY_TO_SEC) {
             checkUpdates();

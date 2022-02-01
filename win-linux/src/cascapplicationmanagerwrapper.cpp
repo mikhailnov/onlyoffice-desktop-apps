@@ -1565,11 +1565,11 @@ bool CAscApplicationManagerWrapper::applySettings(const wstring& wstrjson)
 #endif*/
         if ( objRoot.contains("checkupdatesrate") ) {
             enum Rate {
-                DAY, WEEK, DISABLED
+                DISABLED, ONSTARTUP, DAY, WEEK
             };
             const QString rate = objRoot.value("checkupdatesrate").toString();
             qDebug() << rate;
-            const int _rate = (rate == "never") ? Rate::DISABLED : (rate == "day") ? Rate::DAY : Rate::WEEK;
+            const int _rate = (rate == "never") ? Rate::DISABLED : Rate::ONSTARTUP;
             updateManager->setNewUpdateSetting(_rate);
         }
 
@@ -1936,19 +1936,19 @@ void CAscApplicationManagerWrapper::showUpdateMessage(const bool &error, const b
 {
     if (!error && updateExist) {
         AscAppManager::sendCommandTo(0, "updates:checking", QString("{\"version\":\"%1\"}").arg(version));
+#if defined (Q_OS_WIN)
+        updateManager->loadUpdates();
+#else
         CMessage mbox(mainWindow()->handle(), CMessageOpts::moButtons::mbYesNo);
         mbox.setButtons({"Yes", "No"});
         switch (mbox.info(tr("Do you want to install a new version %1 of the program?").arg(version))) {
         case MODAL_RESULT_CUSTOM + 0:
-#if defined (Q_OS_WIN)
-            updateManager->loadUpdates();
-#else
             QDesktopServices::openUrl(QUrl(DOWNLOAD_PAGE, QUrl::TolerantMode));
-#endif
             break;
         default:
             break;
         }
+#endif
     } else
     if (!error && !updateExist) {
         AscAppManager::sendCommandTo(0, "updates:checking", "{\"version\":\"no\"}");
@@ -1963,7 +1963,8 @@ void CAscApplicationManagerWrapper::showStartInstallMessage(const QString &path,
     AscAppManager::sendCommandTo(0, "updates:download", "{\"progress\":\"done\"}");
     CMessage mbox(mainWindow()->handle(), CMessageOpts::moButtons::mbYesNo);
     mbox.setButtons({"Yes", "No"});
-    switch (mbox.info(tr("To continue the installation, you must to close current session."))) {
+    switch (mbox.info(tr("Do you want to install a new version of the program?\n"
+                         "To continue the installation, you must to close current session."))) {
     case MODAL_RESULT_CUSTOM + 0: {
         need_update_flag = true;
         update_file_path = path;

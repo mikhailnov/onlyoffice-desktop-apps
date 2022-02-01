@@ -862,9 +862,10 @@ void CMainWindow::slot_mainPageReady()
     AscAppManager::sendCommandTo(0, "updates:turn", "on");
     GET_REGISTRY_USER(reg_user);
     reg_user.beginGroup("Updates");
-    int current_rate = reg_user.value("Updates/rate").toInt(); // DAY, WEEK, DISABLED
+    int current_rate = reg_user.value("Updates/rate").toInt(); // DISABLED, ONSTARTUP, DAY, WEEK
     reg_user.endGroup();
-    const QString keys[] = {"day", "week", "never"};
+    Q_ASSERT(current_rate <= 3);
+    const QString keys[] = {"never", "day", "day", "week"};
     AscAppManager::sendCommandTo(0, "settings:check.updates", keys[current_rate]);
 }
 

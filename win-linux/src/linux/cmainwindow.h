@@ -78,8 +78,6 @@ protected:
 private:
     CMainPanelImpl *   m_pMainPanel;
     double m_dpiRatio = 1;
-
-    bool mainPageReady_flag;
     void slot_mainPageReady();
 
 signals:
