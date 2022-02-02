@@ -93,7 +93,7 @@ private:
     //void resizeEvent(QResizeEvent* event);
     bool eventFilter(QObject *, QEvent *) override;
     int  trySaveDocument(int);
-    void RecalculatePlaces();
+    //void RecalculatePlaces();
 
 signals:
 //    void downloadEvent(NSEditorApi::CAscDownloadFileInfo *);
@@ -160,7 +160,7 @@ private:
     std::wstring    m_sDownloadName;
 
     QWidget*        m_pMainWidget = nullptr;
-    QGridLayout*    gridLayout;
+    QGridLayout*    mainGridLayout;
 
     QPushButton*    m_pButtonMinimize = nullptr;
     QPushButton*    m_pButtonMaximize = nullptr;

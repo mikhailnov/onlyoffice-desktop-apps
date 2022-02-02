@@ -102,53 +102,47 @@ CMainPanel::CMainPanel(QWidget *parent, bool isCustomWindow, double dpi_ratio)
 {
     this->setObjectName("mainPanel");
     this->setProperty("uitheme", QString::fromStdWString(AscAppManager::themes().current().id()));
-
-    QGridLayout *mainGridLayout = new QGridLayout(this);
-    mainGridLayout->setSpacing(0);
-    //mainGridLayout->setMargin( 0 );
-    mainGridLayout->setContentsMargins(0, 0, 0, 0);
-    this->setLayout(mainGridLayout);
-
-    // Central widget
+    /*// Central widget
     QWidget *centralWidget = new QWidget(this);
     centralWidget->setObjectName("centralWidget");
     centralWidget->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
-    mainGridLayout->addWidget(centralWidget);
+    mainGridLayout->addWidget(centralWidget);*/
 
-    gridLayout = new QGridLayout(centralWidget);
-    gridLayout->setSpacing(0);
-    gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
-    gridLayout->setContentsMargins(0, 0, 0, 0);
-    centralWidget->setLayout(gridLayout);
+    mainGridLayout = new QGridLayout(this);
+    mainGridLayout->setSpacing(0);
+    mainGridLayout->setObjectName(QString::fromUtf8("mainGridLayout"));
+    mainGridLayout->setContentsMargins(0, 0, 0, 0);
+    this->setLayout(mainGridLayout);
 
     // Set custom TabBar
-    QFrame *frame = new QFrame(centralWidget);
-    frame->setObjectName(QString::fromUtf8("frame"));
-    frame->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    frame->setFrameShape(QFrame::NoFrame);
-    frame->setFrameShadow(QFrame::Plain);
-    gridLayout->addWidget(frame, 0, 2, 1, 1);
-    QGridLayout *framelayout = new QGridLayout(frame);
-    framelayout->setSpacing(0);
-    framelayout->setContentsMargins(0,0,0,0);
-    frame->setLayout(framelayout);
+    QFrame *tabFrame = new QFrame(this);
+    tabFrame->setObjectName(QString::fromUtf8("tabFrame"));
+    tabFrame->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    tabFrame->setFrameShape(QFrame::NoFrame);
+    tabFrame->setFrameShadow(QFrame::Plain);
+    mainGridLayout->addWidget(tabFrame, 0, 2, 1, 1);
+
+    QGridLayout *tabFrameLayout = new QGridLayout(tabFrame);
+    tabFrameLayout->setSpacing(0);
+    tabFrameLayout->setContentsMargins(0,0,0,0);
+    tabFrame->setLayout(tabFrameLayout);
 
     // Bypassing the bug with tab scroller
-    scrollerFrame = new QFrame(frame);
+    scrollerFrame = new QFrame(tabFrame);
     scrollerFrame->setObjectName("scrollerFrame");
     scrollerFrame->setStyleSheet("QFrame {border: none; background: transparent;}");
-    QHBoxLayout *layout = new QHBoxLayout(scrollerFrame);
-    scrollerFrame->setLayout(layout);
-    layout->setSpacing(0);
-    layout->setContentsMargins(0,0,0,0);
+    QHBoxLayout *scrollerLayout = new QHBoxLayout(scrollerFrame);
+    scrollerLayout->setSpacing(0);
+    scrollerLayout->setContentsMargins(0,0,0,0);
+    scrollerFrame->setLayout(scrollerLayout);
 
     QToolButton* newLeftButton = new QToolButton(scrollerFrame);
     QToolButton* newRightButton = new QToolButton(scrollerFrame);
     newLeftButton->setObjectName("leftButton");
     newRightButton->setObjectName("rightButton");
 
-    layout->addWidget(newLeftButton);
-    layout->addWidget(newRightButton);
+    scrollerLayout->addWidget(newLeftButton);
+    scrollerLayout->addWidget(newRightButton);
     newLeftButton->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     newRightButton->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     newLeftButton->installEventFilter(this);
@@ -158,35 +152,37 @@ CMainPanel::CMainPanel(QWidget *parent, bool isCustomWindow, double dpi_ratio)
     newLeftButton->setAttribute(Qt::WA_Hover, true);
     newRightButton->setAttribute(Qt::WA_Hover, true);   // End bypassing the bug
 
-    bar = new CTabBar(frame);
-    QWidget *paddingWidget = new QWidget(frame);
+    bar = new CTabBar(tabFrame);
+    bar->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    QWidget *paddingWidget = new QWidget(tabFrame);
     paddingWidget->setObjectName("paddingWidget");
     paddingWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    QHBoxLayout *tab_layout = new QHBoxLayout(frame);
-#ifdef Q_OS_WIN
-    tab_layout->setSpacing(32);
-#else
-    tab_layout->setSpacing(0);
-#endif
-    tab_layout->setContentsMargins(0,0,0,0);
-    tab_layout->addWidget(bar);
-    tab_layout->addWidget(paddingWidget);
 
-    framelayout->addLayout(tab_layout, 0, 0, 1, 1);
-    framelayout->addWidget(scrollerFrame, 0, 0, 1, 1, Qt::AlignRight);
+    QHBoxLayout *tabLayout = new QHBoxLayout(tabFrame);
+#ifdef Q_OS_WIN
+    tabLayout->setSpacing(32);
+#else
+    tabLayout->setSpacing(0);
+#endif
+    tabLayout->setContentsMargins(0,0,0,0);
+    tabLayout->addWidget(bar);
+    tabLayout->addWidget(paddingWidget);
+
+    tabFrameLayout->addLayout(tabLayout, 0, 0, 1, 1);
+    tabFrameLayout->addWidget(scrollerFrame, 0, 0, 1, 1, Qt::AlignRight);
 
 //    QSize wide_btn_size(29*g_dpi_ratio, TOOLBTN_HEIGHT*g_dpi_ratio);
     QPalette palette;
 #ifdef __linux__
-    m_boxTitleBtns = new CX11Caption(centralWidget);
+    m_boxTitleBtns = new CX11Caption(this);
 #else
-    m_boxTitleBtns = new QWidget(centralWidget);
+    m_boxTitleBtns = new QWidget(this);
 #endif
     m_boxTitleBtns->setObjectName("CX11Caption");
     m_boxTitleBtns->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    gridLayout->addWidget(m_boxTitleBtns, 0, 3, 1, 1);
+    mainGridLayout->addWidget(m_boxTitleBtns, 0, 3, 1, 1);
     QHBoxLayout * layoutBtns = new QHBoxLayout(m_boxTitleBtns);
-    //m_boxTitleBtns->setMinimumWidth(200);
+
 #ifdef __DONT_WRITE_IN_APP_TITLE
     QLabel * label = new QLabel;
 #else
@@ -200,11 +196,11 @@ CMainPanel::CMainPanel(QWidget *parent, bool isCustomWindow, double dpi_ratio)
     layoutBtns->addWidget(label);
 
     // Main
-    m_pButtonMain = new CSVGPushButton(centralWidget);
+    m_pButtonMain = new CSVGPushButton(this);
     m_pButtonMain->setObjectName( "toolButtonMain" );
     m_pButtonMain->setProperty("class", "active");
     m_pButtonMain->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-    gridLayout->addWidget(m_pButtonMain, 0, 0, 1, 1);
+    mainGridLayout->addWidget(m_pButtonMain, 0, 0, 1, 1);
     QObject::connect(m_pButtonMain, SIGNAL(clicked()), this, SLOT(pushButtonMainClicked()));
 
     if (isCustomWindow) {
@@ -220,15 +216,15 @@ CMainPanel::CMainPanel(QWidget *parent, bool isCustomWindow, double dpi_ratio)
         };
 
         // Minimize
-        m_pButtonMinimize = _creatToolButton("toolButtonMinimize", centralWidget);
+        m_pButtonMinimize = _creatToolButton("toolButtonMinimize", this);
         QObject::connect(m_pButtonMinimize, &QPushButton::clicked, this, &CMainPanel::pushButtonMinimizeClicked);
 
         // Maximize
-        m_pButtonMaximize = _creatToolButton("toolButtonMaximize", centralWidget);
+        m_pButtonMaximize = _creatToolButton("toolButtonMaximize", this);
         QObject::connect(m_pButtonMaximize, &QPushButton::clicked, this, &CMainPanel::pushButtonMaximizeClicked);
 
         // Close
-        m_pButtonClose = _creatToolButton("toolButtonClose", centralWidget);
+        m_pButtonClose = _creatToolButton("toolButtonClose", this);
         QObject::connect(m_pButtonClose, &QPushButton::clicked, this, &CMainPanel::pushButtonCloseClicked);
 
         layoutBtns->addWidget(m_pButtonMinimize);
@@ -243,7 +239,7 @@ CMainPanel::CMainPanel(QWidget *parent, bool isCustomWindow, double dpi_ratio)
     } else {
 //        m_pButtonMain->setProperty("theme", "light");
 
-        QLinearGradient gradient(centralWidget->rect().topLeft(), QPoint(centralWidget->rect().left(), 29));
+        QLinearGradient gradient(this->rect().topLeft(), QPoint(this->rect().left(), 29));
         gradient.setColorAt(0, QColor("#eee"));
         gradient.setColorAt(1, QColor("#e4e4e4"));
 
@@ -255,9 +251,9 @@ CMainPanel::CMainPanel(QWidget *parent, bool isCustomWindow, double dpi_ratio)
 //    m_pTabs->setAutoFillBackground(true);
     // Set TabWidget
     bar->initCustomScroll(scrollerFrame, newLeftButton, newRightButton);
-    m_pTabs = new CAscTabWidget(centralWidget, bar, m_pButtonMain);
+    m_pTabs = new CAscTabWidget(this, bar, m_pButtonMain);
     m_pTabs->setObjectName(QString::fromUtf8("ascTabWidget"));
-    gridLayout->addWidget(m_pTabs, 1, 0, 1, 4);
+    mainGridLayout->addWidget(m_pTabs, 1, 0, 1, 4);
     m_pTabs->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     //m_pTabs->setGeometry(0, 0, centralWidget->width(), centralWidget->height());
     m_pTabs->activate(false);
@@ -283,9 +279,9 @@ void CMainPanel::attachStartPanel(QCefView * const view)
     view->setMouseTracking(m_pButtonMain->hasMouseTracking());
 #endif
 
-    QWidget * centralwidget = layout()->itemAt(0)->widget();
-    m_pMainWidget->setParent(centralwidget);
-    gridLayout->addWidget(m_pMainWidget, 2, 0, 1, 4);
+    //QWidget * centralwidget = layout()->itemAt(0)->widget();
+    m_pMainWidget->setParent(this);
+    mainGridLayout->addWidget(m_pMainWidget, 2, 0, 1, 4);
     m_pMainWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
 
@@ -293,9 +289,9 @@ void CMainPanel::attachStartPanel(QCefView * const view)
         m_pMainWidget->show();
 }
 
-void CMainPanel::RecalculatePlaces()
+/*void CMainPanel::RecalculatePlaces()
 {
-    /*int cbw = 0;
+    int cbw = 0;
 
 #ifdef __linux
     QWidget * cw = findChild<QWidget *>("centralWidget");
@@ -326,8 +322,8 @@ void CMainPanel::RecalculatePlaces()
     m_boxTitleBtns->move(windowW - m_boxTitleBtns->width() + cbw, cbw);
 
     if ( m_pMainWidget )
-        m_pMainWidget->setGeometry(cbw, captionH + cbw, windowW, contentH);*/
-}
+        m_pMainWidget->setGeometry(cbw, captionH + cbw, windowW, contentH);
+}*/
 
 #ifdef __linux
 QWidget * CMainPanel::getTitleWidget()
@@ -338,8 +334,8 @@ QWidget * CMainPanel::getTitleWidget()
 void CMainPanel::setMouseTracking(bool enable)
 {
     QWidget::setMouseTracking(enable);
-    findChild<QWidget *>("centralWidget")->setMouseTracking(enable);
-    findChild<QLabel *>("labelAppTitle")->setMouseTracking(enable);
+    //findChild<QWidget *>("centralWidget")->setMouseTracking(enable);
+    this->findChild<QLabel *>("labelAppTitle")->setMouseTracking(enable);
 
     m_boxTitleBtns->setMouseTracking(enable);
     m_pTabs->setMouseTracking(enable);
@@ -480,10 +476,10 @@ void CMainPanel::onTabsCountChanged(int count, int i, int d)
     }
 
     if ( d < 0 ) {
-        RecalculatePlaces();
+        //RecalculatePlaces();
     } else
     QTimer::singleShot(200, [=]{
-        RecalculatePlaces();
+        //RecalculatePlaces();
     });
 }
 
@@ -1401,8 +1397,8 @@ void CMainPanel::updateScaling(double dpiratio)
 //    m_pTabs->setTabIcons(icons);
     m_pTabs->reloadTabIcons();
 
-    if ( m_mainWindowState == Qt::WindowMaximized )
-        RecalculatePlaces();
+    //if ( m_mainWindowState == Qt::WindowMaximized )
+        //RecalculatePlaces();
 }
 
 void CMainPanel::setScreenScalingFactor(double s)
