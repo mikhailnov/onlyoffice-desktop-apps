@@ -58,7 +58,7 @@ CUpdateManager::CUpdateManager(QObject *parent):
         }
     }
     if (!cmd_flag) check_url = QString(URL_APPCAST_UPDATES).toStdWString();
-    qDebug() << "URL_APPCAST_UPDATES: " << check_url;
+    qDebug() << "URL_APPCAST_UPDATES: " << QString::fromStdWString(check_url);
     // ========================================
 
     downloader = new Downloader(check_url, false);
@@ -235,14 +235,6 @@ void CUpdateManager::loadUpdates()
     }
 }
 
-void CUpdateManager::cancelLoading()
-{
-    qDebug() << "Loading cancel...";
-    const QString path = QString::fromStdWString(downloader->GetFilePath());
-    downloader->Stop();
-    if (QDir().exists(path)) QDir().remove(path);
-}
-
 void CUpdateManager::onLoadUpdateFinished()
 {
     qDebug() << "Load updates finished...";
@@ -258,6 +250,14 @@ void CUpdateManager::onLoadUpdateFinished()
     emit updateLoaded(path, arguments);
 }
 #endif
+
+void CUpdateManager::cancelLoading()
+{
+    qDebug() << "Loading cancel...";
+    const QString path = QString::fromStdWString(downloader->GetFilePath());
+    downloader->Stop();
+    if (QDir().exists(path)) QDir().remove(path);
+}
 
 void CUpdateManager::onLoadCheckFinished()
 {

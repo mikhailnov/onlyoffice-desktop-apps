@@ -42,6 +42,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QRegularExpression>
+#include <QDebug>
 #include <ctime>
 #include <algorithm>
 #include "defines.h"
@@ -109,10 +110,12 @@ public slots:
 
     void checkUpdates();    
 
+    void cancelLoading();
+
 #if defined (Q_OS_WIN)
     void loadUpdates();
 
-    void cancelLoading();
+
 #endif
 
        signals:
