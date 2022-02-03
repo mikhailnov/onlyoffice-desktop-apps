@@ -51,7 +51,7 @@ int CMainWindowBase::attachEditor(QWidget * panel, int index)
 int CMainWindowBase::attachEditor(QWidget * panel, const QPoint& pt)
 {
     CMainPanel * _pMainPanel = mainPanel();
-    QPoint _pt_local = _pMainPanel->bar->mapFromGlobal(pt);
+    QPoint _pt_local = _pMainPanel->tabBar()->mapFromGlobal(pt);
 #ifdef Q_OS_WIN
 # if (QT_VERSION < QT_VERSION_CHECK(5, 10, 0))
     QPoint _tl = windowRect().topLeft();
@@ -59,10 +59,10 @@ int CMainWindowBase::attachEditor(QWidget * panel, const QPoint& pt)
         _pt_local -= windowRect().topLeft();
 # endif
 #endif
-    int _index = _pMainPanel->bar->tabAt(_pt_local);
+    int _index = _pMainPanel->tabBar()->tabAt(_pt_local);
 
     if ( !(_index < 0) ) {
-        QRect _rc_tab = _pMainPanel->bar->tabRect(_index);
+        QRect _rc_tab = _pMainPanel->tabBar()->tabRect(_index);
         if ( _pt_local.x() > _rc_tab.left() + (_rc_tab.width() / 2) ) ++_index;
     }
 
@@ -72,7 +72,7 @@ int CMainWindowBase::attachEditor(QWidget * panel, const QPoint& pt)
 bool CMainWindowBase::pointInTabs(const QPoint& pt) const
 {
     QRect _rc_title(mainPanel()->geometry());
-    _rc_title.setHeight(mainPanel()->bar->height());
+    _rc_title.setHeight(mainPanel()->tabBar()->height());
 
 #ifdef Q_OS_LINUX
     _rc_title.moveTop(1);

@@ -503,51 +503,6 @@ void CAscTabWidget::tabRemoved(int index)
     emit editorRemoved(index, count());
 }
 
-/*void CAscTabWidget::adjustTabsSize()
-{
-//    int nMin = 41 * g_dpi_ratio;    // min tab width
-//    int nMax = 135 * g_dpi_ratio;   // max tab width
-
-//    int nFirst = 44 * g_dpi_ratio;          // main button's width
-//    int nStartOffset = 5 * g_dpi_ratio;     // offset from main button
-//    int nBetweenApp = 5 * g_dpi_ratio;      //
-//    int nButtonW = 16 * g_dpi_ratio;        // tool button width
-//    int nEndOffset = 140 * g_dpi_ratio;     // space for a caption
-
-    int nTabBarWidth    = 0,
-        nTabWidth       = m_widthParams.tab.max,
-        nCountTabs      = tabs->count();
-
-    if (nCountTabs != 0) {
-        int nControlWidth = parentWidget()->width();
-        nTabBarWidth = m_isCustomStyle ?
-                nControlWidth
-                - m_widthParams.main_button_width - m_widthParams.main_button_span
-                - m_widthParams.title_width - m_widthParams.tools_width - m_widthParams.custom_offset :
-                nControlWidth - m_widthParams.main_button_width;
-
-//        int nTabWidth = (nTabBarWidth - 10 * nCountTabs) / nCountTabs;      // magic (2+2)
-//        if (nTabWidth > m_widthParams.tab.max) nTabWidth = m_widthParams.tab.max;
-//        if (nTabWidth < m_widthParams.tab.min) nTabWidth = m_widthParams.tab.min;
-
-        int nMinTabBarWidth = (nTabWidth + (10 * scaling())) * nCountTabs;
-        if (nTabBarWidth > nMinTabBarWidth) nTabBarWidth = nMinTabBarWidth;
-    }
-
-#if 1
-    QString cssStyle = styleSheet();
-    cssStyle
-        .replace(QRegExp("QTabWidget::tab-bar\\s?\\{\\s?width\\:\\s?(\\-?\\d+px|auto)", Qt::CaseInsensitive),
-                    QString("QTabWidget::tab-bar { width: %1px").arg(nTabBarWidth));
-//        .replace(QRegExp("QTabBar::tab\\s?\\{\\s?width\\:\\s?\\d+px", Qt::CaseInsensitive),
-//                    QString("QTabBar::tab { width: %1px").arg(nTabWidth));
-
-    QTabWidget::setStyleSheet(cssStyle);
-#else
-    tabBar()->setFixedWidth(nTabBarWidth);
-#endif
-}*/
-
 void CAscTabWidget::setCustomWindowParams(bool iscustom)
 {
     m_isCustomStyle = iscustom;
@@ -1361,8 +1316,6 @@ void CAscTabWidget::applyUITheme(const std::wstring& theme)
 {
     reloadTabIcons();
     updateIcons();
-
-    //CTabBar & _tabbar = *(static_cast<CTabBar *>(tabBar()));
 //    _tabbar.setTabTextColor(QPalette::Active, AscAppManager::themes().color(theme, CThemes::ColorRole::ecrTextPressed));
     tabs->setTabTextColor(QPalette::Inactive, AscAppManager::themes().current().color(CTheme::ColorRole::ecrTextNormal));
     tabs->setUIThemeType(!AscAppManager::themes().current().isDark());

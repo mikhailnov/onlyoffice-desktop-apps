@@ -107,17 +107,17 @@ QTabBar QToolButton[class=tab-close]:hover{
 #paddingWidget {
     min-width: 15px;
     max-width: 15px;
-    border: none;
-    background: transparent;
+    border: none; background: transparent;
 }
 
 #scrollerFrame {
     min-width: 48px;
     max-width: 48px;
+    border: none; background: transparent;
 }
 
 #scrollerFrame>QToolButton {
-    /*width: 25px; height: 32px;*/ margin: 0px;
+    margin: 0px;
     border: none; background-color: #f1f1f1;
 }
 #scrollerFrame>QToolButton:hover {background-color: #cecece;}
@@ -125,7 +125,6 @@ QTabBar QToolButton[class=tab-close]:hover{
 
 #scrollerFrame>QToolButton#leftButton {
     image: url(:/tabbar/icons/scrolltab_ln_1.25x.png) center no-repeat;
-    /*border-width:10px 1px 10px 1px;*/
 }
 
 #scrollerFrame>QToolButton#leftButton:disabled {
@@ -142,7 +141,6 @@ QTabBar QToolButton[class=tab-close]:hover{
 
 #scrollerFrame>QToolButton#rightButton {
     image: url(:/tabbar/icons/scrolltab_rn_1.25x.png) center no-repeat;
-    /*border-width:10px 1px 10px 1px;*/
 }
 
 #scrollerFrame>QToolButton#rightButton:disabled {

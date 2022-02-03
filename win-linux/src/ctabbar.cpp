@@ -238,7 +238,6 @@ void QTabBarPrivate::Tab::TabBarAnimation::updateState(QAbstractAnimation::State
 CTabBar::CTabBar(QWidget *parent) :
     QTabBar(parent),
     CScalingWrapper(parent),
-    parent(parent),
     scrollPos(0)
 {
     this->hide();

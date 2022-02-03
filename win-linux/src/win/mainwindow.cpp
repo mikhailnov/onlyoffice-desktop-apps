@@ -946,8 +946,8 @@ void CMainWindow::captureMouse(int tabindex)
     if ( !(tabindex < 0) &&
             tabindex < mainPanel()->tabWidget()->count() )
     {
-        QPoint spt = mainPanel()->bar->tabRect(tabindex).topLeft() + QPoint(30, 10);
-        QPoint gpt = mainPanel()->bar->mapToGlobal(spt);
+        QPoint spt = mainPanel()->tabBar()->tabRect(tabindex).topLeft() + QPoint(30, 10);
+        QPoint gpt = mainPanel()->tabBar()->mapToGlobal(spt);
 #if (QT_VERSION < QT_VERSION_CHECK(5, 10, 0))
         gpt = m_pWinPanel->mapToGlobal(gpt);
 #endif
@@ -972,7 +972,7 @@ void CMainWindow::captureMouse(int tabindex)
 bool CMainWindow::pointInTabs(const QPoint& pt) const
 {
     QRect _rc_title(mainPanel()->geometry());
-    _rc_title.setHeight(mainPanel()->bar->height());
+    _rc_title.setHeight(mainPanel()->tabBar()->height());
 
     return _rc_title.contains(m_pWinPanel->mapFromGlobal(pt));
 }

@@ -73,7 +73,7 @@ public:
     int  tabCloseRequest(int index = -1);
     void toggleButtonMain(bool, bool delay = false);
     CAscTabWidget * tabWidget();
-    CTabBar*        bar;
+    CTabBar *tabBar();
     virtual void applyTheme(const std::wstring&);
     virtual void updateScaling(double);
 
@@ -91,7 +91,6 @@ private:
 //    void mousePressEvent( QMouseEvent *event );
 
     //void resizeEvent(QResizeEvent* event);
-    bool eventFilter(QObject *, QEvent *) override;
     int  trySaveDocument(int);
     //void RecalculatePlaces();
 
@@ -151,7 +150,8 @@ public slots:
     void onWebTitleChanged(int, std::wstring json){}
 
 protected:
-    QFrame*         scrollerFrame;
+    //QFrame*         scrollerFrame;
+    CTabBarWrapper* tabBarWrapper;
     CAscTabWidget * m_pTabs;
     CSVGPushButton* m_pButtonMain;
     bool            m_isCustomWindow;

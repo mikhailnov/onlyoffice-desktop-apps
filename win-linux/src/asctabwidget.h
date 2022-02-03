@@ -37,7 +37,7 @@
 //#include <QtWidgets/QTabWidget>
 #include <QtWidgets/QTabBar>
 #include <QtWidgets/QPushButton>
-#include "ctabbar.h"
+#include "ctabbarwrapper.h"
 #include "qcefview.h"
 #include "cscalingwrapper.h"
 #include "ctabpanel.h"

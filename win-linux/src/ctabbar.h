@@ -110,7 +110,6 @@ signals:
 
 private:
     Q_DECLARE_PRIVATE(QTabBar);
-    QWidget *parent;
     int scrollPos;
     QFrame *scrollerFrame;
     QToolButton *newLeftButton,

@@ -27,3 +27,4 @@ QTabBar[active=false]::tab:selected:hover {background-color: #cecece;}
 #mainPanel[uitheme=theme-dark] #scrollerFrame>QToolButton {background-color: #606060;}
 #mainPanel[uitheme=theme-dark] #scrollerFrame>QToolButton:hover {background-color: #555;}
 #mainPanel[uitheme=theme-dark] #scrollerFrame>QToolButton:pressed {background-color: #b7b7b7;}
+

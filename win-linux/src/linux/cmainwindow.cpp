@@ -383,14 +383,14 @@ void CMainWindow::captureMouse(int tabindex)
     CMainWindowBase::captureMouse(tabindex);
 
     if (tabindex >= 0 && tabindex < mainPanel()->tabWidget()->count()) {
-        QPoint spt = mainPanel()->bar->tabRect(tabindex).topLeft() + QPoint(30, 10);
-        QPoint gpt = mainPanel()->bar->mapToGlobal(spt);
+        QPoint spt = mainPanel()->tabBar()->tabRect(tabindex).topLeft() + QPoint(30, 10);
+        QPoint gpt = mainPanel()->tabBar()->mapToGlobal(spt);
 //        CX11Decoration::setCursorPos(100, 100);
 //        QCursor::setPos(0, 0);
         QTimer::singleShot(0, [=] {
             QMouseEvent event(QEvent::MouseButtonPress, spt, Qt::LeftButton, Qt::MouseButton::NoButton, Qt::NoModifier);
-            QCoreApplication::sendEvent((QWidget *)mainPanel()->bar, &event);
-            mainPanel()->bar->grabMouse();
+            QCoreApplication::sendEvent((QWidget *)mainPanel()->tabBar(), &event);
+            mainPanel()->tabBar()->grabMouse();
 //            mainPanel()->tabWidget()->grabMouse();
         });
     }
