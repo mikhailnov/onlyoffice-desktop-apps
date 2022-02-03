@@ -55,6 +55,13 @@ void CMainPanelImpl::refreshAboutVersion()
 
     QJsonObject _json_obj;
     _json_obj["version"]    = VER_FILEVERSION_STR;
+#ifdef Q_OS_WIN
+# ifdef Q_OS_WIN64
+    _json_obj["arch"]       = "x64";
+# else
+    _json_obj["arch"]       = "x86";
+# endif
+#endif
     _json_obj["edition"]    = _license;
     _json_obj["appname"]    = WINDOW_NAME;
     _json_obj["rights"]     = "© " ABOUT_COPYRIGHT_STR;
@@ -94,6 +101,7 @@ void CMainPanelImpl::refreshAboutVersion()
 
     GET_REGISTRY_USER(reg_user);
     _json_obj["editorwindowmode"] = reg_user.value("editorWindowMode",false).toBool();
+    _json_obj["autoupdatemode"] = reg_user.value("autoUpdateMode","silent").toString();
 
     AscAppManager::sendCommandTo(SEND_TO_ALL_START_PAGE, "settings:init", Utils::stringifyJson(_json_obj));
     if ( InputArgs::contains(L"--ascdesktop-reveal-app-config") )

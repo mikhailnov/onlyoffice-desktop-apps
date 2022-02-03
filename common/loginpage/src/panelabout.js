@@ -64,6 +64,10 @@
         !!_opts.active && (_opts.edition = !!_opts.edition ? _opts.edition + ' ' + _opts.active : _opts.active);
         _opts.edition = !!_opts.edition ? `<div class="ver-edition">${_opts.edition}</div>` : '';
 
+        if ( !!_opts.arch ) {
+            _opts.version += ` (${_opts.arch == 'x64' ? '64' : '32'} bit)`;
+        }
+
         var _lang = utils.Lang;
         let _html = `<div class="flexbox">
                         <div class="box-ver">
@@ -167,6 +171,21 @@
                             $label.data('state', 'download');
                         }
                         $label.show();
+                    } else
+                    if (/updates:download/.test(cmd)) {
+                        const opts = JSON.parse(param);
+                        const $label = this.view.$panel.find('.ver-checkupdate');
+
+                        if ( opts.progress == 'done' ) {
+                            $label.text(`Downloading finished. Click to restart`);
+                            $label.data('state', 'install');
+                        } else
+                        if ( opts.progress == 'aborted' ) {
+                            $label.text(`Downloading canceled`);
+                        } else {
+                            $label.text(`Downloading ${opts.progress}%. Click to abort`);
+                            $label.data('state', 'abort');
+                        }
                     }
                 });
 
