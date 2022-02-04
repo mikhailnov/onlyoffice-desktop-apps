@@ -101,7 +101,15 @@ void CMainPanelImpl::refreshAboutVersion()
 
     GET_REGISTRY_USER(reg_user);
     _json_obj["editorwindowmode"] = reg_user.value("editorWindowMode",false).toBool();
-    _json_obj["autoupdatemode"] = reg_user.value("autoUpdateMode","silent").toString();
+
+    // Updates settings
+    AscAppManager::sendCommandTo(0, "updates:turn", "on");
+    reg_user.beginGroup("Updates");
+    int current_mode = reg_user.value("Updates/mode", 1).toInt(); // DISABLED, SILENT, ASK
+    reg_user.endGroup();
+    Q_ASSERT(current_mode <= 2);
+    const QString keys[] = {"disabled", "silent", "ask"};
+    _json_obj["autoupdatemode"] = keys[current_mode]; // reg_user.value("autoUpdateMode","silent").toString();
 
     AscAppManager::sendCommandTo(SEND_TO_ALL_START_PAGE, "settings:init", Utils::stringifyJson(_json_obj));
     if ( InputArgs::contains(L"--ascdesktop-reveal-app-config") )

@@ -281,14 +281,19 @@ bool CAscApplicationManagerWrapper::processCommonEvent(NSEditorApi::CAscCefMenuE
 //            RELEASEINTERFACE(event);
             return true;
         } else
-        if ( !(cmd.find(L"update") == std::wstring::npos) ) {
-/*#ifdef _UPDMODULE
-            if ( QString::fromStdWString(pData->get_Param()) == "check" ) {
-                CMainWindow::checkUpdates();
+        if ( !(cmd.find(L"update") == std::wstring::npos) ) {   // params: check, download, install, abort
+            const QString params = QString::fromStdWString(pData->get_Param());
+            if (params == "check" ) {
+                updateManager->checkUpdates();
+            } else
+#if defined (Q_OS_WIN)
+            if (params == "download" || params == "install") {
+                updateManager->loadUpdates();
+            } else
+            if (params == "abort") {
+                updateManager->cancelLoading();
             }
-#endif*/
-            updateManager->checkUpdates();
-
+#endif
             return true;
         } else
         if ( cmd.compare(L"title:button") == 0 ) {
@@ -1564,14 +1569,14 @@ bool CAscApplicationManagerWrapper::applySettings(const wstring& wstrjson)
             CMainWindow::setAutocheckUpdatesInterval(objRoot.value("checkupdatesrate").toString());
         }
 #endif*/
-        if ( objRoot.contains("checkupdatesrate") ) {
-            enum Rate {
-                DISABLED, ONSTARTUP//, DAY, WEEK
+        if ( objRoot.contains("autoupdatemode") ) {
+            enum UpdateMode {
+                DISABLED, SILENT, ASK
             };
-            const QString rate = objRoot.value("checkupdatesrate").toString();
-            qDebug() << rate;
-            const int _rate = (rate == "never") ? Rate::DISABLED : Rate::ONSTARTUP;
-            updateManager->setNewUpdateSetting(_rate);
+            const QString mode = objRoot.value("autoupdatemode").toString();
+            qDebug() << mode;
+            const int _mode = (mode == "disabled") ? UpdateMode::DISABLED : (mode == "silent") ?  UpdateMode::SILENT : UpdateMode::ASK;
+            updateManager->setNewUpdateSetting(_mode);
         }
 
 
@@ -1941,8 +1946,23 @@ void CAscApplicationManagerWrapper::showUpdateMessage(const bool &error, const b
 {
     if (!error && updateExist) {
         AscAppManager::sendCommandTo(0, "updates:checking", QString("{\"version\":\"%1\"}").arg(version));
+
+        GET_REGISTRY_USER(reg_user);
+        reg_user.beginGroup("Updates");
+        const int current_mode = reg_user.value("Updates/mode").toInt();
+        reg_user.endGroup();
+
 #if defined (Q_OS_WIN)
+
+
+
         updateManager->loadUpdates();
+
+
+
+
+
+
 #else
         CMessage mbox(mainWindow()->handle(), CMessageOpts::moButtons::mbYesNo);
         mbox.setButtons({"Yes", "No"});
@@ -1954,6 +1974,10 @@ void CAscApplicationManagerWrapper::showUpdateMessage(const bool &error, const b
             break;
         }
 #endif
+
+
+
+
     } else
     if (!error && !updateExist) {
         AscAppManager::sendCommandTo(0, "updates:checking", "{\"version\":\"no\"}");

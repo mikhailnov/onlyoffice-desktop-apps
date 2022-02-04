@@ -35,11 +35,11 @@
 
 CUpdateManager::CUpdateManager(QObject *parent):
     QObject(parent),
-    current_rate(Rate::ONSTARTUP),
+    current_mode(UpdateMode::SILENT),
     downloadMode(Mode::CHECK_UPDATES),
     locale("en-EN"),
-    new_version(""),
-    last_check(0)
+    new_version("")
+    //last_check(0)
 {
 #if defined (Q_OS_WIN)
     package_url = L"";
@@ -62,23 +62,35 @@ CUpdateManager::CUpdateManager(QObject *parent):
     // ========================================
 
     downloader = new Downloader(check_url, false);
-    downloader->SetEvent_OnComplete([=](int error) {
+    downloader->SetEvent_OnComplete(std::bind(&CUpdateManager::onComplete, this, std::placeholders::_1));
+    downloader->SetEvent_OnProgress(std::bind(&CUpdateManager::onProgress, this, std::placeholders::_1));
+    /*downloader->SetEvent_OnComplete([=](int error) {
         QMetaObject::invokeMethod(this, "onCompleteSlot", Qt::QueuedConnection, Q_ARG(int, error));
     });
     downloader->SetEvent_OnProgress([=](int percent) {
         if (downloadMode == Mode::DOWNLOAD_UPDATES) {
             QMetaObject::invokeMethod(this, "onProgressSlot", Qt::QueuedConnection, Q_ARG(int, percent));
         }
-    });
-    timer = new QTimer(this);
+    });*/
+    /*timer = new QTimer(this);
     timer->setSingleShot(false);
-    connect(timer, SIGNAL(timeout()), this, SLOT(checkUpdates()));
+    connect(timer, SIGNAL(timeout()), this, SLOT(checkUpdates()));*/
     readUpdateSettings();
 }
 
 CUpdateManager::~CUpdateManager()
 {
     delete downloader;
+}
+
+void CUpdateManager::onComplete(const int &error)
+{
+    QMetaObject::invokeMethod(this, "onCompleteSlot", Qt::QueuedConnection, Q_ARG(int, error));
+}
+
+void CUpdateManager::onProgress(const int &percent)
+{
+    QMetaObject::invokeMethod(this, "onProgressSlot", Qt::QueuedConnection, Q_ARG(int, percent));
 }
 
 void CUpdateManager::onCompleteSlot(const int &error)
@@ -119,13 +131,13 @@ void CUpdateManager::checkUpdates()
     package_url = L"";
     package_args = L"";
 #endif
-    last_check = time(nullptr);
+    //last_check = time(nullptr);
     GET_REGISTRY_USER(reg_user);
     locale = reg_user.value("locale").toString();
     qDebug() << "Locale: " << locale;
-    reg_user.beginGroup("Updates");
+    /*reg_user.beginGroup("Updates");
     reg_user.setValue("Updates/last_check", static_cast<qlonglong>(last_check));
-    reg_user.endGroup();
+    reg_user.endGroup();*/
 
     // =========== Download JSON ============
     downloader->Stop();
@@ -137,11 +149,11 @@ void CUpdateManager::checkUpdates()
     downloader->SetFilePath(tmp_file.toStdWString());
     downloader->Start(0);
     // ======================================
-    if (current_rate != Rate::ONSTARTUP) {
+    /*if (current_mode != UpdateMode::ONSTARTUP) {
         QTimer::singleShot(3000, this, [=]() {
             updateNeededCheking();
         });
-    }
+    }*/
 }
 
 void CUpdateManager::readUpdateSettings()
@@ -150,8 +162,8 @@ void CUpdateManager::readUpdateSettings()
     locale = reg_user.value("locale").toString();
     qDebug() << "Locale: " << locale;
     reg_user.beginGroup("Updates");
-    current_rate = reg_user.value("Updates/rate").toInt();
-    last_check = time_t(reg_user.value("Updates/last_check").toLongLong());
+    current_mode = reg_user.value("Updates/mode").toInt();
+    //last_check = time_t(reg_user.value("Updates/last_check").toLongLong());
     reg_user.endGroup();
 #if defined (Q_OS_WIN)
     reg_user.beginGroup("Temp"); // Удаление пакета обновления при старте программы
@@ -169,30 +181,31 @@ void CUpdateManager::readUpdateSettings()
     });
 }
 
-void CUpdateManager::setNewUpdateSetting(const int& rate)
+void CUpdateManager::setNewUpdateSetting(const int& mode)
 {
-    current_rate = rate;
+    current_mode = mode;
     GET_REGISTRY_USER(reg_user);
     reg_user.beginGroup("Updates");
-    reg_user.setValue("Updates/rate", current_rate);
+    reg_user.setValue("Updates/mode", current_mode);
     reg_user.endGroup();
-    if (current_rate != Rate::ONSTARTUP) {
+    /*if (current_mode != UpdateMode::ONSTARTUP) {
         QTimer::singleShot(3000, this, [=]() {
             updateNeededCheking();
         });
-    }
-    qDebug() << "Set new updates rate: " << current_rate;
+    }*/
+    qDebug() << "Set new updates mode: " << current_mode;
 }
 
 void CUpdateManager::updateNeededCheking() {
-    timer->stop();
-    /*int interval = 0;
+    /*timer->stop();
+    int interval = 0;
     const time_t DAY_TO_SEC = 24*3600;
     const time_t WEEK_TO_SEC = 7*24*3600;
     const time_t curr_time = time(nullptr);
     const time_t elapsed_time = curr_time - last_check;*/
-    switch (current_rate) {
-    case Rate::ONSTARTUP:
+    switch (current_mode) {
+    case UpdateMode::SILENT:
+    case UpdateMode::ASK:
         checkUpdates();
         break;
     /*case Rate::DAY:
@@ -213,7 +226,7 @@ void CUpdateManager::updateNeededCheking() {
             timer->start();
         }
         break;*/
-    case Rate::DISABLED:
+    case UpdateMode::DISABLED:
     default:
         break;
     }

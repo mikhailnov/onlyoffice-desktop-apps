@@ -45,6 +45,8 @@
 #include <QDebug>
 #include <ctime>
 #include <algorithm>
+#include <iostream>
+#include <functional>
 #include "defines.h"
 #include "version.h"
 #include "Network/FileTransporter/include/FileTransporter.h"
@@ -78,6 +80,10 @@ private:
 
     //void onLoadChangelogFinished();
 
+    void onComplete(const int& error);
+
+    void onProgress(const int& percent);
+
 #if defined (Q_OS_WIN)
     void onLoadUpdateFinished();
 
@@ -85,22 +91,22 @@ private:
                 package_args;
 #endif
 
-    int         current_rate,
+    int         current_mode,
                 downloadMode;
 
     QString     locale,
                 new_version;
 
-    time_t      last_check;
+    //time_t      last_check;
 
     WString     check_url;
 
-    QTimer      *timer;
+    //QTimer      *timer;
 
     Downloader  *downloader;
 
-    enum Rate {
-        DISABLED, ONSTARTUP//, DAY, WEEK
+    enum UpdateMode {
+        DISABLED, SILENT, ASK
     };
     enum Mode {
         CHECK_UPDATES, DOWNLOAD_CHANGELOG, DOWNLOAD_UPDATES
