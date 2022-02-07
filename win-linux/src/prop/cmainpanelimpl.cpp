@@ -110,6 +110,11 @@ void CMainPanelImpl::refreshAboutVersion()
     Q_ASSERT(current_mode <= 2);
     const QString keys[] = {"disabled", "silent", "ask"};
     _json_obj["autoupdatemode"] = keys[current_mode]; // reg_user.value("autoUpdateMode","silent").toString();
+#ifdef Q_OS_WIN
+    _json_obj["updates"] = QJsonObject({{"mode", reg_user.value("autoUpdateMode","silent").toString()}});
+#else
+    _json_obj["updates"] = QJsonObject({{"interval", reg_user.value("checkUpdatesInterval","silent").toString()}});
+#endif
 
     AscAppManager::sendCommandTo(SEND_TO_ALL_START_PAGE, "settings:init", Utils::stringifyJson(_json_obj));
     if ( InputArgs::contains(L"--ascdesktop-reveal-app-config") )
