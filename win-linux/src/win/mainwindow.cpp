@@ -955,7 +955,7 @@ void CMainWindow::captureMouse(int tabindex)
         SetCursorPos(gpt.x(), gpt.y());
         //SendMessage(hWnd, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM(gpt.x(), gpt.y()));
       
-        QWidget * _widget = mainPanel()->bar;
+        QWidget * _widget = mainPanel()->tabBar();
         QTimer::singleShot(0,[_widget,spt] {
             INPUT _input{INPUT_MOUSE};
             _input.mi.dwFlags = MOUSEEVENTF_ABSOLUTE|MOUSEEVENTF_LEFTDOWN;
