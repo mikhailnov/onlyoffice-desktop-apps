@@ -1594,9 +1594,7 @@ bool CAscApplicationManagerWrapper::applySettings(const wstring& wstrjson)
         if ( objRoot.contains("checkupdatesinterval") ) {
             const QString interval = objRoot["checkupdatesinterval"].toString();
             _reg_user.setValue("checkUpdatesInterval", interval);
-            const int _interval = (interval == "disabled") ? UpdateInterval::NEVER :
-                                  (interval == "day") ?  UpdateInterval::DAY : UpdateInterval::WEEK;
-            updateManager->setNewUpdateSetting(_interval);
+            updateManager->setNewUpdateSetting(interval);
         }
 #endif
 
@@ -1946,26 +1944,30 @@ void CAscApplicationManagerWrapper::addStylesheets(CScalingFactor f, const std::
 
 }
 
-void CAscApplicationManagerWrapper::showUpdateMessage(const bool &error, const bool &updateExist,
-                              const QString &version, const QString &changelog)
+void CAscApplicationManagerWrapper::showUpdateMessage(const bool &error,
+                                                      const bool &updateExist,
+                                                      const QString &version,
+                                                      const QString &changelog)
 {
     qDebug() << changelog;
     if (!error && updateExist) {
         AscAppManager::sendCommandTo(0, "updates:checking", QString("{\"version\":\"%1\"}").arg(version));
         auto msg = [=]() {
-            CMessage mbox(mainWindow()->handle(), CMessageOpts::moButtons::mbYesNo);
-            mbox.setButtons({"Yes", "No"});
-            switch (mbox.info(tr("Do you want to install a new version %1 of the program?").arg(version))) {
-            case MODAL_RESULT_CUSTOM + 0:
-        #ifdef Q_OS_WIN
-                updateManager->loadUpdates();
-        #else
-                QDesktopServices::openUrl(QUrl(DOWNLOAD_PAGE, QUrl::TolerantMode));
-        #endif
-                break;
-            default:
-                break;
-            }
+            QTimer::singleShot(100, this, [=](){
+                CMessage mbox(mainWindow()->handle(), CMessageOpts::moButtons::mbYesNo);
+                mbox.setButtons({"Yes", "No"});
+                switch (mbox.info(tr("Do you want to install a new version %1 of the program?").arg(version))) {
+                case MODAL_RESULT_CUSTOM + 0:
+            #ifdef Q_OS_WIN
+                    updateManager->loadUpdates();
+            #else
+                    QDesktopServices::openUrl(QUrl(DOWNLOAD_PAGE, QUrl::TolerantMode));
+            #endif
+                    break;
+                default:
+                    break;
+                }
+            });
         };
 
 #ifdef Q_OS_WIN

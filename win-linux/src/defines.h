@@ -126,10 +126,6 @@ enum UpdateMode {
     DISABLED, SILENT, ASK
 };
 
-enum UpdateInterval {
-    NEVER, DAY, WEEK
-};
-
 
 #include "defines_p.h"
 

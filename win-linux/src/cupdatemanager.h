@@ -66,7 +66,7 @@ public:
 
     ~CUpdateManager();
 
-    void setNewUpdateSetting(const int& rate);
+    void setNewUpdateSetting(const QString& _rate);
 
 private:
 
@@ -91,8 +91,8 @@ private:
                 package_args;
 #endif
 
-    int         current_mode,
-                downloadMode;
+    uint_fast8_t  current_rate,
+                  downloadMode;
 
     QString     locale,
                 new_version;
@@ -107,6 +107,10 @@ private:
 
     enum Mode {
         CHECK_UPDATES, DOWNLOAD_CHANGELOG, DOWNLOAD_UPDATES
+    };
+
+    enum UpdateInterval {
+        NEVER, DAY, WEEK
     };
 
 public slots:

@@ -35,7 +35,7 @@
 
 CUpdateManager::CUpdateManager(QObject *parent):
     QObject(parent),
-    current_mode(UpdateInterval::DAY),
+    current_rate(UpdateInterval::DAY),
     downloadMode(Mode::CHECK_UPDATES),
     locale("en-EN"),
     new_version(""),
@@ -180,7 +180,7 @@ void CUpdateManager::readUpdateSettings()
     }
 #else
     const QString interval = reg_user.value("checkUpdatesInterval","day").toString();
-    current_mode = (interval == "disabled") ? UpdateInterval::NEVER : (interval == "day") ?  UpdateInterval::DAY : UpdateInterval::WEEK;
+    current_rate = (interval == "disabled") ? UpdateInterval::NEVER : (interval == "day") ?  UpdateInterval::DAY : UpdateInterval::WEEK;
 #endif
 
     QTimer::singleShot(6000, this, [=]() {
@@ -188,15 +188,15 @@ void CUpdateManager::readUpdateSettings()
     });
 }
 
-void CUpdateManager::setNewUpdateSetting(const int& mode)
+void CUpdateManager::setNewUpdateSetting(const QString& _rate)
 {
-    current_mode = mode;
+    current_rate = (_rate == "never") ? UpdateInterval::NEVER : (_rate == "day") ?  UpdateInterval::DAY : UpdateInterval::WEEK;
 #ifndef Q_OS_WIN
     QTimer::singleShot(3000, this, [=]() {
         updateNeededCheking();
     });
 #endif
-    qDebug() << "Set new updates mode: " << current_mode;
+    qDebug() << "Set new updates mode: " << current_rate;
 }
 
 void CUpdateManager::updateNeededCheking() {    
@@ -209,7 +209,7 @@ void CUpdateManager::updateNeededCheking() {
     const time_t WEEK_TO_SEC = 7*24*3600;
     const time_t curr_time = time(nullptr);
     const time_t elapsed_time = curr_time - last_check;
-    switch (current_mode) {
+    switch (current_rate) {
     case UpdateInterval::DAY:
         if (elapsed_time > DAY_TO_SEC) {
             checkUpdates();

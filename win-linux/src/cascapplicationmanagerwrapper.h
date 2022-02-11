@@ -113,7 +113,6 @@ private:
     CEventDriver m_eventDriver;
     CMainWindow * m_pMainWindow = nullptr;
 
-    std::shared_ptr<CAppUpdater> m_updater;
     std::shared_ptr<CThemes> m_themes;
 public:
     CWindowsQueue<sWinTag>& closeQueue();
