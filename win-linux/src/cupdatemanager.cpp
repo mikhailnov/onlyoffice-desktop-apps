@@ -125,7 +125,7 @@ void CUpdateManager::onProgressSlot(const int &percent)
         emit progresChanged(percent);
     }
 #endif
-    qDebug() << "Percent... " << percent;
+    //qDebug() << "Percent... " << percent;
 }
 
 void CUpdateManager::checkUpdates()
@@ -183,7 +183,7 @@ void CUpdateManager::readUpdateSettings()
     current_mode = (interval == "disabled") ? UpdateInterval::NEVER : (interval == "day") ?  UpdateInterval::DAY : UpdateInterval::WEEK;
 #endif
 
-    QTimer::singleShot(3000, this, [=]() {
+    QTimer::singleShot(6000, this, [=]() {
         updateNeededCheking();
     });
 }
@@ -251,6 +251,30 @@ void CUpdateManager::loadUpdates()
     }
 }
 
+QString CUpdateManager::getVersion() const
+{
+    if (!new_version.isEmpty()) {
+        return new_version;
+    }
+    return QString("");
+}
+
+void CUpdateManager::getInstallParams()
+{
+    qDebug() << "Get install params...";
+    GET_REGISTRY_USER(reg_user);
+    reg_user.beginGroup("Updates");
+    const QString path = reg_user.value("Updates/temp_file").toString();
+    reg_user.endGroup();
+    if (!path.isEmpty()) {
+
+        // ========== Start installation signal ============
+        QStringList arguments;
+        arguments << QString::fromStdWString(package_args).split(" ");
+        emit updateLoaded(path, arguments);
+    }
+}
+
 void CUpdateManager::onLoadUpdateFinished()
 {
     qDebug() << "Load updates finished...";
@@ -270,6 +294,7 @@ void CUpdateManager::onLoadUpdateFinished()
 void CUpdateManager::cancelLoading()
 {
     qDebug() << "Loading cancel...";
+    downloadMode = Mode::CHECK_UPDATES;
     const QString path = QString::fromStdWString(downloader->GetFilePath());
     downloader->Stop();
     if (QDir().exists(path)) QDir().remove(path);

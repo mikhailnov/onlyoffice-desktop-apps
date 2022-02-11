@@ -118,7 +118,9 @@ public slots:
 #if defined (Q_OS_WIN)
     void loadUpdates();
 
+    QString getVersion() const;
 
+    void getInstallParams();
 #endif
 
        signals:

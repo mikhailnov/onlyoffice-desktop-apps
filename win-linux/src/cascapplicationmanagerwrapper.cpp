@@ -287,11 +287,16 @@ bool CAscApplicationManagerWrapper::processCommonEvent(NSEditorApi::CAscCefMenuE
             if (params == "check") {
                 updateManager->checkUpdates();
             } else
-            if (params == "download" || params == "install") {
+            if (params == "download") {
                 updateManager->loadUpdates();
+            } else
+            if (params == "install") {
+                updateManager->getInstallParams();
             } else
             if (params == "abort") {
                 updateManager->cancelLoading();
+                const QString new_version = updateManager->getVersion();
+                AscAppManager::sendCommandTo(0, "updates:checking", QString("{\"version\":\"%1\"}").arg(new_version));
             }
 #else
             if (params == "check" || params == "download") {
