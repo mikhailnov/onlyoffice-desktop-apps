@@ -192,7 +192,7 @@ public:
     static void             destroyViewer(QCefView * v);
 
     static void             cancelClose();
-    static void             checkUpdates();
+    //static void             checkUpdates();
 
     uint logoutCount(const std::wstring& portal) const;
     void Logout(const std::wstring& portal);

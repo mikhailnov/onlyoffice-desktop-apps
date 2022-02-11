@@ -283,15 +283,19 @@ bool CAscApplicationManagerWrapper::processCommonEvent(NSEditorApi::CAscCefMenuE
         } else
         if ( !(cmd.find(L"update") == std::wstring::npos) ) {   // params: check, download, install, abort
             const QString params = QString::fromStdWString(pData->get_Param());
-            if (params == "check" ) {
+#ifdef Q_OS_WIN
+            if (params == "check") {
                 updateManager->checkUpdates();
             } else
-#if defined (Q_OS_WIN)
             if (params == "download" || params == "install") {
                 updateManager->loadUpdates();
             } else
             if (params == "abort") {
                 updateManager->cancelLoading();
+            }
+#else
+            if (params == "check" || params == "download") {
+                updateManager->checkUpdates();
             }
 #endif
             return true;
@@ -1564,21 +1568,6 @@ bool CAscApplicationManagerWrapper::applySettings(const wstring& wstrjson)
             params.append(L"&mode=view");
         }
 
-/*#ifdef _UPDMODULE
-        if ( objRoot.contains("checkupdatesrate") ) {
-            CMainWindow::setAutocheckUpdatesInterval(objRoot.value("checkupdatesrate").toString());
-        }
-#endif*/
-        if ( objRoot.contains("autoupdatemode") ) {
-            enum UpdateMode {
-                DISABLED, SILENT, ASK
-            };
-            const QString mode = objRoot.value("autoupdatemode").toString();
-            qDebug() << mode;
-            const int _mode = (mode == "disabled") ? UpdateMode::DISABLED : (mode == "silent") ?  UpdateMode::SILENT : UpdateMode::ASK;
-            updateManager->setNewUpdateSetting(_mode);
-        }
-
 
         InputArgs::set_webapps_params(params);
         AscAppManager::getInstance().InitAdditionalEditorParams( params );
@@ -1592,13 +1581,20 @@ bool CAscApplicationManagerWrapper::applySettings(const wstring& wstrjson)
             _reg_user.setValue("editorWindowMode", m_private->m_openEditorWindow);
         }
 
+#ifdef Q_OS_WIN
         if ( objRoot.contains("autoupdatemode") ) {
             _reg_user.setValue("autoUpdateMode", objRoot["autoupdatemode"].toString());
         }
-
+#else
         if ( objRoot.contains("checkupdatesinterval") ) {
-            _reg_user.setValue("checkUpdatesInterval", objRoot["checkupdatesinterval"].toString());
+            const QString interval = objRoot["checkupdatesinterval"].toString();
+            _reg_user.setValue("checkUpdatesInterval", interval);
+            const int _interval = (interval == "disabled") ? UpdateInterval::NEVER :
+                                  (interval == "day") ?  UpdateInterval::DAY : UpdateInterval::WEEK;
+            updateManager->setNewUpdateSetting(_interval);
         }
+#endif
+
     } else {
         /* parse settings error */
     }
@@ -1886,7 +1882,7 @@ QString CAscApplicationManagerWrapper::newFileName(int format)
     }
 }
 
-void CAscApplicationManagerWrapper::checkUpdates()
+/*void CAscApplicationManagerWrapper::checkUpdates()
 {
     APP_CAST(_app);
 
@@ -1895,7 +1891,7 @@ void CAscApplicationManagerWrapper::checkUpdates()
     }
 
     _app.m_updater->checkUpdates();
-}
+}*/
 
 wstring CAscApplicationManagerWrapper::userSettings(const wstring& name)
 {
@@ -1948,40 +1944,44 @@ void CAscApplicationManagerWrapper::addStylesheets(CScalingFactor f, const std::
 void CAscApplicationManagerWrapper::showUpdateMessage(const bool &error, const bool &updateExist,
                               const QString &version, const QString &changelog)
 {
+    qDebug() << changelog;
     if (!error && updateExist) {
         AscAppManager::sendCommandTo(0, "updates:checking", QString("{\"version\":\"%1\"}").arg(version));
+        auto msg = [=]() {
+            CMessage mbox(mainWindow()->handle(), CMessageOpts::moButtons::mbYesNo);
+            mbox.setButtons({"Yes", "No"});
+            switch (mbox.info(tr("Do you want to install a new version %1 of the program?").arg(version))) {
+            case MODAL_RESULT_CUSTOM + 0:
+        #ifdef Q_OS_WIN
+                updateManager->loadUpdates();
+        #else
+                QDesktopServices::openUrl(QUrl(DOWNLOAD_PAGE, QUrl::TolerantMode));
+        #endif
+                break;
+            default:
+                break;
+            }
+        };
 
+#ifdef Q_OS_WIN
         GET_REGISTRY_USER(reg_user);
-        reg_user.beginGroup("Updates");
-        const int current_mode = reg_user.value("Updates/mode").toInt();
-        reg_user.endGroup();
-
-#if defined (Q_OS_WIN)
-
-
-
-        updateManager->loadUpdates();
-
-
-
-
-
-
-#else
-        CMessage mbox(mainWindow()->handle(), CMessageOpts::moButtons::mbYesNo);
-        mbox.setButtons({"Yes", "No"});
-        switch (mbox.info(tr("Do you want to install a new version %1 of the program?").arg(version))) {
-        case MODAL_RESULT_CUSTOM + 0:
-            QDesktopServices::openUrl(QUrl(DOWNLOAD_PAGE, QUrl::TolerantMode));
+        const QString mode = reg_user.value("autoUpdateMode").toString();
+        const int _mode = (mode == "disabled") ? UpdateMode::DISABLED :
+                          (mode == "silent") ?  UpdateMode::SILENT : UpdateMode::ASK;
+        switch (_mode) {
+        case UpdateMode::SILENT:
+            updateManager->loadUpdates();
             break;
+        case UpdateMode::ASK:
+            msg();
+            break;
+        case UpdateMode::DISABLED:
         default:
             break;
         }
+#else
+        msg();
 #endif
-
-
-
-
     } else
     if (!error && !updateExist) {
         AscAppManager::sendCommandTo(0, "updates:checking", "{\"version\":\"no\"}");

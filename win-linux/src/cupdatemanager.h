@@ -97,17 +97,14 @@ private:
     QString     locale,
                 new_version;
 
-    //time_t      last_check;
+    time_t      last_check;
 
     WString     check_url;
 
-    //QTimer      *timer;
+    QTimer      *timer;
 
     Downloader  *downloader;
 
-    enum UpdateMode {
-        DISABLED, SILENT, ASK
-    };
     enum Mode {
         CHECK_UPDATES, DOWNLOAD_CHANGELOG, DOWNLOAD_UPDATES
     };

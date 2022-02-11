@@ -122,6 +122,15 @@ typedef unsigned char BYTE;
 # define VK_TAB 0x09
 #endif
 
+enum UpdateMode {
+    DISABLED, SILENT, ASK
+};
+
+enum UpdateInterval {
+    NEVER, DAY, WEEK
+};
+
+
 #include "defines_p.h"
 
 #endif // DEFINES_H
