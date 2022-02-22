@@ -182,7 +182,7 @@
     <message>
         <location filename="../src/cfiledialog.cpp" line="222"/>
         <source>Document template (*.dotx)</source>
-        <translation>Document sjabloon (*.dotx)</translation>
+        <translation>Word Open XML Document Sjabloon (*.dotx)</translation>
     </message>
     <message>
         <location filename="../src/cfiledialog.cpp" line="223"/>
@@ -192,12 +192,12 @@
     <message>
         <location filename="../src/cfiledialog.cpp" line="224"/>
         <source>ODT Document (*.odt)</source>
-        <translation>ODT Document (*.odt)</translation>
+        <translation>OpenDocument Tekstbestand (*.odt)</translation>
     </message>
     <message>
         <location filename="../src/cfiledialog.cpp" line="225"/>
         <source>OpenDocument Document template (*.ott)</source>
-        <translation>OpenDocument Document sjabloon (*.ott)</translation>
+        <translation>OpenDocument Document Sjabloon (*.ott)</translation>
     </message>
     <message>
         <location filename="../src/cfiledialog.cpp" line="226"/>
@@ -207,42 +207,42 @@
     <message>
         <location filename="../src/cfiledialog.cpp" line="227"/>
         <source>TXT File (*.txt)</source>
-        <translation>TXT Bestand (*.txt)</translation>
+        <translation>Standaard Tekstbestand (*.txt)</translation>
     </message>
     <message>
         <location filename="../src/cfiledialog.cpp" line="228"/>
         <source>HTML File (*.html)</source>
-        <translation>HTML Bestand (*.html)</translation>
+        <translation>HyperText Markup Taalbestand (*.html)</translation>
     </message>
     <message>
         <location filename="../src/cfiledialog.cpp" line="229"/>
         <source>MHT File (*.mht)</source>
-        <translation>MHT Bestand (*.mht)</translation>
+        <translation>Webpagina Archiefbestand (*.mht)</translation>
     </message>
     <message>
         <location filename="../src/cfiledialog.cpp" line="230"/>
         <source>EPUB File (*.epub)</source>
-        <translation>EPUB Bestand (*.epub)</translation>
+        <translation>Elektronisch Publicatiebestand (*.epub)</translation>
     </message>
     <message>
         <location filename="../src/cfiledialog.cpp" line="231"/>
         <source>FB2 File (*.fb2)</source>
-        <translation>FB2 Bestand (*.fb2)</translation>
+        <translation>FictionBook 2 Bestand (*.fb2)</translation>
     </message>
     <message>
         <location filename="../src/cfiledialog.cpp" line="232"/>
         <source>MOBI File (*.mobi)</source>
-        <translation>MOBI Bestand (*.mobi)</translation>
+        <translation>Mobipocket Bestand (*.mobi)</translation>
     </message>
     <message>
         <location filename="../src/cfiledialog.cpp" line="233"/>
         <source>OFORM Document (*.oform)</source>
-        <translation type="unfinished"></translation>
+        <translation>ONLYOFFICE Invulbaar Online Formulier (*.oform)</translation>
     </message>
     <message>
         <location filename="../src/cfiledialog.cpp" line="234"/>
         <source>DOCXF Document (*.docxf)</source>
-        <translation type="unfinished"></translation>
+        <translation>ONLYOFFICE Formulier Sjabloon (*.docxf)</translation>
     </message>
     <message>
         <location filename="../src/cfiledialog.cpp" line="236"/>
@@ -257,7 +257,7 @@
     <message>
         <location filename="../src/cfiledialog.cpp" line="238"/>
         <source>Presentation template (*.potx)</source>
-        <translation>Presentatie sjabloon (*.potx)</translation>
+        <translation>PowerPoint Open XML Presentatie Sjabloon (*.potx)</translation>
     </message>
     <message>
         <location filename="../src/cfiledialog.cpp" line="239"/>
@@ -282,7 +282,7 @@
     <message>
         <location filename="../src/cfiledialog.cpp" line="244"/>
         <source>Spreadsheet template (*.xltx)</source>
-        <translation>Spreadsheet sjabloon (*.xltx)</translation>
+        <translation>Excel Open XML Spreadsheet Sjabloon (*.xltx)</translation>
     </message>
     <message>
         <location filename="../src/cfiledialog.cpp" line="245"/>
@@ -292,7 +292,7 @@
     <message>
         <location filename="../src/cfiledialog.cpp" line="246"/>
         <source>ODS File (*.ods)</source>
-        <translation>ODS Bestand (*.ods)</translation>
+        <translation>OpenDocument Spreadsheet (*.ods)</translation>
     </message>
     <message>
         <location filename="../src/cfiledialog.cpp" line="247"/>
@@ -307,37 +307,37 @@
     <message>
         <location filename="../src/cfiledialog.cpp" line="250"/>
         <source>PDF File (*.pdf)</source>
-        <translation>PDF Bestand (*.pdf)</translation>
+        <translation>Portable Document (*.pdf)</translation>
     </message>
     <message>
         <location filename="../src/cfiledialog.cpp" line="251"/>
         <source>PDFA File (*.pdf)</source>
-        <translation>PDFA Bestand (*.pdf)</translation>
+        <translation>Portable Document / A (*.pdf)</translation>
     </message>
     <message>
         <location filename="../src/cfiledialog.cpp" line="252"/>
         <source>DJVU File (*.djvu)</source>
-        <translation>DJVU Bestand (*.djvu)</translation>
+        <translation>Digitaal Document (*.djvu)</translation>
     </message>
     <message>
         <location filename="../src/cfiledialog.cpp" line="253"/>
         <source>XPS File (*.xps)</source>
-        <translation>XPS Bestand (*.xps)</translation>
+        <translation>OpenXPS Document (*.xps)</translation>
     </message>
     <message>
         <location filename="../src/cfiledialog.cpp" line="255"/>
         <source>Zip Archive (*.zip)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zip-archief (*.zip)</translation>
     </message>
     <message>
         <location filename="../src/cfiledialog.cpp" line="256"/>
         <source>JPG Image (*.jpg, *.jpeg)</source>
-        <translation type="unfinished"></translation>
+        <translation>JPG-afbeelding (*.jpg, *.jpeg)</translation>
     </message>
     <message>
         <location filename="../src/cfiledialog.cpp" line="257"/>
         <source>PNG Image (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>PNG-afbeelding (. png)</translation>
     </message>
     <message>
         <location filename="../src/cfiledialog.cpp" line="308"/>
@@ -422,7 +422,7 @@
         <location filename="../src/cfiledialog.cpp" line="478"/>
         <location filename="../src/cfiledialog.cpp" line="487"/>
         <source>Plugin file (*.plugin)</source>
-        <translation>Plugin bestand (*.plugin)</translation>
+        <translation>Plugin-bestand (*.plugin)</translation>
     </message>
     <message>
         <location filename="../src/cfiledialog.cpp" line="527"/>
@@ -567,7 +567,7 @@
     <message>
         <location filename="../src/ceditortools.cpp" line="126"/>
         <source>All files (*.*)</source>
-        <translation type="unfinished">Alle bestanden (*.*)</translation>
+        <translation>Alle bestanden (*.*)</translation>
     </message>
 </context>
 </TS>
