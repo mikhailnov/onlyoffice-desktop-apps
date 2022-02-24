@@ -10,6 +10,7 @@ es.UninstallPageLabel=Presione Desinstalar para continuar con la desinstalación
 it_IT.UninstallPageLabel=Scegliere Disinstalla per procedere con la disinstallazione.
 pt_BR.UninstallPageLabel=Clique em Desinstalar para prosseguir com a desinstalação.
 pl.UninstallPageLabel=Kliknij Odinstaluj, aby rozpocząć proces odinstalowywania.
+nl.UninstallPageLabel=Druk op Verwijderen om verder te gaan met het verwijderen.
 
 en.UninstallOptionClearData=Clear all user settings and application cached data
 cs.UninstallOptionClearData=Vymažte všechna uživatelská nastavení a data uložená v paměti
@@ -21,6 +22,7 @@ es.UninstallOptionClearData=Eliminar todos los ajustes de usuario y datos en cac
 it_IT.UninstallOptionClearData=Cancella le impostazioni utente e i dati memorizzati nella cache dell’applicazione
 pt_BR.UninstallOptionClearData=Limpar todas definições de usuário e dados salvos do programa
 pl.UninstallOptionClearData=Usuń wszystkie ustawienia użytkownika oraz dane pamięci podręcznej aplikacji
+nl.UninstallOptionClearData=Alle gebruikersinstellingen en cachegegevens van toepassingen wissen
 
 
 [Code]
