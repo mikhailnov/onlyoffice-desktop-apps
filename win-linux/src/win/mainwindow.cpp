@@ -30,11 +30,8 @@
  *
 */
 
-#include "MainWindow.h"
+#include "mainwindow.h"
 
-#include <dwmapi.h>
-#include <windowsx.h>
-#include <windows.h>
 #include <stdexcept>
 #include <functional>
 
@@ -139,6 +136,9 @@ CMainWindow::CMainWindow(QRect& rect) :
         throw std::runtime_error( "couldn't create window because of reasons" );
 
     SetWindowLongPtr( hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>( this ) );
+    MARGINS _margins{1,1,1,1};
+    DwmExtendFrameIntoClientArea(hWnd, &_margins);
+    SetWindowPos(hWnd, nullptr, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
 
     m_pWinPanel = new CWinPanel(this);
 
@@ -302,7 +302,7 @@ LRESULT CALLBACK CMainWindow::WndProc( HWND hWnd, UINT message, WPARAM wParam, L
 //        OutputDebugStringA( str.toLocal8Bit().data() );
 
         if ( IsWindowEnabled(hWnd) )
-            window->m_pMainPanel->focus();
+            //window->m_pMainPanel->focus();
         break;
     }
 
@@ -310,12 +310,17 @@ LRESULT CALLBACK CMainWindow::WndProc( HWND hWnd, UINT message, WPARAM wParam, L
     {
         //this kills the window frame and title bar we added with
         //WS_THICKFRAME and WS_CAPTION
-        if (window->borderless)
+        /*if (window->borderless)
         {
 
             return 0;
         }
-        break;
+        break;*/
+        if (wParam == TRUE) {
+            SetWindowLong(hWnd, DWLP_MSGRESULT, 0);
+            return TRUE;
+        }
+        return FALSE;
     }
 
     case WM_KILLFOCUS:
@@ -339,8 +344,8 @@ qDebug() << "WM_CLOSE";
         break;
     }
 
-    case WM_NCPAINT:
-        return 0;
+    /*case WM_NCPAINT:
+        return 0;*/
 
     case WM_NCHITTEST:
     {
@@ -486,7 +491,7 @@ qDebug() << "WM_CLOSE";
     }
 
     case WM_PAINT: {
-        RECT rect;
+        /*RECT rect;
         GetClientRect(hWnd, &rect);
 
         PAINTSTRUCT ps;
@@ -503,8 +508,24 @@ qDebug() << "WM_CLOSE";
         ::DeleteObject(hBrush);
 
         ::SelectObject(hDC, hpenOld);
-        ::EndPaint(hWnd, &ps);
-        return 0; }
+        ::EndPaint(hWnd, &ps);*/
+
+        PAINTSTRUCT ps;
+        auto hdc = BeginPaint(hWnd, &ps);
+        RECT rc;
+        GetClientRect(hWnd, &rc);
+        BP_PAINTPARAMS params = { sizeof(params), BPPF_NOCLIP | BPPF_ERASE };
+        HDC memdc;
+        HPAINTBUFFER hbuffer = BeginBufferedPaint(hdc, &rc, BPBF_TOPDOWNDIB, &params, &memdc);
+        auto brush = CreateSolidBrush(AscAppManager::themes().current().colorRef(CTheme::ColorRole::ecrWindowBackground));
+        FillRect(memdc, &rc, brush);
+        DeleteObject(brush);
+        SetBkMode(memdc, TRANSPARENT);
+        BufferedPaintSetAlpha(hbuffer, &rc, 255);
+        EndBufferedPaint(hbuffer, TRUE);
+        EndPaint(hWnd, &ps);
+        return 0;
+    }
 
     case WM_ERASEBKGND: {
         return TRUE; }
@@ -709,12 +730,12 @@ void CMainWindow::adjustGeometry()
                             clientRect.right - 2 * border_size, clientRect.bottom - 2 * border_size);
     }
 
-    HRGN hRgn = CreateRectRgn(nMaxOffsetX, nMaxOffsetY,
+    /*HRGN hRgn = CreateRectRgn(nMaxOffsetX, nMaxOffsetY,
                                 lpWindowRect.right - lpWindowRect.left - nMaxOffsetX,
                                 lpWindowRect.bottom - lpWindowRect.top - nMaxOffsetY);
 
     SetWindowRgn(hWnd, hRgn, TRUE);
-    DeleteObject(hRgn);
+    DeleteObject(hRgn);*/
 }
 
 void CMainWindow::setScreenScalingFactor(double factor)

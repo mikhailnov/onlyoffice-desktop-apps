@@ -258,8 +258,9 @@ core_windows {
             -lcredui \
             -lnetapi32 \
             -lcomctl32 \
-            -lrpcrt4
-#            -ldwmapi
+            -lrpcrt4 \
+            -ldwmapi \
+            -luxtheme
 #            -lOpenGL32
 
     build_xp {

@@ -34,6 +34,9 @@
 #define CMAINWINDOW_H
 
 #include <windows.h>
+#include <windowsx.h>
+#include <dwmapi.h>
+#include <uxtheme.h>
 
 #include "cwinpanel.h"
 #include "cmainpanelimpl.h"
