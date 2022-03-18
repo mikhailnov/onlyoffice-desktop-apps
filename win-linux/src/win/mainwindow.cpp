@@ -267,7 +267,7 @@ LRESULT CALLBACK CMainWindow::WndProc( HWND hWnd, UINT message, WPARAM wParam, L
         } else
         if ( GET_SC_WPARAM(wParam) == SC_SIZE ) {
             // TODO: skip window min size for usability test
-            window->setMinimumSize(int(MAIN_WINDOW_MIN_WIDTH * window->m_dpiRatio), int(MAIN_WINDOW_MIN_HEIGHT * window->m_dpiRatio));
+//            window->setMinimumSize(int(MAIN_WINDOW_MIN_WIDTH * window->m_dpiRatio), int(MAIN_WINDOW_MIN_HEIGHT * window->m_dpiRatio));
             break;
         } else
         if ( GET_SC_WPARAM(wParam) == SC_MOVE ) {
@@ -280,7 +280,7 @@ LRESULT CALLBACK CMainWindow::WndProc( HWND hWnd, UINT message, WPARAM wParam, L
         else
         if (GET_SC_WPARAM(wParam) == SC_RESTORE) {
 //            if ( !WindowHelper::isLeftButtonPressed() )
-                WindowHelper::correctWindowMinimumSize(window->handle());
+//                WindowHelper::correctWindowMinimumSize(window->handle());
 
             break;
         }
@@ -438,7 +438,7 @@ qDebug() << "WM_CLOSE";
     }
 
     case WM_ENTERSIZEMOVE: {
-        WindowHelper::correctWindowMinimumSize(window->handle());
+//        WindowHelper::correctWindowMinimumSize(window->handle());
 
         WINDOWPLACEMENT wp{sizeof(WINDOWPLACEMENT)};
         if ( GetWindowPlacement(hWnd, &wp) ) {
@@ -979,7 +979,7 @@ void CMainWindow::captureMouse(int tabindex)
 
         SetCursorPos(gpt.x(), gpt.y());
         //SendMessage(hWnd, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM(gpt.x(), gpt.y()));
-      
+
         QWidget * _widget = mainPanel()->tabWidget()->tabBar();
         QTimer::singleShot(0,[_widget,spt] {
             INPUT _input{INPUT_MOUSE};
