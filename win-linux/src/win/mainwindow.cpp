@@ -142,8 +142,13 @@ CMainWindow::CMainWindow(QRect& rect) :
     SetWindowPos(hWnd, nullptr, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
 
     m_pWinPanel = new CWinPanel(this);
+    QGridLayout *_pWinPanelLayout = new QGridLayout(m_pWinPanel);
+    _pWinPanelLayout->setSpacing(0);
+    _pWinPanelLayout->setContentsMargins(0,0,0,0);
+    m_pWinPanel->setLayout(_pWinPanelLayout);
 
     m_pMainPanel = new CMainPanelImpl(m_pWinPanel, true, m_dpiRatio);
+    _pWinPanelLayout->addWidget(m_pMainPanel);
     m_pMainPanel->setStyleSheet(AscAppManager::getWindowStylesheets(m_dpiRatio));
     m_pMainPanel->updateScaling(m_dpiRatio);
     m_pMainPanel->goStart();
