@@ -155,15 +155,15 @@ CMainPanel::CMainPanel(QWidget *parent, bool isCustomWindow, double dpi_ratio)
         };
 
         // Minimize
-        m_pButtonMinimize = _creatToolButton("toolButtonMinimize", this);
+        m_pButtonMinimize = _creatToolButton("toolButtonMinimize", m_boxTitleBtns);
         QObject::connect(m_pButtonMinimize, &QPushButton::clicked, this, &CMainPanel::pushButtonMinimizeClicked);
 
         // Maximize
-        m_pButtonMaximize = _creatToolButton("toolButtonMaximize", this);
+        m_pButtonMaximize = _creatToolButton("toolButtonMaximize", m_boxTitleBtns);
         QObject::connect(m_pButtonMaximize, &QPushButton::clicked, this, &CMainPanel::pushButtonMaximizeClicked);
 
         // Close
-        m_pButtonClose = _creatToolButton("toolButtonClose", this);
+        m_pButtonClose = _creatToolButton("toolButtonClose", m_boxTitleBtns);
         QObject::connect(m_pButtonClose, &QPushButton::clicked, this, &CMainPanel::pushButtonCloseClicked);
 
         layoutBtns->addWidget(m_pButtonMinimize);
