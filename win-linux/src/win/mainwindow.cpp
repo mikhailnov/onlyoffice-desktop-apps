@@ -31,6 +31,8 @@
 */
 
 #include "mainwindow.h"
+#include <windowsx.h>
+#include <dwmapi.h>
 
 #include <stdexcept>
 #include <functional>
@@ -137,9 +139,6 @@ CMainWindow::CMainWindow(QRect& rect) :
         throw std::runtime_error( "couldn't create window because of reasons" );
 
     SetWindowLongPtr( hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>( this ) );
-    MARGINS _margins{1,1,1,1};
-    DwmExtendFrameIntoClientArea(hWnd, &_margins);
-    SetWindowPos(hWnd, nullptr, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
 
     m_pWinPanel = new CWinPanel(this);
     QGridLayout *_pWinPanelLayout = new QGridLayout(m_pWinPanel);
@@ -214,6 +213,10 @@ LRESULT CALLBACK CMainWindow::WndProc( HWND hWnd, UINT message, WPARAM wParam, L
         break;
 
     case WM_ACTIVATE: {
+        const MARGINS _margins{-1,-1,-1,-1};
+        DwmExtendFrameIntoClientArea(hWnd, &_margins);
+        SetWindowPos(hWnd, nullptr, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
+
         if ( LOWORD(wParam) != WA_INACTIVE ) {
             WindowHelper::correctModalOrder(hWnd, window->m_modalHwnd);
             return 0;
