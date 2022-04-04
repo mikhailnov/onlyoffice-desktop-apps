@@ -86,7 +86,7 @@ bool CWinPanel::nativeEvent( const QByteArray &, void * msg, long * result)
     return false;
 }
 
-void CWinPanel::mousePressEvent( QMouseEvent *event )
+/*void CWinPanel::mousePressEvent( QMouseEvent *event )
 {
     if ( event->type() == QEvent::MouseButtonDblClick ) {
         if (event -> button() == Qt::LeftButton) {
@@ -99,10 +99,10 @@ void CWinPanel::mousePressEvent( QMouseEvent *event )
     } else
     if ( event->button() == Qt::LeftButton ) {
         ReleaseCapture();
-        SendMessage( windowHandle, WM_NCLBUTTONDOWN, HTCAPTION, 0 );
+        PostMessage( windowHandle, WM_NCLBUTTONDOWN, HTCAPTION, 0 );
     }
 
-}
+}*/
 
 void CWinPanel::resizeEvent(QResizeEvent* event)
 {

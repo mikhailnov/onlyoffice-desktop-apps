@@ -223,7 +223,8 @@ core_windows {
                 $$PWD/src/win/cwinwindow.h \
                 $$PWD/src/win/csinglewindow.h \
                 $$PWD/src/win/csinglewindowplatform.h \
-                $$PWD/src/win/cprintdialog.h
+                $$PWD/src/win/cprintdialog.h \
+                $$PWD/src/win/caption.h
 
     SOURCES += $$PWD/src/win/mainwindow.cpp \
                 $$PWD/src/win/qwinwidget.cpp \

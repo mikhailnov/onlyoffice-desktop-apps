@@ -35,6 +35,9 @@
 #include "cwindowbase.h"
 #include "ccefeventsgate.h"
 #include "defines.h"
+#ifdef _WIN32
+    #include "win/caption.h"
+#endif
 
 #include <QLayout>
 #include <QVariant>
@@ -210,7 +213,11 @@ int CSingleWindowBase::calcTitleCaptionWidth()
 QWidget * CSingleWindowBase::createMainPanel(QWidget * parent, const QString& title)
 {
     if ( pimpl->is_custom_window() ) {
-        m_boxTitleBtns = new QWidget;
+#if defined(Q_OS_WIN)
+        m_boxTitleBtns = new Caption(parent);
+#elif defined(Q_OS_LINUX)
+        m_boxTitleBtns = new QWidget(parent);
+#endif
         m_boxTitleBtns->setObjectName("box-title-tools");
         m_boxTitleBtns->setFixedHeight(TOOLBTN_HEIGHT * m_dpiRatio);
 

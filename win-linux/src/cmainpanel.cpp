@@ -63,7 +63,7 @@
 #ifdef _WIN32
 #include "win/cprintdialog.h"
 #include "shlobj.h"
-
+#include "win/caption.h"
 #else
 #define gTopWinId this
 #include "linux/cx11decoration.h"
@@ -115,13 +115,14 @@ CMainPanel::CMainPanel(QWidget *parent, bool isCustomWindow, double dpi_ratio)
 #ifdef __linux__
     m_boxTitleBtns = new CX11Caption(this);
 #else
-    m_boxTitleBtns = new QWidget(this);
+    m_boxTitleBtns = new Caption(this);
 #endif
     m_boxTitleBtns->setObjectName("CX11Caption");
     m_boxTitleBtns->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     m_pMainGridLayout->addWidget(m_boxTitleBtns, 0, 2, 1, 1);
     QHBoxLayout * layoutBtns = new QHBoxLayout(m_boxTitleBtns);
-
+    QSpacerItem *spacer = new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Preferred);
+    layoutBtns->addItem(spacer);
 #ifdef __DONT_WRITE_IN_APP_TITLE
     QLabel * label = new QLabel(m_boxTitleBtns);
 #else
@@ -155,15 +156,15 @@ CMainPanel::CMainPanel(QWidget *parent, bool isCustomWindow, double dpi_ratio)
         };
 
         // Minimize
-        m_pButtonMinimize = _creatToolButton("toolButtonMinimize", this);
+        m_pButtonMinimize = _creatToolButton("toolButtonMinimize", m_boxTitleBtns);
         QObject::connect(m_pButtonMinimize, &QPushButton::clicked, this, &CMainPanel::pushButtonMinimizeClicked);
 
         // Maximize
-        m_pButtonMaximize = _creatToolButton("toolButtonMaximize", this);
+        m_pButtonMaximize = _creatToolButton("toolButtonMaximize", m_boxTitleBtns);
         QObject::connect(m_pButtonMaximize, &QPushButton::clicked, this, &CMainPanel::pushButtonMaximizeClicked);
 
         // Close
-        m_pButtonClose = _creatToolButton("toolButtonClose", this);
+        m_pButtonClose = _creatToolButton("toolButtonClose", m_boxTitleBtns);
         QObject::connect(m_pButtonClose, &QPushButton::clicked, this, &CMainPanel::pushButtonCloseClicked);
 
         layoutBtns->addWidget(m_pButtonMinimize);
