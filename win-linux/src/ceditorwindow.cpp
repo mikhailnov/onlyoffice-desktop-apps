@@ -190,12 +190,12 @@ QWidget * CEditorWindow::createMainPanel(QWidget * parent)
 QWidget * CEditorWindow::createMainPanel(QWidget * parent, const QString& title)
 {
     // create min/max/close buttons
-    CSingleWindowPlatform::createMainPanel(parent, title);
+    //CSingleWindowPlatform::createMainPanel(parent, title);
 
     QWidget * mainPanel = new QWidget(parent);
     mainPanel->setObjectName("mainPanel");
 
-    QGridLayout * mainGridLayout = new QGridLayout();
+    QGridLayout * mainGridLayout = new QGridLayout(mainPanel);
     mainGridLayout->setSpacing(0);
 #ifdef Q_OS_WIN
     mainGridLayout->setMargin(0);
@@ -204,6 +204,7 @@ QWidget * CEditorWindow::createMainPanel(QWidget * parent, const QString& title)
     mainGridLayout->setContentsMargins(QMargins(b,b,b,b));
 #endif
     mainPanel->setLayout(mainGridLayout);
+    CSingleWindowPlatform::createMainPanel(mainPanel, title);
 //    mainPanel->setStyleSheet(AscAppManager::getWindowStylesheets(m_dpiRatio));
 //    mainPanel->setStyleSheet("background-color:#446995;");
 
@@ -227,14 +228,16 @@ QWidget * CEditorWindow::createMainPanel(QWidget * parent, const QString& title)
     mainPanel->setProperty("uitheme", QString::fromStdWString(AscAppManager::themes().current().id()));
     mainPanel->setStyleSheet(AscAppManager::getWindowStylesheets(m_dpiRatio) + m_css);
 
+    bool _canExtendTitle = false;
     if ( isCustomWindowStyle() ) {
         if ( !d_ptr->canExtendTitle() ) {
-            mainGridLayout->addWidget(m_boxTitleBtns);
+            mainGridLayout->addWidget(m_boxTitleBtns, 0, 0);
             m_labelTitle->setText(APP_TITLE);
         } else {
             if (d_ptr->panel()->data()->contentType() != etUndefined)
                 mainPanel->setProperty("window", "pretty");
-            m_boxTitleBtns->setParent(mainPanel);
+            //m_boxTitleBtns->setParent(mainPanel);
+            _canExtendTitle = true;
             m_boxTitleBtns->layout()->addWidget(d_ptr.get()->iconUser());
         }
 
@@ -266,7 +269,7 @@ QWidget * CEditorWindow::createMainPanel(QWidget * parent, const QString& title)
 
 //        m_pMainView = (QWidget *)pMainWidget;
     } else {
-        m_pMainView = d_ptr->panel();
+        m_pMainView = static_cast<QWidget*>(d_ptr->panel());
         m_pMainView->setParent(mainPanel);
 
 //        m_pMainView->setGeometry(mainPanel->geometry());
@@ -279,6 +282,12 @@ QWidget * CEditorWindow::createMainPanel(QWidget * parent, const QString& title)
     d_ptr.get()->onScreenScalingFactor(m_dpiRatio);
     mainGridLayout->addWidget(m_pMainView, 1, 0);
     mainGridLayout->setRowStretch(1,1);
+    if (_canExtendTitle) {
+#ifdef Q_OS_WIN
+        //::SetParent((HWND)m_boxTitleBtns->winId(), (HWND)m_pMainView->winId());
+#endif
+        mainGridLayout->addWidget(m_boxTitleBtns, 1, 0, Qt::AlignTop);
+    }
     return mainPanel;
 }
 

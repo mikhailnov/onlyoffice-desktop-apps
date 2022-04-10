@@ -214,11 +214,12 @@ QWidget * CSingleWindowBase::createMainPanel(QWidget * parent, const QString& ti
 {
     if ( pimpl->is_custom_window() ) {
 #if defined(Q_OS_WIN)
-        m_boxTitleBtns = new Caption(parent);
+        m_boxTitleBtns = static_cast<QWidget*>(new Caption(parent));
 #elif defined(Q_OS_LINUX)
         m_boxTitleBtns = new QWidget(parent);
 #endif
         m_boxTitleBtns->setObjectName("box-title-tools");
+        m_boxTitleBtns->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
         m_boxTitleBtns->setFixedHeight(TOOLBTN_HEIGHT * m_dpiRatio);
 
         QHBoxLayout * layoutBtns = new QHBoxLayout(m_boxTitleBtns);
@@ -237,8 +238,8 @@ QWidget * CSingleWindowBase::createMainPanel(QWidget * parent, const QString& ti
 
         QSize small_btn_size(TOOLBTN_WIDTH*m_dpiRatio, TOOLBTN_HEIGHT*m_dpiRatio);
 
-        auto _creatToolButton = [&small_btn_size](const QString& name, QWidget * parent) {
-            QPushButton * btn = new QPushButton(parent);
+        auto _creatToolButton = [&small_btn_size](const QString& name, QWidget * _parent) {
+            QPushButton * btn = new QPushButton(_parent);
             btn->setObjectName(name);
             btn->setProperty("class", "normal");
             btn->setProperty("act", "tool");
@@ -249,15 +250,15 @@ QWidget * CSingleWindowBase::createMainPanel(QWidget * parent, const QString& ti
         };
 
         // Minimize
-        m_buttonMinimize = _creatToolButton("toolButtonMinimize", parent);
+        m_buttonMinimize = _creatToolButton("toolButtonMinimize", m_boxTitleBtns);
         QObject::connect(m_buttonMinimize, &QPushButton::clicked, [=]{onMinimizeEvent();});
 
         // Maximize
-        m_buttonMaximize = _creatToolButton("toolButtonMaximize", parent);
+        m_buttonMaximize = _creatToolButton("toolButtonMaximize", m_boxTitleBtns);
         QObject::connect(m_buttonMaximize, &QPushButton::clicked, [=]{onMaximizeEvent();});
 
         // Close
-        m_buttonClose = _creatToolButton("toolButtonClose", parent);
+        m_buttonClose = _creatToolButton("toolButtonClose", m_boxTitleBtns);
         QObject::connect(m_buttonClose, &QPushButton::clicked, [=]{onCloseEvent();});
 
 //        m_pButtonMaximize = new QPushButton(parent);
