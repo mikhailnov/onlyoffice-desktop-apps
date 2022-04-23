@@ -57,9 +57,11 @@
 #include <windowsx.h>
 #include "shlobj.h"
 #include "lmcons.h"
+#include "win/caption.h"
 typedef HRESULT (__stdcall *SetCurrentProcessExplicitAppUserModelIDProc)(PCWSTR AppID);
 #else
 #include <sys/stat.h>
+#include "linux/cx11decoration.h"
 #endif
 
 #include <QDebug>
@@ -765,5 +767,37 @@ namespace WindowHelper {
             QObject::connect(btn, &QPushButton::clicked, methods[i]);
             buttons.push_back(btn);
         }
+    }
+
+    auto createTopPanel(QWidget *parent, const QString& title, QVector<QPushButton*> &buttons,
+                        std::function<void()> (&methods)[3], double dpiRatio)->QWidget*
+    {
+        QWidget *_boxTitleBtns;
+#ifdef __linux__
+        _boxTitleBtns = new CX11Caption(this);
+#else
+        _boxTitleBtns = static_cast<QWidget*>(new Caption(parent));
+#endif
+        _boxTitleBtns->setObjectName("CX11Caption");
+        _boxTitleBtns->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+
+        QHBoxLayout * layoutBtns = new QHBoxLayout(_boxTitleBtns);
+        QSpacerItem *spacer = new QSpacerItem(5, 5, QSizePolicy::Expanding, QSizePolicy::Preferred);
+        layoutBtns->addItem(spacer);
+        layoutBtns->setContentsMargins(0,0,int(4*dpiRatio),0);
+        layoutBtns->setSpacing(int(1*dpiRatio));
+
+        const QString names[3] = {"toolButtonMinimize", "toolButtonMaximize", "toolButtonClose"};
+        buttons.clear();
+        for (int i = 0; i < 3; i++) {
+            QPushButton *btn = createToolButton(_boxTitleBtns, names[i], dpiRatio);
+            QObject::connect(btn, &QPushButton::clicked, methods[i]);
+            buttons.push_back(btn);
+        }
+
+        foreach (auto btn, buttons)
+            layoutBtns->addWidget(btn);
+
+        return _boxTitleBtns;
     }
 }
