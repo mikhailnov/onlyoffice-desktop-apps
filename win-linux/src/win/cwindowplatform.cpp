@@ -279,6 +279,13 @@ void CWindowPlatform::slot_modalDialog(bool status,  WId h)
 
 void CWindowPlatform::setScreenScalingFactor(double factor)
 {
+    auto normalizeTitleSize = [=](double _factor){
+        QSize small_btn_size(int(TOOLBTN_WIDTH * _factor), int(TOOLBTN_HEIGHT*_factor));
+        foreach (auto btn, m_pTopButtons)
+            btn->setFixedSize(small_btn_size);
+        m_boxTitleBtns->setFixedHeight(int(TOOLBTN_HEIGHT * _factor));
+        m_boxTitleBtns->layout()->setSpacing(int(1 * _factor));
+    };
     if (m_winType == WindowType::MAIN) {
         m_skipSizing = true;
         QString css(AscAppManager::getWindowStylesheets(factor));
@@ -295,11 +302,7 @@ void CWindowPlatform::setScreenScalingFactor(double factor)
         double change_factor = factor / m_dpiRatio;
         if (m_dpiRatio != factor) {
             if (isCustomWindowStyle()) {
-                QSize small_btn_size(int(TOOLBTN_WIDTH * factor), int(TOOLBTN_HEIGHT*factor));
-                foreach (auto btn, m_pTopButtons)
-                    btn->setFixedSize(small_btn_size);
-                m_boxTitleBtns->setFixedHeight(int(TOOLBTN_HEIGHT * factor));
-                m_boxTitleBtns->layout()->setSpacing(int(1 * factor));
+                normalizeTitleSize(factor);
             }
             m_dpiRatio = factor;
         }
@@ -315,12 +318,7 @@ void CWindowPlatform::setScreenScalingFactor(double factor)
             bool increase = factor > m_dpiRatio;
             m_dpiRatio = factor;
             m_pMainPanel->setStyleSheet(css);
-            QSize small_btn_size(40*m_dpiRatio, TOOLBTN_HEIGHT*m_dpiRatio);
-            foreach (auto btn, m_pTopButtons)
-                btn->setFixedSize(small_btn_size);
-            m_boxTitleBtns->setFixedHeight(TOOLBTN_HEIGHT*m_dpiRatio);
-            QLayout * layoutBtns = m_boxTitleBtns->layout();
-            layoutBtns->setSpacing(1*m_dpiRatio);
+            normalizeTitleSize(m_dpiRatio);
             setMinimumSize(WINDOW_MIN_WIDTH * factor, WINDOW_MIN_HEIGHT * factor);
             RECT lpWindowRect;
             GetWindowRect(m_hWnd, &lpWindowRect);

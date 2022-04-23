@@ -116,7 +116,7 @@ CMainPanel::CMainPanel(QWidget *parent, bool isCustomWindow, double dpi_ratio)
 #ifdef __linux__
     m_boxTitleBtns = new CX11Caption(this);
 #else
-    m_boxTitleBtns = new Caption(this);
+    m_boxTitleBtns = static_cast<QWidget*>(new Caption(this));
 #endif
     m_boxTitleBtns->setObjectName("CX11Caption");
     m_boxTitleBtns->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
