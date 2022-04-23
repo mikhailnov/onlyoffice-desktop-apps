@@ -769,7 +769,7 @@ namespace WindowHelper {
         }
     }
 
-    auto createTopPanel(QWidget *parent, const QString& title, QVector<QPushButton*> &buttons,
+    auto createTopPanel(QWidget *parent, QVector<QPushButton*> &buttons,
                         std::function<void()> (&methods)[3], double dpiRatio)->QWidget*
     {
         QWidget *_boxTitleBtns;
@@ -778,12 +778,11 @@ namespace WindowHelper {
 #else
         _boxTitleBtns = static_cast<QWidget*>(new Caption(parent));
 #endif
-        _boxTitleBtns->setObjectName("CX11Caption");
         _boxTitleBtns->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
-        QHBoxLayout * layoutBtns = new QHBoxLayout(_boxTitleBtns);
+        QGridLayout *layoutBtns = new QGridLayout(_boxTitleBtns);
         QSpacerItem *spacer = new QSpacerItem(5, 5, QSizePolicy::Expanding, QSizePolicy::Preferred);
-        layoutBtns->addItem(spacer);
+        layoutBtns->addItem(spacer, 0, 0);
         layoutBtns->setContentsMargins(0,0,int(4*dpiRatio),0);
         layoutBtns->setSpacing(int(1*dpiRatio));
 
@@ -793,10 +792,8 @@ namespace WindowHelper {
             QPushButton *btn = createToolButton(_boxTitleBtns, names[i], dpiRatio);
             QObject::connect(btn, &QPushButton::clicked, methods[i]);
             buttons.push_back(btn);
-        }
-
-        foreach (auto btn, buttons)
             layoutBtns->addWidget(btn);
+        }
 
         return _boxTitleBtns;
     }

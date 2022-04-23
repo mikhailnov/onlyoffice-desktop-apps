@@ -122,7 +122,7 @@ namespace WindowHelper {
     auto createTopButtons(QWidget *parent, QVector<QPushButton*> &buttons,
                           std::function<void()> (&methods)[3], double dpiRatio)->void;
 
-    auto createTopPanel(QWidget *parent, const QString& title, QVector<QPushButton*> &buttons,
+    auto createTopPanel(QWidget *parent, QVector<QPushButton*> &buttons,
                         std::function<void()> (&methods)[3], double dpiRatio)->QWidget*;
 }
 
