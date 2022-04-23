@@ -92,6 +92,7 @@ CMainPanel::CMainPanel(QWidget *parent, bool isCustomWindow, double dpi_ratio)
     : QWidget(parent),
       CScalingWrapper(dpi_ratio)
       , m_isCustomWindow(isCustomWindow)
+      , m_pTopButtons(3, nullptr)
       , m_printData(new printdata)
       , m_mainWindowState(Qt::WindowNoState)
       , m_inFiles(NULL)
@@ -144,32 +145,12 @@ CMainPanel::CMainPanel(QWidget *parent, bool isCustomWindow, double dpi_ratio)
     QObject::connect(m_pButtonMain, SIGNAL(clicked()), this, SLOT(pushButtonMainClicked()));
 
     if (isCustomWindow) {
-//        palette.setColor(QPalette::Background, AscAppManager::themes().color(CThemes::ColorRole::ecrWindowBackground));
-
-        auto _creatToolButton = [](const QString& name, QWidget * parent) {
-            QPushButton * btn = new QPushButton(parent);
-            btn->setObjectName(name);
-            btn->setProperty("class", "normal");
-            btn->setProperty("act", "tool");
-
-            return btn;
-        };
-
-        // Minimize
-        m_pButtonMinimize = _creatToolButton("toolButtonMinimize", m_boxTitleBtns);
-        QObject::connect(m_pButtonMinimize, &QPushButton::clicked, this, &CMainPanel::pushButtonMinimizeClicked);
-
-        // Maximize
-        m_pButtonMaximize = _creatToolButton("toolButtonMaximize", m_boxTitleBtns);
-        QObject::connect(m_pButtonMaximize, &QPushButton::clicked, this, &CMainPanel::pushButtonMaximizeClicked);
-
-        // Close
-        m_pButtonClose = _creatToolButton("toolButtonClose", m_boxTitleBtns);
-        QObject::connect(m_pButtonClose, &QPushButton::clicked, this, &CMainPanel::pushButtonCloseClicked);
-
-        layoutBtns->addWidget(m_pButtonMinimize);
-        layoutBtns->addWidget(m_pButtonMaximize);
-        layoutBtns->addWidget(m_pButtonClose);
+        std::function<void(void)> btn_methods[3] = {[=]{pushButtonMinimizeClicked();},
+                                                    [=]{pushButtonMaximizeClicked();},
+                                                    [=]{pushButtonCloseClicked();}};
+        WindowHelper::createTopButtons(m_boxTitleBtns, m_pTopButtons, btn_methods, 1);
+        foreach (auto btn, m_pTopButtons)
+            layoutBtns->addWidget(btn);
 
 #ifdef __linux__
         m_pMainGridLayout->setMargin( CX11Decoration::customWindowBorderWith() * dpi_ratio );
@@ -243,10 +224,8 @@ void CMainPanel::setMouseTracking(bool enable)
     m_pTabs->setMouseTracking(enable);
     m_pTabs->tabBar()->setMouseTracking(enable);
     m_pButtonMain->setMouseTracking(enable);
-    m_pButtonClose->setMouseTracking(enable);
-    m_pButtonMinimize->setMouseTracking(enable);
-    m_pButtonMaximize->setMouseTracking(enable);
-
+    foreach (auto btn, m_pTopButtons)
+        btn->setMouseTracking(enable);
     if ( m_pMainWidget )
         m_pMainWidget->setMouseTracking(enable);
 }
@@ -286,8 +265,8 @@ void CMainPanel::applyMainWindowState(Qt::WindowState s)
         layout()->setMargin(s == Qt::WindowMaximized ? 0 : CX11Decoration::customWindowBorderWith() * scaling());
 #endif
 
-        m_pButtonMaximize->setProperty("class", s == Qt::WindowMaximized ? "min" : "normal") ;
-        m_pButtonMaximize->style()->polish(m_pButtonMaximize);
+        m_pTopButtons[WindowHelper::Btn_Maximize]->setProperty("class", s == Qt::WindowMaximized ? "min" : "normal") ;
+        m_pTopButtons[WindowHelper::Btn_Maximize]->style()->polish(m_pTopButtons[WindowHelper::Btn_Maximize]);
     }
 }
 
@@ -1193,10 +1172,9 @@ void CMainPanel::applyTheme(const std::wstring& theme)
     m_boxTitleBtns->style()->polish(m_boxTitleBtns);
     m_pTabBarWrapper->style()->polish(m_pTabBarWrapper);
     m_pButtonMain->style()->polish(m_pButtonMain);
-    if ( m_pButtonMinimize ) {
-        m_pButtonMinimize->style()->polish(m_pButtonMinimize);
-        m_pButtonMaximize->style()->polish(m_pButtonMaximize);
-        m_pButtonClose->style()->polish(m_pButtonClose);
+    if ( m_pTopButtons[WindowHelper::Btn_Minimize] ) {
+        foreach (auto btn, m_pTopButtons)
+            btn->style()->polish(btn);
     }
 
     m_pTabs->applyUITheme(theme);
@@ -1230,9 +1208,8 @@ void CMainPanel::updateScaling(double dpiratio)
         layoutBtns->setContentsMargins(0,0,0,0);
 
         QSize small_btn_size(int(40*dpiratio), int(TOOLBTN_HEIGHT*dpiratio));
-        m_pButtonMinimize->setFixedSize(small_btn_size);
-        m_pButtonMaximize->setFixedSize(small_btn_size);
-        m_pButtonClose->setFixedSize(small_btn_size);
+        foreach (auto btn, m_pTopButtons)
+            btn->setFixedSize(small_btn_size);
     }
 
     //m_pButtonMain->setGeometry(0, 0, int(BUTTON_MAIN_WIDTH * dpiratio), int(TITLE_HEIGHT * dpiratio));

@@ -91,9 +91,6 @@ public:
     virtual ~CWindowBase();
 
 protected:
-    QPushButton * createToolButton(QWidget * parent = nullptr,
-                                   const QString& name = QString("")); // temp (only reporter, single)
-    void initTopButtons(QWidget *parent); // temp (only reporter, single)
     bool isCustomWindowStyle();
     virtual void applyWindowState(Qt::WindowState);
     virtual void setWindowTitle(const QString&);
@@ -108,9 +105,7 @@ protected:
     CMainPanelImpl *_m_pMainPanel; // temp
     QWidget * m_pMainPanel;
     QWidget * m_pMainView;
-    QPushButton * m_buttonMinimize;
-    QPushButton * m_buttonMaximize;
-    QPushButton * m_buttonClose;
+    QVector<QPushButton*> m_pTopButtons;
     CElipsisLabel * m_labelTitle;
     double m_dpiRatio;
 

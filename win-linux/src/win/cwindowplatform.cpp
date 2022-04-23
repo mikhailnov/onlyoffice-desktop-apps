@@ -296,9 +296,8 @@ void CWindowPlatform::setScreenScalingFactor(double factor)
         if (m_dpiRatio != factor) {
             if (isCustomWindowStyle()) {
                 QSize small_btn_size(int(TOOLBTN_WIDTH * factor), int(TOOLBTN_HEIGHT*factor));
-                m_buttonMinimize->setFixedSize(small_btn_size);
-                m_buttonMaximize->setFixedSize(small_btn_size);
-                m_buttonClose->setFixedSize(small_btn_size);
+                foreach (auto btn, m_pTopButtons)
+                    btn->setFixedSize(small_btn_size);
                 m_boxTitleBtns->setFixedHeight(int(TOOLBTN_HEIGHT * factor));
                 m_boxTitleBtns->layout()->setSpacing(int(1 * factor));
             }
@@ -317,9 +316,8 @@ void CWindowPlatform::setScreenScalingFactor(double factor)
             m_dpiRatio = factor;
             m_pMainPanel->setStyleSheet(css);
             QSize small_btn_size(40*m_dpiRatio, TOOLBTN_HEIGHT*m_dpiRatio);
-            m_buttonMinimize->setFixedSize(small_btn_size);
-            m_buttonMaximize->setFixedSize(small_btn_size);
-            m_buttonClose->setFixedSize(small_btn_size);
+            foreach (auto btn, m_pTopButtons)
+                btn->setFixedSize(small_btn_size);
             m_boxTitleBtns->setFixedHeight(TOOLBTN_HEIGHT*m_dpiRatio);
             QLayout * layoutBtns = m_boxTitleBtns->layout();
             layoutBtns->setSpacing(1*m_dpiRatio);

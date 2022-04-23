@@ -257,7 +257,10 @@ QWidget * CEditorWindow::createTopPanel(QWidget * parent, const QString& title)
         layoutBtns->addWidget(m_labelTitle, 0);
         layoutBtns->addStretch();
 
-        initTopButtons(m_boxTitleBtns);
+        std::function<void(void)> btn_methods[3] = {[=]{onMinimizeEvent();},
+                                                    [=]{onMaximizeEvent();},
+                                                    [=]{onCloseEvent();}};
+        WindowHelper::createTopButtons(m_boxTitleBtns, m_pTopButtons, btn_methods, m_dpiRatio);
     }
 
     return nullptr;
@@ -309,12 +312,10 @@ QWidget * CEditorWindow::createMainPanel(QWidget * parent, const QString& title,
             m_boxTitleBtns->layout()->addWidget(d_ptr.get()->iconUser());
         }
 
-        m_boxTitleBtns->layout()->addWidget(m_buttonMinimize);
-        m_boxTitleBtns->layout()->addWidget(m_buttonMaximize);
-        m_boxTitleBtns->layout()->addWidget(m_buttonClose);
+        foreach (auto btn, m_pTopButtons)
+            m_boxTitleBtns->layout()->addWidget(btn);
 
         d_ptr->customizeTitleLabel();
-
 //        m_boxTitleBtns->setFixedSize(282*m_dpiRatio, TOOLBTN_HEIGHT*m_dpiRatio);
 
 //        QWidget * _lb = new QWidget;
@@ -430,14 +431,12 @@ bool CEditorWindow::event(QEvent * event)
     } else
     if (event->type() == QEvent::MouseButtonPress) {
         _flg_left_button = static_cast<QMouseEvent *>(event)->buttons().testFlag(Qt::LeftButton);
-        return true;
     } else
     if (event->type() == QEvent::MouseButtonRelease) {
         if ( _flg_left_button && _flg_motion ) {
             onExitSizeMove();
         }
         _flg_left_button = _flg_motion = false;
-        return true;
     } else
     if (event->type() == QEvent::Move) {
         if (!_flg_motion)
@@ -461,7 +460,7 @@ void CEditorWindow::updateTitleCaption()
 
 int CEditorWindow::calcTitleCaptionWidth()
 {
-    int base_width = (isCustomWindowStyle()) ? m_boxTitleBtns->width() - (m_buttonMaximize->width() * 3) : 0;
+    int base_width = (isCustomWindowStyle()) ? m_boxTitleBtns->width() - (m_pTopButtons[WindowHelper::Btn_Maximize]->width() * 3) : 0;
     return d_ptr->calcTitleLabelWidth(base_width);
 }
 

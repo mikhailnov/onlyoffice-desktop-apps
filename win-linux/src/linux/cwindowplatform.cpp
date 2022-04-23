@@ -274,9 +274,9 @@ void CWindowPlatform::applyTheme(const std::wstring& theme)
         m_pMainPanel->setProperty("uitheme", QString::fromStdWString(theme));
         if ( m_boxTitleBtns ) {
             m_labelTitle->style()->polish(m_labelTitle);
-            m_buttonMinimize->style()->polish(m_buttonMinimize);
-            m_buttonMaximize->style()->polish(m_buttonMaximize);
-            m_buttonClose->style()->polish(m_buttonClose);
+            m_pTopButtons[WindowHelper::Btn_Minimize]->style()->polish(m_pTopButtons[WindowHelper::Btn_Minimize]);
+            m_pTopButtons[WindowHelper::Btn_Maximize]->style()->polish(m_pTopButtons[WindowHelper::Btn_Maximize]);
+            m_pTopButtons[WindowHelper::Btn_Close]->style()->polish(m_pTopButtons[WindowHelper::Btn_Close]);
             m_boxTitleBtns->style()->polish(m_boxTitleBtns);
         }
         m_pMainPanel->style()->polish(m_pMainPanel);
@@ -402,8 +402,8 @@ void CWindowPlatform::onSizeEvent(int type)
 {
     //CWindowBase::onSizeEvent(type);
     if ( type == Qt::WindowMinimized ) {
-//        m_buttonMaximize->setProperty("class", s == Qt::WindowMaximized ? "min" : "normal") ;
-//        m_buttonMaximize->style()->polish(m_buttonMaximize);
+//        m_pTopButtons[WindowHelper::Btn_Maximize]->setProperty("class", s == Qt::WindowMaximized ? "min" : "normal") ;
+//        m_pTopButtons[WindowHelper::Btn_Maximize]->style()->polish(m_pTopButtons[WindowHelper::Btn_Maximize]);
     }
 }
 
@@ -539,7 +539,7 @@ void CWindowPlatform::mouseDoubleClickEvent(QMouseEvent *)
             onMaximizeEvent();
     } else {
         if (m_boxTitleBtns->underMouse())
-            m_buttonMaximize->click();
+            m_pTopButtons[WindowHelper::Btn_Maximize]->click();
     }
 }
 

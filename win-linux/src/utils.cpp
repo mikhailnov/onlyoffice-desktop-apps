@@ -741,4 +741,29 @@ namespace WindowHelper {
 
         return _parent;
     }
+
+    auto createToolButton(QWidget * parent, const QString& name, double dpiRatio)->QPushButton*
+    {
+        QPushButton * btn = new QPushButton(parent);
+        btn->setObjectName(name);
+        btn->setProperty("class", "normal");
+        btn->setProperty("act", "tool");
+        btn->setFixedSize(int(TOOLBTN_WIDTH*dpiRatio), int(TOOLBTN_HEIGHT*dpiRatio));
+    #ifdef __linux__
+        btn->setMouseTracking(true);
+    #endif
+        return btn;
+    }
+
+    auto createTopButtons(QWidget *parent, QVector<QPushButton*> &buttons,
+                          std::function<void()> (&methods)[3], double dpiRatio)->void
+    {
+        const QString names[3] = {"toolButtonMinimize", "toolButtonMaximize", "toolButtonClose"};
+        buttons.clear();
+        for (int i = 0; i < 3; i++) {
+            QPushButton *btn = createToolButton(parent, names[i], dpiRatio);
+            QObject::connect(btn, &QPushButton::clicked, methods[i]);
+            buttons.push_back(btn);
+        }
+    }
 }

@@ -71,9 +71,8 @@ void CPresenterWindow::applyTheme(const std::wstring& theme)
     CWindowPlatform::applyTheme(theme);
     m_pMainPanel->setProperty("uitheme", QString::fromStdWString(theme));
     m_labelTitle->style()->polish(m_labelTitle);
-    m_buttonMinimize->style()->polish(m_buttonMinimize);
-    m_buttonMaximize->style()->polish(m_buttonMaximize);
-    m_buttonClose->style()->polish(m_buttonClose);
+    foreach (auto btn, m_pTopButtons)
+        btn->style()->polish(btn);
     m_boxTitleBtns->style()->polish(m_boxTitleBtns);
     m_pMainPanel->style()->polish(m_pMainPanel);
     update();
@@ -121,10 +120,12 @@ QWidget * CPresenterWindow::createMainPanel(QWidget * parent, const QString& tit
     layoutBtns->addWidget(m_labelTitle);
 
     if (custom) {
-        initTopButtons(m_boxTitleBtns);
-        layoutBtns->addWidget(m_buttonMinimize);
-        layoutBtns->addWidget(m_buttonMaximize);
-        layoutBtns->addWidget(m_buttonClose);
+        std::function<void(void)> methods[3] = {[=]{onMinimizeEvent();},
+                                                [=]{onMaximizeEvent();},
+                                                [=]{onCloseEvent();}};
+        WindowHelper::createTopButtons(m_boxTitleBtns, m_pTopButtons, methods, m_dpiRatio);
+        foreach (auto btn, m_pTopButtons)
+            layoutBtns->addWidget(btn);
 #ifdef __linux__
         m_labelTitle->setMouseTracking(true);
         mainGridLayout->setMargin(CX11Decoration::customWindowBorderWith() * m_dpiRatio);
@@ -166,8 +167,8 @@ QWidget * CPresenterWindow::createMainPanel(QWidget * parent, const QString& tit
 
 void CPresenterWindow::onMaximizeEvent()
 {
-    m_buttonMaximize->setProperty("class", isMaximized() ? "min" : "normal");
-    m_buttonMaximize->style()->polish(m_buttonMaximize);
+    m_pTopButtons[WindowHelper::Btn_Maximize]->setProperty("class", isMaximized() ? "min" : "normal");
+    m_pTopButtons[WindowHelper::Btn_Maximize]->style()->polish(m_pTopButtons[WindowHelper::Btn_Maximize]);
     CWindowBase::onMaximizeEvent();
 }
 

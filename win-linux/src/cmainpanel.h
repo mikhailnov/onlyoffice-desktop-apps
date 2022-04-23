@@ -158,9 +158,7 @@ private:
     QWidget*        m_pMainWidget = nullptr;
     QGridLayout*    m_pMainGridLayout;
 
-    QPushButton*    m_pButtonMinimize = nullptr;
-    QPushButton*    m_pButtonMaximize = nullptr;
-    QPushButton*    m_pButtonClose = nullptr;
+    QVector<QPushButton*> m_pTopButtons;
     QPushButton*    m_pButtonProfile;
 
     QHBoxLayout *   m_layoutBtns;

@@ -122,9 +122,7 @@ CWindowBase::CWindowBase()
     , m_boxTitleBtns(nullptr)
     , m_pMainPanel(nullptr)
     , m_pMainView(nullptr)
-    , m_buttonMinimize(nullptr)
-    , m_buttonMaximize(nullptr)
-    , m_buttonClose(nullptr)
+    , m_pTopButtons(3, nullptr)
     , m_labelTitle(nullptr)
     , pimpl{new CWindowBasePrivate}
 {
@@ -152,32 +150,6 @@ CWindowBase::~CWindowBase()
 
 /** Protected **/
 
-QPushButton * CWindowBase::createToolButton(QWidget * parent, const QString& name)
-{
-    QPushButton * btn = new QPushButton(parent);
-    btn->setObjectName(name);
-    btn->setProperty("class", "normal");
-    btn->setProperty("act", "tool");
-    btn->setFixedSize(int(TOOLBTN_WIDTH*m_dpiRatio), int(TOOLBTN_HEIGHT*m_dpiRatio));
-#ifdef __linux__
-    btn->setMouseTracking(true);
-#endif
-    return btn;
-}
-
-void CWindowBase::initTopButtons(QWidget *parent)
-{
-    // Minimize
-    m_buttonMinimize = createToolButton(parent, "toolButtonMinimize");
-    QObject::connect(m_buttonMinimize, &QPushButton::clicked, [=]{onMinimizeEvent();});
-    // Maximize
-    m_buttonMaximize = createToolButton(parent, "toolButtonMaximize");
-    QObject::connect(m_buttonMaximize, &QPushButton::clicked, [=]{onMaximizeEvent();});
-    // Close
-    m_buttonClose = createToolButton(parent, "toolButtonClose");
-    QObject::connect(m_buttonClose, &QPushButton::clicked, [=]{onCloseEvent();});
-}
-
 bool CWindowBase::isCustomWindowStyle()
 {
     return pimpl->is_custom_window();
@@ -185,8 +157,8 @@ bool CWindowBase::isCustomWindowStyle()
 
 void CWindowBase::applyWindowState(Qt::WindowState s)
 {
-    m_buttonMaximize->setProperty("class", s == Qt::WindowMaximized ? "min" : "normal") ;
-    m_buttonMaximize->style()->polish(m_buttonMaximize);
+    m_pTopButtons[WindowHelper::Btn_Maximize]->setProperty("class", s == Qt::WindowMaximized ? "min" : "normal") ;
+    m_pTopButtons[WindowHelper::Btn_Maximize]->style()->polish(m_pTopButtons[WindowHelper::Btn_Maximize]);
 }
 
 void CWindowBase::setWindowTitle(const QString& title)
