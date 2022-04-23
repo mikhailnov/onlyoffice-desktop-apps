@@ -98,9 +98,9 @@ signals:
     void mainPageReady();
 
 public slots:
-    void pushButtonMinimizeClicked();
-    void pushButtonMaximizeClicked();
-    void pushButtonCloseClicked();
+    void onMinimizeEvent();
+    void onMaximizeEvent();
+    void onCloseEvent();
     void pushButtonMainClicked();
 
     void onTabClicked(int);

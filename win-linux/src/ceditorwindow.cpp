@@ -257,9 +257,8 @@ QWidget * CEditorWindow::createTopPanel(QWidget * parent, const QString& title)
         layoutBtns->addWidget(m_labelTitle, 0);
         layoutBtns->addStretch();
 
-        std::function<void(void)> btn_methods[3] = {[=]{onMinimizeEvent();},
-                                                    [=]{onMaximizeEvent();},
-                                                    [=]{onCloseEvent();}};
+        std::function<void(void)> btn_methods[3] = {
+            [=]{onMinimizeEvent();}, [=]{onMaximizeEvent();}, [=]{onCloseEvent();}};
         WindowHelper::createTopButtons(m_boxTitleBtns, m_pTopButtons, btn_methods, m_dpiRatio);
     }
 

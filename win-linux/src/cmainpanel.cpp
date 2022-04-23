@@ -145,9 +145,8 @@ CMainPanel::CMainPanel(QWidget *parent, bool isCustomWindow, double dpi_ratio)
     QObject::connect(m_pButtonMain, SIGNAL(clicked()), this, SLOT(pushButtonMainClicked()));
 
     if (isCustomWindow) {
-        std::function<void(void)> btn_methods[3] = {[=]{pushButtonMinimizeClicked();},
-                                                    [=]{pushButtonMaximizeClicked();},
-                                                    [=]{pushButtonCloseClicked();}};
+        std::function<void(void)> btn_methods[3] = {
+            [=]{onMinimizeEvent();}, [=]{onMaximizeEvent();}, [=]{onCloseEvent();}};
         WindowHelper::createTopButtons(m_boxTitleBtns, m_pTopButtons, btn_methods, 1);
         foreach (auto btn, m_pTopButtons)
             layoutBtns->addWidget(btn);
@@ -155,7 +154,7 @@ CMainPanel::CMainPanel(QWidget *parent, bool isCustomWindow, double dpi_ratio)
 #ifdef __linux__
         m_pMainGridLayout->setMargin( CX11Decoration::customWindowBorderWith() * dpi_ratio );
 
-        connect(m_boxTitleBtns, SIGNAL(mouseDoubleClicked()), this, SLOT(pushButtonMaximizeClicked()));
+        connect(m_boxTitleBtns, SIGNAL(mouseDoubleClicked()), this, SLOT(onMaximizeEvent()));
 #endif
     } else {
 //        m_pButtonMain->setProperty("theme", "light");
@@ -231,12 +230,12 @@ void CMainPanel::setMouseTracking(bool enable)
 }
 #endif
 
-void CMainPanel::pushButtonMinimizeClicked()
+void CMainPanel::onMinimizeEvent()
 {
     emit mainWindowChangeState(Qt::WindowMinimized);
 }
 
-void CMainPanel::pushButtonMaximizeClicked()
+void CMainPanel::onMaximizeEvent()
 {
     if (m_mainWindowState == Qt::WindowMaximized) {
         emit mainWindowChangeState(Qt::WindowNoState);
@@ -245,7 +244,7 @@ void CMainPanel::pushButtonMaximizeClicked()
     }
 }
 
-void CMainPanel::pushButtonCloseClicked()
+void CMainPanel::onCloseEvent()
 {
     emit mainWindowWantToClose();
 }
@@ -253,7 +252,7 @@ void CMainPanel::pushButtonCloseClicked()
 void CMainPanel::onAppCloseRequest()
 {
     onFullScreen(-1, false);
-    pushButtonCloseClicked();
+    onCloseEvent();
 }
 
 void CMainPanel::applyMainWindowState(Qt::WindowState s)

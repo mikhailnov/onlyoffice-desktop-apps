@@ -274,9 +274,8 @@ void CWindowPlatform::applyTheme(const std::wstring& theme)
         m_pMainPanel->setProperty("uitheme", QString::fromStdWString(theme));
         if ( m_boxTitleBtns ) {
             m_labelTitle->style()->polish(m_labelTitle);
-            m_pTopButtons[WindowHelper::Btn_Minimize]->style()->polish(m_pTopButtons[WindowHelper::Btn_Minimize]);
-            m_pTopButtons[WindowHelper::Btn_Maximize]->style()->polish(m_pTopButtons[WindowHelper::Btn_Maximize]);
-            m_pTopButtons[WindowHelper::Btn_Close]->style()->polish(m_pTopButtons[WindowHelper::Btn_Close]);
+            foreach (auto btn, m_pTopButtons)
+                btn->style()->polish(btn);
             m_boxTitleBtns->style()->polish(m_boxTitleBtns);
         }
         m_pMainPanel->style()->polish(m_pMainPanel);
@@ -437,7 +436,7 @@ void CWindowPlatform::onScreenScalingFactor(double factor)
 
 void CWindowPlatform::closeEvent(QCloseEvent * e)
 {
-    ((CMainPanel *)_m_pMainPanel)->pushButtonCloseClicked();
+    ((CMainPanel *)_m_pMainPanel)->onCloseEvent();
     e->ignore();
 }
 
