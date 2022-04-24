@@ -122,6 +122,7 @@ CMainPanel::CMainPanel(QWidget *parent, bool isCustomWindow, double dpi_ratio)
     m_boxTitleBtns->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     m_pMainGridLayout->addWidget(m_boxTitleBtns, 0, 2, 1, 1);
     QHBoxLayout * layoutBtns = new QHBoxLayout(m_boxTitleBtns);
+    m_boxTitleBtns->setLayout(layoutBtns);
     QSpacerItem *spacer = new QSpacerItem(5, 5, QSizePolicy::Expanding, QSizePolicy::Preferred);
     layoutBtns->addItem(spacer);
 #ifdef __DONT_WRITE_IN_APP_TITLE
@@ -160,8 +161,8 @@ CMainPanel::CMainPanel(QWidget *parent, bool isCustomWindow, double dpi_ratio)
 //        m_pButtonMain->setProperty("theme", "light");
 
         QLinearGradient gradient(this->rect().topLeft(), QPoint(this->rect().left(), 29));
-        gradient.setColorAt(0, QColor("#eee"));
-        gradient.setColorAt(1, QColor("#e4e4e4"));
+        gradient.setColorAt(0, QColor(0xeee));
+        gradient.setColorAt(1, QColor(0xe4e4e4));
 
         palette.setBrush(QPalette::Background, QBrush(gradient));
 

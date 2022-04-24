@@ -32,7 +32,6 @@
 
 #include "ceditorwindow.h"
 #include "utils.h"
-#include "cwindowbase.h"
 #include "defines.h"
 #include "cascapplicationmanagerwrapper.h"
 #include "cfiledialog.h"
@@ -60,7 +59,7 @@ CEditorWindow::CEditorWindow(const QRect& rect, CTabPanel* panel)
 {
     d_ptr.get()->init(panel);
 
-#ifdef Q_OS_LINUX
+#ifdef __linux__
     if ( !CX11Decoration::isDecorated() )
         applyTheme(AscAppManager::themes().current().id());
 
@@ -247,6 +246,7 @@ QWidget * CEditorWindow::createTopPanel(QWidget * parent, const QString& title)
         QHBoxLayout * layoutBtns = new QHBoxLayout(m_boxTitleBtns);
         layoutBtns->setContentsMargins(0,0,0,0);
         layoutBtns->setSpacing(1 * m_dpiRatio);
+        m_boxTitleBtns->setLayout(layoutBtns);
 
         m_labelTitle = new CElipsisLabel(title, m_boxTitleBtns);
         m_labelTitle->setObjectName("labelTitle");
