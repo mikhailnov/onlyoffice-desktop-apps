@@ -351,11 +351,11 @@ void CWindowPlatform::slot_modalDialog(bool status,  WId h)
 {
     Q_UNUSED(h)
     if (m_winType == WindowType::MAIN) {
-        static WindowHelper::CParentDisable * const _disabler = new WindowHelper::CParentDisable;
+        //static WindowHelper::CParentDisable * const _disabler = new WindowHelper::CParentDisable;
+        std::unique_ptr<WindowHelper::CParentDisable> _disabler(new WindowHelper::CParentDisable);
         if ( status ) {
             _disabler->disable(this);
         } else _disabler->enable();
-        delete _disabler;
     }/* else
     if (m_winType == WindowType::SINGLE) {
         status ? pimpl->lockParentUI() : pimpl->unlockParentUI();
