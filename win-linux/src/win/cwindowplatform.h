@@ -65,14 +65,14 @@ public:
     virtual void applyTheme(const std::wstring&);
 
 protected:
-    void setMinimumSize(const int, const int);
-    void setMaximumSize(const int, const int);
-    void slot_modalDialog(bool,  WId);
-    virtual void setScreenScalingFactor(double f);
-
     void captureMouse();
     void captureMouse(int);
-    //virtual void onExitSizeMove();
+    void setMinimumSize(const int, const int);
+    void setMaximumSize(const int, const int);
+    virtual void setScreenScalingFactor(double);
+
+protected slots:
+    void slot_modalDialog(bool,  WId);
 
 private:
     friend auto refresh_window_scaling_factor(CWindowPlatform * window)->void;

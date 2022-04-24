@@ -31,12 +31,12 @@
 */
 
 #include "cwindowbase.h"
-//#include "cascapplicationmanagerwrapper.h"
 #include "utils.h"
 #include "ccefeventsgate.h"
-//#include "defines.h"
 #include "clangater.h"
-//#include <QLayout>
+#ifdef __linux__
+# include "defines.h"
+#endif
 #include <QVariant>
 #include <QSettings>
 

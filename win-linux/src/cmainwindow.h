@@ -72,13 +72,17 @@ private:
     static void updateNotFound();
     static void updateError();
 #endif    
-    void setWindowState(Qt::WindowState);
-    void slot_mainPageReady();
-    virtual void onCloseEvent() final;
     virtual void applyWindowState(Qt::WindowState) final;
-#if defined (_WIN32)
+#ifdef _WIN32
     virtual void focus() final;
 #endif
+
+private slots:
+#ifdef _WIN32
+    void slot_mainPageReady();
+#endif
+    void setWindowState(Qt::WindowState);
+    virtual void onCloseEvent() final;
 };
 
 #endif // CMAINWINDOW_H

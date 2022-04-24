@@ -774,7 +774,7 @@ namespace WindowHelper {
     {
         QWidget *_boxTitleBtns;
 #ifdef __linux__
-        _boxTitleBtns = new CX11Caption(this);
+        _boxTitleBtns = new CX11Caption(parent);
 #else
         _boxTitleBtns = static_cast<QWidget*>(new Caption(parent));
 #endif

@@ -56,7 +56,20 @@ using namespace std::placeholders;
 CPresenterWindow::CPresenterWindow(const QRect &rect, const QString &title, QCefView *view) :
     CWindowPlatform(rect, WindowType::REPORTER)
 {    
-    m_pMainPanel = createMainPanel(centralWidget(), title, true, static_cast<QWidget*>(view));
+    bool isDecorated = true;
+#ifdef __linux__
+    isDecorated = !CX11Decoration::isDecorated();
+#endif
+    m_pMainPanel = createMainPanel(this, title, isDecorated, static_cast<QWidget*>(view));
+    setCentralWidget(m_pMainPanel);
+#ifdef __linux__
+    if ( !CX11Decoration::isDecorated() ) {
+        CX11Decoration::setTitleWidget(m_boxTitleBtns);
+        m_pMainPanel->setMouseTracking(true);
+        setMouseTracking(true);
+    }
+    updateGeometry();
+#endif
 }
 
 CPresenterWindow::~CPresenterWindow()
@@ -70,10 +83,12 @@ void CPresenterWindow::applyTheme(const std::wstring& theme)
 {
     CWindowPlatform::applyTheme(theme);
     m_pMainPanel->setProperty("uitheme", QString::fromStdWString(theme));
-    m_labelTitle->style()->polish(m_labelTitle);
-    foreach (auto btn, m_pTopButtons)
-        btn->style()->polish(btn);
-    m_boxTitleBtns->style()->polish(m_boxTitleBtns);
+    if (m_boxTitleBtns) {
+        m_labelTitle->style()->polish(m_labelTitle);
+        foreach (auto btn, m_pTopButtons)
+            btn->style()->polish(btn);
+        m_boxTitleBtns->style()->polish(m_boxTitleBtns);
+    }
     m_pMainPanel->style()->polish(m_pMainPanel);
     update();
 }
@@ -88,9 +103,6 @@ bool CPresenterWindow::holdView(int id) const
 QWidget * CPresenterWindow::createMainPanel(QWidget * parent, const QString& title, bool custom, QWidget * view)
 {
     QWidget * mainPanel = new QWidget(parent);
-#ifndef __linux__
-    parent->layout()->addWidget(mainPanel);
-#endif
     mainPanel->setObjectName("mainPanel");
     mainPanel->setProperty("uitheme", QString::fromStdWString(AscAppManager::themes().current().id()));
     mainPanel->setStyleSheet(AscAppManager::getWindowStylesheets(m_dpiRatio));
@@ -141,8 +153,8 @@ QWidget * CPresenterWindow::createMainPanel(QWidget * parent, const QString& tit
 #endif
     } else {
         QLinearGradient gradient(mainPanel->rect().topLeft(), QPoint(mainPanel->rect().left(), 29));
-        gradient.setColorAt(0, QColor("#eee"));
-        gradient.setColorAt(1, QColor("#e4e4e4"));
+        gradient.setColorAt(0, QColor(0xeee));
+        gradient.setColorAt(1, QColor(0xe4e4e4));
         m_labelTitle->setFixedHeight(0);
         m_boxTitleBtns->setFixedHeight(16*m_dpiRatio);
     }
@@ -174,6 +186,7 @@ void CPresenterWindow::onMaximizeEvent()
 void CPresenterWindow::onCloseEvent() // Reporter mode
 {
     if (m_pMainView) {
+        m_pMainView->setObjectName("destroyed");
         AscAppManager::getInstance().DestroyCefView(((QCefView *)m_pMainView)->GetCefView()->GetId() );
     }
 }

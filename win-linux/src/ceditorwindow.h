@@ -67,7 +67,7 @@ public:
     virtual void applyTheme(const std::wstring&) final;
 
 private:
-    CEditorWindow(const QRect&, const QString&, QWidget *);
+    //CEditorWindow(const QRect&, const QString&, QWidget *);
 
     QWidget * createTopPanel(QWidget *, const QString&);
     QWidget * createMainPanel(QWidget *, const QString&, bool custom = true,

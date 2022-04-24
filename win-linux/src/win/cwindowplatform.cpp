@@ -122,16 +122,6 @@ CWindowPlatform::CWindowPlatform(const QRect &rect, const WindowType winType) :
     setWindowFlags(windowFlags() | Qt::Window | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint);
     m_hWnd = (HWND)winId();
     setResizeable(m_isResizeable);
-
-    QWidget *_pCentralWidget = new QWidget(this);
-    setCentralWidget(_pCentralWidget);
-    _pCentralWidget->setStyleSheet("background-color: transparent");
-
-    QGridLayout *_pCentralLayout = new QGridLayout(_pCentralWidget);
-    _pCentralLayout->setSpacing(0);
-    _pCentralLayout->setContentsMargins(0,0,0,0);
-    _pCentralWidget->setLayout(_pCentralLayout);
-
     m_window_rect = rect;
     if (m_winType == WindowType::MAIN) {
         m_dpiRatio = CSplash::startupDpiRatio();
@@ -248,6 +238,45 @@ void CWindowPlatform::updateScaling()
 
 /** Protected **/
 
+void CWindowPlatform::captureMouse()
+{
+    if (m_winType != WindowType::SINGLE) return;
+    POINT cursor{0,0};
+    if (GetCursorPos(&cursor)) {
+        QRect _g{geometry()};
+        int _window_offset_x;
+        if (cursor.x - _g.x() < dpiCorrectValue(CAPTURED_WINDOW_CURSOR_OFFSET_X)) _window_offset_x = dpiCorrectValue(CAPTURED_WINDOW_CURSOR_OFFSET_X);
+        else if ( cursor.x > _g.right() - dpiCorrectValue(150) ) _window_offset_x = _g.right() - dpiCorrectValue(150);
+        else _window_offset_x = cursor.x - _g.x();
+        move(cursor.x - _window_offset_x, cursor.y - dpiCorrectValue(CAPTURED_WINDOW_CURSOR_OFFSET_Y));
+        ReleaseCapture();
+        PostMessage(m_hWnd, WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(cursor.x, cursor.y));
+    }
+}
+
+void CWindowPlatform::captureMouse(int tabindex)
+{
+    if (m_winType != WindowType::MAIN) return;
+    ReleaseCapture();
+    if (tabindex >= 0 && tabindex < _m_pMainPanel->tabWidget()->count()) {
+        QPoint spt = _m_pMainPanel->tabWidget()->tabBar()->tabRect(tabindex).topLeft() + QPoint(30, 10);
+        QPoint gpt = _m_pMainPanel->tabWidget()->tabBar()->mapToGlobal(spt);
+#if (QT_VERSION < QT_VERSION_CHECK(5, 10, 0))
+        gpt = m_pWinPanel->mapToGlobal(gpt);
+#endif
+        SetCursorPos(gpt.x(), gpt.y());
+        QWidget * _widget = _m_pMainPanel->tabWidget()->tabBar();
+        QTimer::singleShot(0,[_widget,spt] {
+            INPUT _input{INPUT_MOUSE};
+            _input.mi.dwFlags = MOUSEEVENTF_ABSOLUTE|MOUSEEVENTF_LEFTDOWN;
+            SendInput(1, &_input, sizeof(INPUT));
+            QMouseEvent event(QEvent::MouseButtonPress, spt, Qt::LeftButton, Qt::MouseButton::NoButton, Qt::NoModifier);
+            QCoreApplication::sendEvent(_widget, &event);
+            _widget->grabMouse();
+        });
+    }
+}
+
 void CWindowPlatform::setMinimumSize( const int width, const int height )
 {
     m_minSize.required = true;
@@ -260,21 +289,6 @@ void CWindowPlatform::setMaximumSize( const int width, const int height )
     m_maxSize.required = true;
     m_maxSize.width = width;
     m_maxSize.height = height;
-}
-
-void CWindowPlatform::slot_modalDialog(bool status,  WId h)
-{
-    Q_UNUSED(h)
-    if (m_winType == WindowType::MAIN) {
-        static WindowHelper::CParentDisable * const _disabler = new WindowHelper::CParentDisable;
-        if ( status ) {
-            _disabler->disable(this);
-        } else _disabler->enable();
-        delete _disabler;
-    }/* else
-    if (m_winType == WindowType::SINGLE) {
-        status ? pimpl->lockParentUI() : pimpl->unlockParentUI();
-    }*/
 }
 
 void CWindowPlatform::setScreenScalingFactor(double factor)
@@ -333,43 +347,19 @@ void CWindowPlatform::setScreenScalingFactor(double factor)
     }
 }
 
-void CWindowPlatform::captureMouse()
+void CWindowPlatform::slot_modalDialog(bool status,  WId h)
 {
-    if (m_winType != WindowType::SINGLE) return;
-    POINT cursor{0,0};
-    if (GetCursorPos(&cursor)) {
-        QRect _g{geometry()};
-        int _window_offset_x;
-        if (cursor.x - _g.x() < dpiCorrectValue(CAPTURED_WINDOW_CURSOR_OFFSET_X)) _window_offset_x = dpiCorrectValue(CAPTURED_WINDOW_CURSOR_OFFSET_X);
-        else if ( cursor.x > _g.right() - dpiCorrectValue(150) ) _window_offset_x = _g.right() - dpiCorrectValue(150);
-        else _window_offset_x = cursor.x - _g.x();
-        move(cursor.x - _window_offset_x, cursor.y - dpiCorrectValue(CAPTURED_WINDOW_CURSOR_OFFSET_Y));
-        ReleaseCapture();
-        PostMessage(m_hWnd, WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(cursor.x, cursor.y));
-    }
-}
-
-void CWindowPlatform::captureMouse(int tabindex)
-{
-    if (m_winType != WindowType::MAIN) return;
-    ReleaseCapture();
-    if (tabindex >= 0 && tabindex < _m_pMainPanel->tabWidget()->count()) {
-        QPoint spt = _m_pMainPanel->tabWidget()->tabBar()->tabRect(tabindex).topLeft() + QPoint(30, 10);
-        QPoint gpt = _m_pMainPanel->tabWidget()->tabBar()->mapToGlobal(spt);
-#if (QT_VERSION < QT_VERSION_CHECK(5, 10, 0))
-        gpt = m_pWinPanel->mapToGlobal(gpt);
-#endif
-        SetCursorPos(gpt.x(), gpt.y());
-        QWidget * _widget = _m_pMainPanel->tabWidget()->tabBar();
-        QTimer::singleShot(0,[_widget,spt] {
-            INPUT _input{INPUT_MOUSE};
-            _input.mi.dwFlags = MOUSEEVENTF_ABSOLUTE|MOUSEEVENTF_LEFTDOWN;
-            SendInput(1, &_input, sizeof(INPUT));
-            QMouseEvent event(QEvent::MouseButtonPress, spt, Qt::LeftButton, Qt::MouseButton::NoButton, Qt::NoModifier);
-            QCoreApplication::sendEvent(_widget, &event);
-            _widget->grabMouse();
-        });
-    }
+    Q_UNUSED(h)
+    if (m_winType == WindowType::MAIN) {
+        static WindowHelper::CParentDisable * const _disabler = new WindowHelper::CParentDisable;
+        if ( status ) {
+            _disabler->disable(this);
+        } else _disabler->enable();
+        delete _disabler;
+    }/* else
+    if (m_winType == WindowType::SINGLE) {
+        status ? pimpl->lockParentUI() : pimpl->unlockParentUI();
+    }*/
 }
 
 /*void CWindowPlatform::onExitSizeMove()

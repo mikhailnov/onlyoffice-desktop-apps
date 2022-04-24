@@ -73,12 +73,13 @@ CEditorWindow::CEditorWindow(const QRect& rect, CTabPanel* panel)
         m_pMainPanel->setMouseTracking(true);
         setMouseTracking(true);
     }
+    connect(&AscAppManager::getInstance().commonEvents(), &CEventDriver::onModalDialog, this, &CEditorWindow::slot_modalDialog);
 #else
 
     applyTheme(AscAppManager::themes().current().id());
 
-    m_pMainPanel = createMainPanel(centralWidget(), d_ptr->panel()->data()->title());
-    centralWidget()->layout()->addWidget(m_pMainPanel);
+    m_pMainPanel = createMainPanel(this, d_ptr->panel()->data()->title());
+    setCentralWidget(m_pMainPanel);
 
     recalculatePlaces();
 #endif
@@ -93,11 +94,11 @@ CEditorWindow::CEditorWindow(const QRect& rect, CTabPanel* panel)
     }
 }
 
-CEditorWindow::CEditorWindow(const QRect& r, const QString& s, QWidget * w)
+/*CEditorWindow::CEditorWindow(const QRect& r, const QString& s, QWidget * w)
     : CWindowPlatform(r, WindowType::SINGLE)
 {
 
-}
+}*/
 
 CEditorWindow::~CEditorWindow()
 {
@@ -392,8 +393,8 @@ void CEditorWindow::recalculatePlaces()
 #ifdef Q_OS_WIN
     //m_boxTitleBtns->setGeometry(nCaptionL, 0, windowW - nCaptionL, captionH);
 #else
-    int cbw = CX11Decoration::customWindowBorderWith()*m_dpiRatio;
-    m_boxTitleBtns->setGeometry(cbw, cbw, windowW - cbw * 2, captionH);
+    //int cbw = CX11Decoration::customWindowBorderWith()*m_dpiRatio;
+    //m_boxTitleBtns->setGeometry(cbw, cbw, windowW - cbw * 2, captionH);
 #endif
 //    m_boxTitleBtns->move(windowW - m_boxTitleBtns->width() + cbw, cbw);
 //    m_pMainView->setGeometry(0, captionH, windowW, windowH - captionH);
@@ -494,6 +495,7 @@ void CEditorWindow::onMaximizeEvent()
 
 void CEditorWindow::onSizeEvent(int type)
 {
+    Q_UNUSED(type)
     updateTitleCaption();
     recalculatePlaces();
 }
@@ -512,7 +514,6 @@ void CEditorWindow::onMoveEvent(const QRect&)
 
 void CEditorWindow::onExitSizeMove()
 {
-    //CWindowPlatform::onExitSizeMove();
     double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
     if ( dpi_ratio != m_dpiRatio )
         setScreenScalingFactor(dpi_ratio);

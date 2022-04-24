@@ -59,17 +59,29 @@ using namespace std::placeholders;
 CMainWindow::CMainWindow(const QRect &rect) :
     CWindowPlatform(rect, WindowType::MAIN)
 {
-    _m_pMainPanel = new CMainPanelImpl(centralWidget(), true, m_dpiRatio);
-    centralWidget()->layout()->addWidget(_m_pMainPanel);
+    bool isDecorated = true;
+#ifdef __linux__
+    isDecorated = !CX11Decoration::isDecorated();
+#endif
+    _m_pMainPanel = new CMainPanelImpl(this, isDecorated, m_dpiRatio);
+    setCentralWidget(_m_pMainPanel);
+    CMainPanel * mainpanel = static_cast<CMainPanel*>(_m_pMainPanel);
+#ifdef __linux__
+    if (!CX11Decoration::isDecorated()) {
+        CX11Decoration::setTitleWidget((_m_pMainPanel)->getTitleWidget());
+        (_m_pMainPanel)->setMouseTracking(true);
+        setMouseTracking(true);
+    }
+    QMetaObject::connectSlotsByName(this);
+#else
+    QObject::connect(mainpanel, &CMainPanel::mainPageReady, this, &CMainWindow::slot_mainPageReady);
+#endif
+    QObject::connect(mainpanel, &CMainPanel::mainWindowChangeState, this, &CMainWindow::setWindowState);
+    QObject::connect(mainpanel, &CMainPanel::mainWindowWantToClose, this, &CMainWindow::onCloseEvent);
+    QObject::connect(&AscAppManager::getInstance().commonEvents(), &CEventDriver::onModalDialog, this, &CMainWindow::slot_modalDialog);
     _m_pMainPanel->setStyleSheet(AscAppManager::getWindowStylesheets(m_dpiRatio));
     _m_pMainPanel->updateScaling(m_dpiRatio);
     _m_pMainPanel->goStart();
-
-    CMainPanel * mainpanel = static_cast<CMainPanel*>(_m_pMainPanel);
-    QObject::connect(mainpanel, &CMainPanel::mainWindowChangeState, bind(&CMainWindow::setWindowState, this, _1));
-    QObject::connect(mainpanel, &CMainPanel::mainWindowWantToClose, std::bind(&CMainWindow::onCloseEvent, this));
-    QObject::connect(mainpanel, &CMainPanel::mainPageReady, std::bind(&CMainWindow::slot_mainPageReady, this));
-    QObject::connect(&AscAppManager::getInstance().commonEvents(), &CEventDriver::onModalDialog, this, &CMainWindow::slot_modalDialog);
 }
 
 CMainWindow::~CMainWindow()
@@ -235,14 +247,15 @@ void CMainWindow::updateError()
 }
 #endif
 
-void CMainWindow::setWindowState(Qt::WindowState state)
+void CMainWindow::applyWindowState(Qt::WindowState s)
 {
-    switch (state) {
-    case Qt::WindowMaximized:  showMaximized(); break;
-    case Qt::WindowMinimized:  showMinimized(); break;
-    case Qt::WindowFullScreen: hide(); break;
-    case Qt::WindowNoState:
-    default: showNormal(); break;}
+    _m_pMainPanel->applyMainWindowState(s);
+}
+
+#if defined (_WIN32)
+void CMainWindow::focus()
+{
+    _m_pMainPanel->focus();
 }
 
 void CMainWindow::slot_mainPageReady()
@@ -315,29 +328,31 @@ void CMainWindow::slot_mainPageReady()
     }
 #endif
 }
+#endif
+
+void CMainWindow::setWindowState(Qt::WindowState state)
+{
+    switch (state) {
+    case Qt::WindowMaximized:  showMaximized(); break;
+    case Qt::WindowMinimized:  showMinimized(); break;
+    case Qt::WindowFullScreen: hide(); break;
+    case Qt::WindowNoState:
+    default: showNormal(); break;}
+}
+
 
 void CMainWindow::onCloseEvent()
 {
-    if (isVisible()) {
+    if (windowState() != Qt::WindowFullScreen && isVisible()) {
         GET_REGISTRY_USER(reg_user)
         if (isMaximized()) {
             reg_user.setValue("maximized", true);
         } else {
             reg_user.remove("maximized");
-            reg_user.setValue("position", geometry());
+            reg_user.setValue("position", normalGeometry());
         }
     }
     AscAppManager::closeMainWindow();
 }
 
-void CMainWindow::applyWindowState(Qt::WindowState s)
-{
-    _m_pMainPanel->applyMainWindowState(s);
-}
 
-#if defined (_WIN32)
-void CMainWindow::focus()
-{
-    _m_pMainPanel->focus();
-}
-#endif
