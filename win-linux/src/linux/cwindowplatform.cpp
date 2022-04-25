@@ -122,6 +122,7 @@ CWindowPlatform::CWindowPlatform(const QRect &rect, const WindowType winType) :
         //CWindowBase::setWindowTitle(title);
         if (isCustomWindowStyle())
             CX11Decoration::turnOff();
+        m_dpiRatio = Utils::getScreenDpiRatio(rect.topLeft());
         setGeometry(rect);
     //    setMinimumSize(WindowHelper::correctWindowMinimumSize(geometry(), {EDITOR_WINDOW_MIN_WIDTH * m_dpiRatio, MAIN_WINDOW_MIN_HEIGHT * m_dpiRatio}));
     } else
@@ -249,7 +250,6 @@ bool CWindowPlatform::event(QEvent * event)
 {
     static bool _flg_motion = false;
     static bool _flg_left_button = false;
-
     if (event->type() == QEvent::WindowStateChange && this->isVisible()) {
         QWindowStateChangeEvent * _e_statechange = static_cast< QWindowStateChangeEvent* >( event );
         CX11Decoration::setMaximized(this->windowState() == Qt::WindowMaximized ? true : false);
@@ -265,7 +265,7 @@ bool CWindowPlatform::event(QEvent * event)
             }
         } else
         if (m_winType == WindowType::SINGLE || m_winType == WindowType::REPORTER) {
-            if (!isCustomWindowStyle() && m_winType == WindowType::SINGLE) return QMainWindow::event(event);
+            if (!isCustomWindowStyle() && m_winType == WindowType::SINGLE) return CWindowBase::event(event);
             if(_e_statechange->oldState() == Qt::WindowNoState && windowState() == Qt::WindowMaximized) {
                 layout()->setMargin(0);
                 applyWindowState(Qt::WindowMaximized);
@@ -313,7 +313,7 @@ bool CWindowPlatform::event(QEvent * event)
         return false;
     }
 
-    return QMainWindow::event(event);
+    return CWindowBase::event(event);
 }
 
 void CWindowPlatform::setScreenScalingFactor(double factor)
