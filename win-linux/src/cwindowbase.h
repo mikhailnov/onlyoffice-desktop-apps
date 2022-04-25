@@ -96,7 +96,7 @@ protected:
     virtual void setWindowTitle(const QString&);
     virtual void onMinimizeEvent();
     virtual void onMaximizeEvent();
-    virtual void onCloseEvent() = 0;
+    virtual void onCloseEvent();
 #if defined (_WIN32)
     virtual void focus() = 0;
 #endif

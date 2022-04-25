@@ -770,29 +770,31 @@ namespace WindowHelper {
     }
 
     auto createTopPanel(QWidget *parent, QVector<QPushButton*> &buttons,
-                        std::function<void()> (&methods)[3], double dpiRatio)->QWidget*
+                        std::function<void()> (&methods)[3], bool isCustom,
+                        double dpiRatio)->QWidget*
     {
         QWidget *_boxTitleBtns;
 #ifdef __linux__
-        _boxTitleBtns = new CX11Caption(parent);
+        _boxTitleBtns = new QWidget(parent);
 #else
         _boxTitleBtns = static_cast<QWidget*>(new Caption(parent));
 #endif
         _boxTitleBtns->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
-        QGridLayout *layoutBtns = new QGridLayout(_boxTitleBtns);
-        QSpacerItem *spacer = new QSpacerItem(5, 5, QSizePolicy::Expanding, QSizePolicy::Preferred);
-        layoutBtns->addItem(spacer, 0, 0);
-        layoutBtns->setContentsMargins(0,0,int(4*dpiRatio),0);
+        QHBoxLayout *layoutBtns = new QHBoxLayout(_boxTitleBtns);
+        layoutBtns->setContentsMargins(0, 0, int(4*dpiRatio), 0);
         layoutBtns->setSpacing(int(1*dpiRatio));
-
-        const QString names[3] = {"toolButtonMinimize", "toolButtonMaximize", "toolButtonClose"};
-        buttons.clear();
-        for (int i = 0; i < 3; i++) {
-            QPushButton *btn = createToolButton(_boxTitleBtns, names[i], dpiRatio);
-            QObject::connect(btn, &QPushButton::clicked, methods[i]);
-            buttons.push_back(btn);
-            layoutBtns->addWidget(btn);
+        layoutBtns->addStretch();
+        _boxTitleBtns->setLayout(layoutBtns);
+        if (isCustom) {
+            const QString names[3] = {"toolButtonMinimize", "toolButtonMaximize", "toolButtonClose"};
+            buttons.clear();
+            for (int i = 0; i < 3; i++) {
+                QPushButton *btn = createToolButton(_boxTitleBtns, names[i], dpiRatio);
+                QObject::connect(btn, &QPushButton::clicked, methods[i]);
+                buttons.push_back(btn);
+                layoutBtns->addWidget(btn);
+            }
         }
 
         return _boxTitleBtns;

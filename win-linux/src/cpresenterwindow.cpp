@@ -119,11 +119,11 @@ QWidget * CPresenterWindow::createMainPanel(QWidget * parent, const QString& tit
 #endif
     m_boxTitleBtns->setObjectName("box-title-tools");
     m_boxTitleBtns->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    m_boxTitleBtns->setFixedHeight(TOOLBTN_HEIGHT * m_dpiRatio);
+    //m_boxTitleBtns->setFixedHeight(TOOLBTN_HEIGHT * m_dpiRatio);
 
     QHBoxLayout * layoutBtns = new QHBoxLayout(m_boxTitleBtns);
     layoutBtns->setContentsMargins(0,0,0,0);
-    layoutBtns->setSpacing(1*m_dpiRatio);
+    layoutBtns->setSpacing(int(1*m_dpiRatio));
     m_boxTitleBtns->setLayout(layoutBtns);
 
     m_labelTitle = new CElipsisLabel(title, m_boxTitleBtns);

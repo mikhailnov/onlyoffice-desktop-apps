@@ -72,17 +72,16 @@ private:
                               QWidget * view = nullptr);
     CTabPanel * mainView() const;
     void recalculatePlaces();
-    virtual bool event(QEvent *) final;
     void updateTitleCaption();
-
+    void onSizeEvent(int);
+    void onMoveEvent(const QRect&);
+    void onExitSizeMove();
     virtual int calcTitleCaptionWidth() final;
     virtual void focus() final;
     virtual void onCloseEvent() final;
     virtual void onMinimizeEvent() final;
     virtual void onMaximizeEvent() final;
-    void onSizeEvent(int);
-    void onMoveEvent(const QRect&);
-    void onExitSizeMove();
+    virtual bool event(QEvent *) final;
     virtual void onDpiChanged(double,double) final;
     virtual void setScreenScalingFactor(double) final;
 

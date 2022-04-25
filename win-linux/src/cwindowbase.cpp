@@ -127,20 +127,6 @@ CWindowBase::CWindowBase()
     , pimpl{new CWindowBasePrivate}
 {
     setWindowIcon(Utils::appIcon());
-    /*m_dpiRatio = Utils::getScreenDpiRatio(rect.topLeft());
-    if ( rect.isEmpty() )
-        rect = QRect(100, 100, 1324 * m_dpiRatio, 800 * m_dpiRatio);
-
-    QRect _screen_size = Utils::getScreenGeometry(rect.topLeft());
-    if ( _screen_size.width() < rect.width() + 120 ||
-            _screen_size.height() < rect.height() + 120 )
-    {
-        rect.setLeft(_screen_size.left()),
-        rect.setTop(_screen_size.top());
-
-        if ( _screen_size.width() < rect.width() ) rect.setWidth(_screen_size.width());
-        if ( _screen_size.height() < rect.height() ) rect.setHeight(_screen_size.height());
-    }*/
 }
 
 CWindowBase::~CWindowBase()
@@ -176,4 +162,9 @@ void CWindowBase::onMinimizeEvent()
 void CWindowBase::onMaximizeEvent()
 {
     isMaximized() ? QMainWindow::showNormal() : QMainWindow::showMaximized();
+}
+
+void CWindowBase::onCloseEvent()
+{
+    close();
 }

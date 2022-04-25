@@ -114,7 +114,7 @@ CMainPanel::CMainPanel(QWidget *parent, bool isCustomWindow, double dpi_ratio)
 //    QSize wide_btn_size(29*g_dpi_ratio, TOOLBTN_HEIGHT*g_dpi_ratio);
     QPalette palette;
 #ifdef __linux__
-    m_boxTitleBtns = new CX11Caption(this);
+    m_boxTitleBtns = static_cast<QWidget*>(new CX11Caption(this));
 #else
     m_boxTitleBtns = static_cast<QWidget*>(new Caption(this));
 #endif
@@ -122,19 +122,18 @@ CMainPanel::CMainPanel(QWidget *parent, bool isCustomWindow, double dpi_ratio)
     m_boxTitleBtns->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     m_pMainGridLayout->addWidget(m_boxTitleBtns, 0, 2, 1, 1);
     QHBoxLayout * layoutBtns = new QHBoxLayout(m_boxTitleBtns);
+    layoutBtns->setContentsMargins(0,0,int(4*dpi_ratio),0);
+    layoutBtns->setSpacing(int(1*dpi_ratio));
+    layoutBtns->addStretch();
     m_boxTitleBtns->setLayout(layoutBtns);
-    QSpacerItem *spacer = new QSpacerItem(5, 5, QSizePolicy::Expanding, QSizePolicy::Preferred);
-    layoutBtns->addItem(spacer);
+
 #ifdef __DONT_WRITE_IN_APP_TITLE
     QLabel * label = new QLabel(m_boxTitleBtns);
 #else
     QLabel * label = new QLabel(APP_TITLE);
 #endif
     label->setObjectName("labelAppTitle");
-    label->setAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
-
-    layoutBtns->setContentsMargins(0,0,int(4*dpi_ratio),0);
-    layoutBtns->setSpacing(int(1*dpi_ratio));
+    label->setAlignment(Qt::AlignHCenter|Qt::AlignVCenter);   
     layoutBtns->addWidget(label);
 
     // Main

@@ -235,11 +235,11 @@ QWidget * CEditorWindow::createTopPanel(QWidget * parent, const QString& title)
 #endif
         m_boxTitleBtns->setObjectName("box-title-tools");
         m_boxTitleBtns->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-        m_boxTitleBtns->setFixedHeight(TOOLBTN_HEIGHT * m_dpiRatio);
+        //m_boxTitleBtns->setFixedHeight(TOOLBTN_HEIGHT * m_dpiRatio);
 
         QHBoxLayout * layoutBtns = new QHBoxLayout(m_boxTitleBtns);
         layoutBtns->setContentsMargins(0,0,0,0);
-        layoutBtns->setSpacing(1 * m_dpiRatio);
+        layoutBtns->setSpacing(int(1 * m_dpiRatio));
         m_boxTitleBtns->setLayout(layoutBtns);
 
         m_labelTitle = new CElipsisLabel(title, m_boxTitleBtns);
@@ -403,31 +403,6 @@ void CEditorWindow::recalculatePlaces()
     }
 }
 
-bool CEditorWindow::event(QEvent * event)
-{
-    static bool _flg_motion = false;
-    static bool _flg_left_button = false;
-    if (event->type() == QEvent::Resize) {
-        onSizeEvent(0);
-    } else
-    if (event->type() == QEvent::MouseButtonPress) {
-        _flg_left_button = static_cast<QMouseEvent *>(event)->buttons().testFlag(Qt::LeftButton);
-    } else
-    if (event->type() == QEvent::MouseButtonRelease) {
-        if ( _flg_left_button && _flg_motion ) {
-            onExitSizeMove();
-        }
-        _flg_left_button = _flg_motion = false;
-    } else
-    if (event->type() == QEvent::Move) {
-        if (!_flg_motion)
-            _flg_motion = true;
-        QMoveEvent * _e = static_cast<QMoveEvent *>(event);
-        onMoveEvent(QRect(_e->pos(), QSize(1,1)));
-    }
-    return CWindowPlatform::event(event);
-}
-
 void CEditorWindow::updateTitleCaption()
 {
     if (m_labelTitle) {
@@ -436,6 +411,36 @@ void CEditorWindow::updateTitleCaption()
             m_labelTitle->setMaximumWidth(_width);
             m_labelTitle->updateText();
         }
+    }
+}
+
+void CEditorWindow::onSizeEvent(int type)
+{
+    Q_UNUSED(type)
+    updateTitleCaption();
+    recalculatePlaces();
+}
+
+void CEditorWindow::onMoveEvent(const QRect&)
+{
+#ifdef Q_OS_WIN
+    POINT pt{0,0};
+    if ( ::GetCursorPos(&pt) ) {
+        AscAppManager::editorWindowMoving((size_t)handle(), QPoint(pt.x,pt.y));
+    }
+#else
+    AscAppManager::editorWindowMoving((size_t)handle(), QCursor::pos());
+#endif
+}
+
+void CEditorWindow::onExitSizeMove()
+{
+    double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
+    if ( dpi_ratio != m_dpiRatio )
+        setScreenScalingFactor(dpi_ratio);
+    if ( m_restoreMaximized ) {
+        m_restoreMaximized = false;
+        CWindowPlatform::show(true);
     }
 }
 
@@ -474,34 +479,29 @@ void CEditorWindow::onMaximizeEvent()
     }
 }
 
-void CEditorWindow::onSizeEvent(int type)
+bool CEditorWindow::event(QEvent * event)
 {
-    Q_UNUSED(type)
-    updateTitleCaption();
-    recalculatePlaces();
-}
-
-void CEditorWindow::onMoveEvent(const QRect&)
-{
-#ifdef Q_OS_WIN
-    POINT pt{0,0};
-    if ( ::GetCursorPos(&pt) ) {
-        AscAppManager::editorWindowMoving((size_t)handle(), QPoint(pt.x,pt.y));
+    static bool _flg_motion = false;
+    static bool _flg_left_button = false;
+    if (event->type() == QEvent::Resize) {
+        onSizeEvent(0);
+    } else
+    if (event->type() == QEvent::MouseButtonPress) {
+        _flg_left_button = static_cast<QMouseEvent *>(event)->buttons().testFlag(Qt::LeftButton);
+    } else
+    if (event->type() == QEvent::MouseButtonRelease) {
+        if ( _flg_left_button && _flg_motion ) {
+            onExitSizeMove();
+        }
+        _flg_left_button = _flg_motion = false;
+    } else
+    if (event->type() == QEvent::Move) {
+        if (!_flg_motion)
+            _flg_motion = true;
+        QMoveEvent * _e = static_cast<QMoveEvent *>(event);
+        onMoveEvent(QRect(_e->pos(), QSize(1,1)));
     }
-#else
-    AscAppManager::editorWindowMoving((size_t)handle(), QCursor::pos());
-#endif
-}
-
-void CEditorWindow::onExitSizeMove()
-{
-    double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
-    if ( dpi_ratio != m_dpiRatio )
-        setScreenScalingFactor(dpi_ratio);
-    if ( m_restoreMaximized ) {
-        m_restoreMaximized = false;
-        CWindowPlatform::show(true);
-    }
+    return CWindowPlatform::event(event);
 }
 
 void CEditorWindow::onDpiChanged(double newfactor, double prevfactor)
