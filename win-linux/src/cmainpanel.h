@@ -83,7 +83,7 @@ public:
 #endif
 
 protected:
-    virtual void refreshAboutVersion() = 0;
+    virtual void refreshAboutVersion();
     virtual QString getSaveMessage() const;
 
 private:
@@ -130,7 +130,7 @@ public slots:
     void onFullScreen(int id, bool apply);
     void onKeyDown(void *);
 
-    virtual void onLocalOptions(const QString&){}
+    virtual void onLocalOptions(const QString&);
     void onLocalFilesOpen(void *);
     void onLocalFileRecent(void *);
     void onLocalFileRecent(const COpenOptions&);

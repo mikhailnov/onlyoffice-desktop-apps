@@ -52,7 +52,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <memory>
-#include "cmainpanelimpl.h"
+#include "cmainpanel.h"
 
 #ifdef _WIN32
 # include <windows.h>
@@ -102,7 +102,7 @@ protected:
 #endif
 
     QWidget * m_boxTitleBtns;
-    CMainPanelImpl *_m_pMainPanel; // temp
+    CMainPanel *_m_pMainPanel;
     QWidget * m_pMainPanel;
     QWidget * m_pMainView;
     QVector<QPushButton*> m_pTopButtons;

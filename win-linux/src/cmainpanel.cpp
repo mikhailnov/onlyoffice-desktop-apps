@@ -72,14 +72,7 @@ using namespace NSEditorApi;
 using namespace std::placeholders;
 
 #define QCEF_CAST(Obj) qobject_cast<QCefView *>(Obj)
-#ifdef _WIN32
-//#define TOP_NATIVE_WINDOW_HANDLE HWND(parentWidget()->property("handleTopWindow").toInt())
-#define TOP_NATIVE_WINDOW_HANDLE parentWidget()->parentWidget()
-#else
-#define TOP_NATIVE_WINDOW_HANDLE this
-//#define TOP_NATIVE_WINDOW_HANDLE qobject_cast<QWidget *>(parent())
-#endif
-
+#define TOP_NATIVE_WINDOW_HANDLE parentWidget()
 
 struct printdata {
 public:
@@ -183,6 +176,7 @@ CMainPanel::CMainPanel(QWidget *parent, bool isCustomWindow, double dpi_ratio)
     connect(m_pTabs, &CAscTabWidget::closeAppRequest, this, &CMainPanel::onAppCloseRequest);
     connect(m_pTabs, &CAscTabWidget::editorInserted, bind(&CMainPanel::onTabsCountChanged, this, _2, _1, 1));
     connect(m_pTabs, &CAscTabWidget::editorRemoved, bind(&CMainPanel::onTabsCountChanged, this, _2, _1, -1));
+    QObject::connect(CLangater::getInstance(), &CLangater::onLangChanged, std::bind(&CMainPanel::refreshAboutVersion, this));
     m_pTabs->setPalette(palette);
     m_pTabs->setCustomWindowParams(isCustomWindow);
 }
@@ -1183,6 +1177,9 @@ void CMainPanel::applyTheme(const std::wstring& theme)
     style()->polish(this);
 
     update();
+    double dpiratio = scaling();
+    m_pButtonMain->setIcon(":/logo.svg", AscAppManager::themes().current().isDark() ? "logo-light" : "logo-dark");
+    m_pButtonMain->setIconSize(QSize(85,20)*dpiratio);
 }
 
 void CMainPanel::setInputFiles(QStringList * list)
@@ -1260,6 +1257,8 @@ void CMainPanel::updateScaling(double dpiratio)
 
     //if ( m_mainWindowState == Qt::WindowMaximized )
         //RecalculatePlaces();
+    m_pButtonMain->setIcon(":/logo.svg", AscAppManager::themes().current().isDark() ? "logo-light" : "logo-dark");
+    m_pButtonMain->setIconSize(QSize(85,20)*dpiratio);
 }
 
 void CMainPanel::setScreenScalingFactor(double s)
@@ -1306,3 +1305,75 @@ CTabBar *CMainPanel::tabBar()
     return m_pTabBarWrapper->tabBar();
 }
 
+/** MainPanelImpl **/
+
+void CMainPanel::refreshAboutVersion()
+{
+    QString _license = tr("Licensed under") + " &lt;a class=\"link\" onclick=\"window.open('" URL_AGPL "')\" draggable=\"false\" href=\"#\"&gt;GNU AGPL v3&lt;/a&gt;";
+
+    QJsonObject _json_obj;
+    _json_obj["version"]    = VER_FILEVERSION_STR;
+#ifdef Q_OS_WIN
+# ifdef Q_OS_WIN64
+    _json_obj["arch"]       = "x64";
+# else
+    _json_obj["arch"]       = "x86";
+# endif
+#endif
+    _json_obj["edition"]    = _license;
+    _json_obj["appname"]    = WINDOW_NAME;
+    _json_obj["rights"]     = "© " ABOUT_COPYRIGHT_STR;
+    _json_obj["link"]       = URL_SITE;
+    _json_obj["changelog"]  = "https://github.com/ONLYOFFICE/DesktopEditors/blob/master/CHANGELOG.md";
+
+    AscAppManager::sendCommandTo(SEND_TO_ALL_START_PAGE, "app:version", Utils::stringifyJson(_json_obj));
+
+    _json_obj.empty();
+    _json_obj.insert("locale",
+        QJsonObject({
+            {"current", CLangater::getCurrentLangCode()},
+            {"langs", CLangater::availableLangsToJson()}
+        })
+    );
+
+    std::wstring _force_value = AscAppManager::userSettings(L"force-scale");
+    if ( _force_value == L"1" )
+        _json_obj["uiscaling"] = 100;
+    else
+    if ( _force_value == L"1.25" )
+        _json_obj["uiscaling"] = 125;
+    else
+    if ( _force_value == L"1.5" )
+        _json_obj["uiscaling"] = 150;
+    else
+    if ( _force_value == L"1.75" )
+        _json_obj["uiscaling"] = 175;
+    else
+    if ( _force_value == L"2" )
+        _json_obj["uiscaling"] = 200;
+    else _json_obj["uiscaling"] = 0;
+
+#ifndef __OS_WIN_XP
+    _json_obj["uitheme"] = QString::fromStdWString(AscAppManager::themes().current().id());
+#endif
+
+    GET_REGISTRY_USER(reg_user);
+    _json_obj["editorwindowmode"] = reg_user.value("editorWindowMode",false).toBool();
+
+    AscAppManager::sendCommandTo(SEND_TO_ALL_START_PAGE, "settings:init", Utils::stringifyJson(_json_obj));
+    if ( InputArgs::contains(L"--ascdesktop-reveal-app-config") )
+            AscAppManager::sendCommandTo( nullptr, "retrive:localoptions", "" );
+}
+
+void CMainPanel::onLocalOptions(const QString& json)
+{
+    QJsonParseError jerror;
+    QJsonDocument jdoc = QJsonDocument::fromJson(json.toLatin1(), &jerror);
+
+    if( jerror.error == QJsonParseError::NoError ) {
+        QFile file(Utils::getAppCommonPath() + "/app.conf");
+        file.open(QFile::WriteOnly);
+        file.write(jdoc.toJson());
+        file.close();
+    }
+}

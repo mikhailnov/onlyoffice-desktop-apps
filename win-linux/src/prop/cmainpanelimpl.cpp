@@ -30,7 +30,7 @@
  *
 */
 
-#include "cmainpanelimpl.h"
+/*#include "cmainpanelimpl.h"
 #include "cascapplicationmanagerwrapper.h"
 #include "defines.h"
 #include "utils.h"
@@ -135,4 +135,4 @@ void CMainPanelImpl::onLocalOptions(const QString& json)
         file.write(jdoc.toJson());
         file.close();
     }
-}
+}*/

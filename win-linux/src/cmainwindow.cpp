@@ -63,7 +63,7 @@ CMainWindow::CMainWindow(const QRect &rect) :
 #ifdef __linux__
     isDecorated = !CX11Decoration::isDecorated();
 #endif
-    _m_pMainPanel = new CMainPanelImpl(this, isDecorated, m_dpiRatio);
+    _m_pMainPanel = new CMainPanel(this, isDecorated, m_dpiRatio);
     setCentralWidget(_m_pMainPanel);
     CMainPanel * mainpanel = static_cast<CMainPanel*>(_m_pMainPanel);
 #ifdef __linux__

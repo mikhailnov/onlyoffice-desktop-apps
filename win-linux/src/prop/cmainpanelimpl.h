@@ -33,7 +33,7 @@
 #ifndef CMAINPANELIMPL_H
 #define CMAINPANELIMPL_H
 
-#include "cmainpanel.h"
+/*#include "cmainpanel.h"
 #include <QCoreApplication>
 
 class CMainPanelImpl : public CMainPanel
@@ -49,6 +49,6 @@ public:
     void onLocalOptions(const QString&) override;
 private:
     void refreshAboutVersion() override;
-};
+};*/
 
 #endif // CMAINPANELIMPL_H
