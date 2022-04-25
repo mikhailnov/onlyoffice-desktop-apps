@@ -93,12 +93,6 @@ CEditorWindow::CEditorWindow(const QRect& rect, CTabPanel* panel)
     }
 }
 
-/*CEditorWindow::CEditorWindow(const QRect& r, const QString& s, QWidget * w)
-    : CWindowPlatform(r, WindowType::SINGLE)
-{
-
-}*/
-
 CEditorWindow::~CEditorWindow()
 {
     m_pMainPanel->deleteLater();
@@ -408,19 +402,6 @@ void CEditorWindow::recalculatePlaces()
     m_pMainView->lower();
     }
 }
-
-/*void CEditorWindow::resizeEvent(QResizeEvent *event)
-{
-    CWindowPlatform::resizeEvent(event);
-    onSizeEvent(0);
-}
-
-void CEditorWindow::moveEvent(QMoveEvent *event)
-{
-    CWindowPlatform::moveEvent(event);
-    QMoveEvent * _e = static_cast<QMoveEvent *>(event);
-    onMoveEvent(QRect(_e->pos(), QSize(1,1)));
-}*/
 
 bool CEditorWindow::event(QEvent * event)
 {

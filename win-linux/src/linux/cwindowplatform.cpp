@@ -539,13 +539,6 @@ void CWindowPlatform::dropEvent(QDropEvent *event)
     hide();
 }*/
 
-/*void CWindowPlatform::onExitSizeMove()
-{
-    double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
-    if ( dpi_ratio != m_dpiRatio )
-        setScreenScalingFactor(dpi_ratio);
-}*/
-
 /*void CWindowPlatform::bringToTop() const
 {
     QApplication::setActiveWindow(const_cast<CWindowPlatform *>(this));

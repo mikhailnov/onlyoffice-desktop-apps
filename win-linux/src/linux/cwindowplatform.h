@@ -56,7 +56,7 @@ protected:
     void captureMouse(int);
     virtual bool event(QEvent *event) override;
     virtual void setScreenScalingFactor(double);
-    //virtual void onSizeEvent(int type) override;
+
 protected slots:
     void slot_modalDialog(bool status, WId h);
 
@@ -70,7 +70,6 @@ private:
     virtual void mouseDoubleClickEvent(QMouseEvent *) final;
     virtual void dragEnterEvent(QDragEnterEvent *event) final;
     virtual void dropEvent(QDropEvent *event) final;
-    //virtual void bringToTop() const final;
 
     WindowType m_winType;
     bool m_windowActivated;
