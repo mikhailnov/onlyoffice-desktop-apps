@@ -113,15 +113,10 @@ namespace WindowHelper {
     auto correctWindowMinimumSize(const QRect&, const QSize&) -> QSize;
     auto isLeftButtonPressed() -> bool;
     auto constructFullscreenWidget(QWidget * panel) -> QWidget *;
-
-    enum {Btn_Minimize, Btn_Maximize, Btn_Close};
-
     auto createToolButton(QWidget * parent, const QString& name,
                           double dpiRatio)->QPushButton*;
-
     auto createTopButtons(QWidget *parent, QVector<QPushButton*> &buttons,
                           std::function<void()> (&methods)[3], double dpiRatio)->void;
-
     auto createTopPanel(QWidget *parent, QVector<QPushButton*> &buttons,
                         std::function<void()> (&methods)[3], bool isCustom,
                         double dpiRatio)->QWidget*;

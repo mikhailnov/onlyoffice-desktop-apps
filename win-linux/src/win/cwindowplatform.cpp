@@ -254,7 +254,7 @@ void CWindowPlatform::captureMouse()
     }
 }
 
-void CWindowPlatform::captureMouse(int tabindex)
+/*void CWindowPlatform::captureMouse(int tabindex)
 {
     if (m_winType != WindowType::MAIN) return;
     ReleaseCapture();
@@ -275,7 +275,7 @@ void CWindowPlatform::captureMouse(int tabindex)
             _widget->grabMouse();
         });
     }
-}
+}*/
 
 void CWindowPlatform::setMinimumSize( const int width, const int height )
 {
@@ -307,7 +307,7 @@ void CWindowPlatform::setScreenScalingFactor(double factor)
             double change_factor = factor / m_dpiRatio;
             m_dpiRatio = factor;
             _m_pMainPanel->setStyleSheet(css);
-            _m_pMainPanel->setScreenScalingFactor(factor);
+            //_m_pMainPanel->setScreenScalingFactor(factor);
             setPlacement(m_hWnd, m_moveNormalRect, change_factor);
         }
         m_skipSizing = false;

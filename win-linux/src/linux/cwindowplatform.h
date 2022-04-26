@@ -53,7 +53,7 @@ public:
 
 protected:
     void captureMouse();
-    void captureMouse(int);
+    //void captureMouse(int);
     virtual bool event(QEvent *event) override;
     virtual void setScreenScalingFactor(double);
 
@@ -68,8 +68,8 @@ private:
     virtual void mousePressEvent(QMouseEvent *) final;
     virtual void mouseReleaseEvent(QMouseEvent *) final;
     virtual void mouseDoubleClickEvent(QMouseEvent *) final;
-    virtual void dragEnterEvent(QDragEnterEvent *event) final;
-    virtual void dropEvent(QDropEvent *event) final;
+    //virtual void dragEnterEvent(QDragEnterEvent *event) final;
+    //virtual void dropEvent(QDropEvent *event) final;
 
     WindowType m_winType;
     bool m_windowActivated;

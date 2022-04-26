@@ -178,8 +178,8 @@ QWidget * CPresenterWindow::createMainPanel(QWidget * parent, const QString& tit
 
 void CPresenterWindow::onMaximizeEvent()
 {
-    m_pTopButtons[WindowHelper::Btn_Maximize]->setProperty("class", isMaximized() ? "min" : "normal");
-    m_pTopButtons[WindowHelper::Btn_Maximize]->style()->polish(m_pTopButtons[WindowHelper::Btn_Maximize]);
+    m_pTopButtons[BtnType::Btn_Maximize]->setProperty("class", isMaximized() ? "min" : "normal");
+    m_pTopButtons[BtnType::Btn_Maximize]->style()->polish(m_pTopButtons[BtnType::Btn_Maximize]);
     CWindowBase::onMaximizeEvent();
 }
 

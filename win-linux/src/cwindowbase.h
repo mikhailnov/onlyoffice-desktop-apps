@@ -52,13 +52,16 @@
 #include <QPushButton>
 #include <QLabel>
 #include <memory>
-#include "cmainpanel.h"
 
 #ifdef _WIN32
 # include <windows.h>
 # include <windowsx.h>
 # include <dwmapi.h>
 #endif
+
+enum BtnType {
+    Btn_Minimize, Btn_Maximize, Btn_Close
+};
 
 enum class WindowType : uint_fast8_t
 {
@@ -102,7 +105,7 @@ protected:
 #endif
 
     QWidget * m_boxTitleBtns;
-    CMainPanel *_m_pMainPanel;
+    QWidget *_m_pMainPanel;
     QWidget * m_pMainPanel;
     QWidget * m_pMainView;
     QVector<QPushButton*> m_pTopButtons;

@@ -179,7 +179,7 @@ void CAscApplicationManagerWrapper::onCoreEvent(void * e)
 #endif
 
     if ( m_pMainWindow && m_pMainWindow->holdView(_event->get_SenderId()) ) {
-        CCefEventsTransformer::OnEvent(m_pMainWindow->mainPanel(), _event);
+        CCefEventsTransformer::OnEvent(m_pMainWindow, _event);
     } else {
 /**/
         map<int, CCefEventsGate *>::const_iterator it = m_receivers.find(_event->get_SenderId());
@@ -294,7 +294,7 @@ bool CAscApplicationManagerWrapper::processCommonEvent(NSEditorApi::CAscCefMenuE
         if ( !(cmd.find(L"go:folder") == std::wstring::npos) ) {
             if ( pData->get_Param() == L"offline" ) {}
             else {
-                mainWindow()->mainPanel()->onFileLocation(-1, QString::fromStdWString(pData->get_Param()));
+                mainWindow()->onFileLocation(-1, QString::fromStdWString(pData->get_Param()));
 #ifdef Q_OS_LINUX
                 mainWindow()->bringToTop();
 #endif
@@ -478,7 +478,7 @@ bool CAscApplicationManagerWrapper::processCommonEvent(NSEditorApi::CAscCefMenuE
         }
         else
         if ( m_closeTarget.find(L"main") != wstring::npos ) {
-            if ( !m_vecEditors.empty() && mainWindow()->mainPanel()->tabWidget()->count() == 0 ) {
+            if ( !m_vecEditors.empty() && mainWindow()->tabWidget()->count() == 0 ) {
                 m_closeTarget.clear();
                 mainWindow()->hide();
             }
@@ -533,7 +533,7 @@ bool CAscApplicationManagerWrapper::processCommonEvent(NSEditorApi::CAscCefMenuE
 
     case ASC_MENU_EVENT_TYPE_CEF_DOWNLOAD: {
         CMainWindow * mw = mainWindow();
-        if ( mw ) mw->mainPanel()->onDocumentDownload(event->m_pData);
+        if ( mw ) mw->onDocumentDownload(event->m_pData);
         return true;}
 
     case ASC_MENU_EVENT_TYPE_CEF_CHECK_KEYBOARD:
@@ -677,7 +677,7 @@ void CAscApplicationManagerWrapper::broadcastEvent(NSEditorApi::CAscCefMenuEvent
 {
     if ( m_pMainWindow ) {
         ADDREFINTERFACE(event);
-        CCefEventsTransformer::OnEvent(m_pMainWindow->mainPanel(), event);
+        CCefEventsTransformer::OnEvent(m_pMainWindow, event);
     }
 
     for (const auto& it: m_receivers) {
@@ -713,7 +713,7 @@ auto prepareMainWindow(const QRect& r = QRect()) -> CMainWindow * {
     //_startPanel->resize(_start_rect.width(), _start_rect.height());
 
     CMainWindow * _window = new CMainWindow(_start_rect);
-    _window->mainPanel()->attachStartPanel(_startPanel);
+    _window->attachStartPanel(_startPanel);
 
     QString data_path;
 #if defined(QT_DEBUG)
@@ -869,7 +869,7 @@ void CAscApplicationManagerWrapper::handleInputCmd(const std::vector<wstring>& v
             COpenOptions opts{o};
             opts.url = QString::fromStdWString(opts.wurl);
 
-            _app.m_pMainWindow->mainPanel()->doOpenLocalFile(opts);
+            _app.m_pMainWindow->doOpenLocalFile(opts);
         }
     }
 }
@@ -905,7 +905,7 @@ void CAscApplicationManagerWrapper::startApp()
 
     QStringList * _files = Utils::getInputFiles(g_cmdArgs);
     if ( _files ) {
-        _window->mainPanel()->doOpenLocalFiles(*_files);
+        _window->doOpenLocalFiles(*_files);
         if ( getInstance().m_private->allowedCreateLocalFile() ) {
             QRegularExpression re("^--new:(word|cell|slide)");
             QStringListIterator i(*_files);
@@ -919,7 +919,7 @@ void CAscApplicationManagerWrapper::startApp()
                         if ( match.captured(1) == "cell" ) _format = AVS_OFFICESTUDIO_FILE_SPREADSHEET_XLSX; else
                         if ( match.captured(1) == "slide" ) _format = AVS_OFFICESTUDIO_FILE_PRESENTATION_PPTX;
 
-                        _window->mainPanel()->createLocalFile(AscAppManager::newFileName(_format), _format);
+                        _window->createLocalFile(AscAppManager::newFileName(_format), _format);
                     }
                 }
             }
@@ -1142,10 +1142,10 @@ void CAscApplicationManagerWrapper::closeMainWindow()
 //            switch (m.warning(tr("Do you want to close all editor windows?"))) {
 //            case MODAL_RESULT_CUSTOM + 0: break;
 //            case MODAL_RESULT_CUSTOM + 1:
-                if ( mainWindow()->mainPanel()->tabWidget()->count() ) {
+                if ( mainWindow()->tabWidget()->count() ) {
                     _app.m_closeTarget = L"main";
                     QTimer::singleShot(0, []{
-                        if ( mainWindow()->mainPanel()->tabCloseRequest() == MODAL_RESULT_CANCEL )
+                        if ( mainWindow()->tabCloseRequest() == MODAL_RESULT_CANCEL )
                             AscAppManager::cancelClose();
                     });
                 } else {
@@ -1178,7 +1178,7 @@ void CAscApplicationManagerWrapper::launchAppClose()
                         AscAppManager::cancelClose();
                 }
             } else {
-                if ( AscAppManager::mainWindow()->mainPanel()->tabCloseRequest() == MODAL_RESULT_CANCEL )
+                if ( AscAppManager::mainWindow()->tabCloseRequest() == MODAL_RESULT_CANCEL )
                     AscAppManager::cancelClose();
             }
         } else
@@ -1721,13 +1721,13 @@ void CAscApplicationManagerWrapper::Logout(const wstring& wjson)
 
             sendCommandTo(SEND_TO_ALL_START_PAGE, L"portal:logout", portal);
 
-            int index = mainWindow()->mainPanel()->tabWidget()->tabIndexByUrl(portal);
+            int index = mainWindow()->tabWidget()->tabIndexByUrl(portal);
             if ( !(index < 0) ) {
                 if ( objRoot.contains("onsuccess") &&
                         objRoot["onsuccess"].toString() == "reload" )
                 {
-                    mainWindow()->mainPanel()->tabWidget()->panel(index)->cef()->reload();
-                } else mainWindow()->mainPanel()->tabWidget()->closeEditorByIndex(index);
+                    mainWindow()->tabWidget()->panel(index)->cef()->reload();
+                } else mainWindow()->tabWidget()->closeEditorByIndex(index);
             }
         }
     }
@@ -1886,10 +1886,10 @@ void CAscApplicationManagerWrapper::onEditorWidgetClosed()
         launchAppClose();
     } else
     if ( m_closeTarget == L"main" ) {
-        if ( mainWindow()->mainPanel()->tabCloseRequest() == MODAL_RESULT_CANCEL )
+        if ( mainWindow()->tabCloseRequest() == MODAL_RESULT_CANCEL )
             AscAppManager::cancelClose();
         else
-        if ( mainWindow()->mainPanel()->tabWidget()->count() == 0 ) {
+        if ( mainWindow()->tabWidget()->count() == 0 ) {
             m_closeTarget.clear();
             mainWindow()->hide();
         }

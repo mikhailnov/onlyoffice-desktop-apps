@@ -66,7 +66,7 @@ public:
 
 protected:
     void captureMouse();
-    void captureMouse(int);
+    //void captureMouse(int);
     void setMinimumSize(const int, const int);
     void setMaximumSize(const int, const int);
     virtual void setScreenScalingFactor(double);

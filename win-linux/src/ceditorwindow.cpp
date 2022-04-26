@@ -447,7 +447,7 @@ void CEditorWindow::onExitSizeMove()
 int CEditorWindow::calcTitleCaptionWidth()
 {
     int base_width = (isCustomWindowStyle()) ? m_boxTitleBtns->width() -
-                     (m_pTopButtons[WindowHelper::Btn_Maximize]->width() * 3) : 0;
+                     (m_pTopButtons[BtnType::Btn_Maximize]->width() * 3) : 0;
     return d_ptr->calcTitleLabelWidth(base_width);
 }
 

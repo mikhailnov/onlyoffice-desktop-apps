@@ -39,11 +39,19 @@
 #else
 # include "linux/cwindowplatform.h"
 #endif
-#include "cmainpanelimpl.h"
+#include "cscalingwrapper.h"
+#include "asctabwidget.h"
+#include "cdownloadwidget.h"
+#include "csvgpushbutton.h"
+#include <QSettings>
+#include <math.h>
 
 
-class CMainWindow : public CWindowPlatform
+struct printdata;
+
+class CMainWindow : public CWindowPlatform, public CScalingWrapper
 {
+    Q_OBJECT
 public:
     explicit CMainWindow(const QRect&);
     virtual ~CMainWindow();
@@ -51,15 +59,14 @@ public:
     QWidget * editor(int index);
     QRect windowRect() const;
     QString documentName(int vid);
-    void selectView(int id) const;
-    void selectView(const QString& url) const;
+    void selectView(int id);
+    void selectView(const QString& url);
     int attachEditor(QWidget *, int index = -1);
     int attachEditor(QWidget *, const QPoint&);
-    int editorsCount() const;
-    int editorsCount(const std::wstring& portal) const;
-    bool pointInTabs(const QPoint& pt) const;
+    int editorsCount();
+    int editorsCount(const std::wstring& portal);
+    bool pointInTabs(const QPoint& pt);
     bool holdView(int id) const;
-    virtual CMainPanel * mainPanel() const final;
     virtual void applyTheme(const std::wstring&) final;
 #ifdef _UPDMODULE
     static void checkUpdates();
@@ -67,6 +74,7 @@ public:
 #endif 
 
 private:
+    void captureMouse(int);
 #ifdef _UPDMODULE
     static void updateFound();
     static void updateNotFound();
@@ -75,14 +83,112 @@ private:
     virtual void applyWindowState(Qt::WindowState) final;
 #ifdef _WIN32
     virtual void focus() final;
+#else
+    virtual void dragEnterEvent(QDragEnterEvent *event) final;
+    virtual void dropEvent(QDropEvent *event) final;
 #endif
 
 private slots:
 #ifdef _WIN32
     void slot_mainPageReady();
 #endif
-    void setWindowState(Qt::WindowState);
     virtual void onCloseEvent() final;
+
+/** MainPanel **/
+
+public:
+    //WId GetHwndForKeyboard() {return ((QWidget*)m_pTabs->parent())->winId();}
+    QWidget * createMainPanel(QWidget *parent, bool isCustomWindow, double scale);
+    CAscTabWidget * tabWidget();
+    CTabBar *tabBar();
+    void goStart();
+    void focusToMainPanel();
+    void doOpenLocalFiles(const std::vector<std::wstring> *);
+    void doOpenLocalFiles(const QStringList&);
+    void doOpenLocalFiles();
+    void createLocalFile(const QString& name, int format);
+    void setInputFiles(QStringList *);
+    void attachStartPanel(QCefView * const);
+    void toggleButtonMain(bool, bool delay = false);
+    bool holdUid(int) const;
+    bool holdUrl(const QString&, AscEditorType) const;
+    int  tabCloseRequest(int index = -1);    
+#ifdef __linux
+    void setMouseTracking(bool);
+#endif
+    virtual void doOpenLocalFile(COpenOptions&);
+    virtual void setScreenScalingFactor(double) final;
+    virtual void updateScalingFactor(double) final;
+
+public slots:
+    void pushButtonMainClicked();
+    void onTabClicked(int);
+    void onTabChanged(int);
+    void onTabCloseRequest(int);
+    void onAppCloseRequest();
+    void onEditorActionRequest(int, const QString&);
+    void onTabsCountChanged(int, int, int);
+    void onWebAppsFeatures(int id, std::wstring);
+    void onCloudDocumentOpen(std::wstring, int, bool);
+    void onDocumentType(int id, int type);
+    void onDocumentName(void *);
+    void onEditorConfig(int, std::wstring cfg);
+    void onDocumentChanged(int id, bool changed);
+    void onDocumentSave(int id, bool cancel = false);
+    void onDocumentSaveInnerRequest(int id);
+    void onDocumentDownload(void * info);
+    void onDocumentLoadFinished(int);
+    void onDocumentFragmented(int, bool);
+    void onDocumentFragmentedBuild(int, int);
+    void onFullScreen(int id, bool apply);
+    void onKeyDown(void *);
+    void onLocalFilesOpen(void *);
+    void onLocalFileRecent(void *);
+    void onLocalFileRecent(const COpenOptions&);
+    void onLocalFileLocation(QString);
+    void onFileLocation(int, QString);
+    void onPortalOpen(QString);
+    void onPortalLogout(std::wstring portal);
+    void onPortalNew(QString);
+    void onPortalCreate();
+    void onOutsideAuth(QString);
+    void onEditorAllowedClose(int);
+    void onWebTitleChanged(int, std::wstring json) {}
+    virtual void onLocalOptions(const QString&);
+    virtual void onLocalFileSaveAs(void *);
+    virtual void onDocumentPrint(void *);
+    virtual void onDocumentReady(int);
+
+protected:
+    virtual void refreshAboutVersion();
+    virtual QString getSaveMessage() const;
+
+protected:
+    CTabBarWrapper* m_pTabBarWrapper;
+    CAscTabWidget * m_pTabs;
+    CSVGPushButton* m_pButtonMain; 
+
+private:
+    int  trySaveDocument(int);
+    std::wstring    m_sDownloadName;
+
+    QWidget*        m_pMainWidget = nullptr;
+    QGridLayout*    m_pMainGridLayout;
+
+    QPushButton*    m_pButtonProfile;
+
+    bool            m_isMaximized = false,
+                    m_isCustomWindow;
+
+    CDownloadWidget * m_pWidgetDownload = Q_NULLPTR;
+
+    printdata *    m_printData;
+    Qt::WindowState m_mainWindowState;
+
+    QStringList * m_inFiles;
+
+    QString m_savePortal;
+    int m_saveAction;   
 };
 
 #endif // CMAINWINDOW_H

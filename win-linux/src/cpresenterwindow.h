@@ -38,6 +38,7 @@
 #else
 # include "linux/cwindowplatform.h"
 #endif
+#include "qcefview.h"
 
 
 class CPresenterWindow : public CWindowPlatform

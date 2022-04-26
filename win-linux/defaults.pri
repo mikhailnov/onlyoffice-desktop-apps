@@ -80,7 +80,7 @@ HEADERS += \
     $$PWD/src/utils.h \
     $$PWD/src/cstyletweaks.h \
     $$PWD/src/chelp.h \
-    $$PWD/src/cmainpanel.h \
+    #$$PWD/src/cmainpanel.h \
     $$PWD/src/csplash.h \
     $$PWD/src/cmessage.h \
     $$PWD/src/cfilechecker.h \
@@ -123,7 +123,7 @@ SOURCES += \
     $$PWD/src/utils.cpp \
     $$PWD/src/cstyletweaks.cpp \
     $$PWD/src/chelp.cpp \
-    $$PWD/src/cmainpanel.cpp \
+    #$$PWD/src/cmainpanel.cpp \
     $$PWD/src/cmessage.cpp \
     $$PWD/src/cfilechecker.cpp \
     $$PWD/src/clogger.cpp \

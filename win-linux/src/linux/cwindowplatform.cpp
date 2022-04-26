@@ -36,7 +36,6 @@
 #include "utils.h"
 #include <QDesktopWidget>
 #include <QTimer>
-#include <QMimeData>
 
 
 #ifdef DOCUMENTSCORE_OPENSSL_SUPPORT
@@ -180,11 +179,7 @@ void CWindowPlatform::show(bool maximized)
 {
     QMainWindow::show();
     if (maximized) {
-        if (m_winType == WindowType::MAIN) {
-            setWindowState(Qt::WindowMaximized);
-        } else if (m_winType == WindowType::SINGLE) {
-            QMainWindow::setWindowState(Qt::WindowMaximized);
-        }
+        QMainWindow::setWindowState(Qt::WindowMaximized);
     }
 }
 
@@ -229,22 +224,18 @@ void CWindowPlatform::captureMouse()
     CX11Decoration::dispatchMouseMove(&_event);
 }
 
-void CWindowPlatform::captureMouse(int tabindex)
+/*void CWindowPlatform::captureMouse(int tabindex)
 {
     if (m_winType != WindowType::MAIN) return;
-    if (tabindex >= 0 && tabindex < _m_pMainPanel->tabWidget()->count()) {
-        QPoint spt = _m_pMainPanel->tabWidget()->tabBar()->tabRect(tabindex).topLeft() + QPoint(30, 10);
-        //QPoint gpt = mainPanel()->tabWidget()->tabBar()->mapToGlobal(spt);
-//        CX11Decoration::setCursorPos(100, 100);
-//        QCursor::setPos(0, 0);
+    if (tabindex >= 0 && tabindex < tabWidget()->count()) {
+        QPoint spt = tabWidget()->tabBar()->tabRect(tabindex).topLeft() + QPoint(30, 10);
         QTimer::singleShot(0, this, [=] {
             QMouseEvent event(QEvent::MouseButtonPress, spt, Qt::LeftButton, Qt::MouseButton::NoButton, Qt::NoModifier);
-            QCoreApplication::sendEvent((QWidget *)_m_pMainPanel->tabWidget()->tabBar(), &event);
-            _m_pMainPanel->tabWidget()->tabBar()->grabMouse();
-//            mainPanel()->tabWidget()->grabMouse();
+            QCoreApplication::sendEvent((QWidget *)tabWidget()->tabBar(), &event);
+            tabWidget()->tabBar()->grabMouse();
         });
     }
-}
+}*/
 
 bool CWindowPlatform::event(QEvent * event)
 {
@@ -324,7 +315,7 @@ void CWindowPlatform::setScreenScalingFactor(double factor)
         if (!css.isEmpty()) {
             onScreenScalingFactor(factor);
             _m_pMainPanel->setStyleSheet(css);
-            _m_pMainPanel->setScreenScalingFactor(factor);
+            //_m_pMainPanel->setScreenScalingFactor(factor);
             // TODO: skip window min size for usability test
     //        setMinimumSize(WindowHelper::correctWindowMinimumSize(_src_rect, {MAIN_WINDOW_MIN_WIDTH * factor, MAIN_WINDOW_MIN_HEIGHT * factor}));
         }
@@ -382,7 +373,8 @@ void CWindowPlatform::onScreenScalingFactor(double factor)
 
 void CWindowPlatform::closeEvent(QCloseEvent * e)
 {
-    ((CMainPanel *)_m_pMainPanel)->onCloseEvent();
+    if (m_winType == WindowType::MAIN)
+        onCloseEvent();
     e->ignore();
 }
 
@@ -426,11 +418,11 @@ void CWindowPlatform::mouseDoubleClickEvent(QMouseEvent *)
             onMaximizeEvent();
     } else {
         if (m_boxTitleBtns->underMouse())
-            m_pTopButtons[WindowHelper::Btn_Maximize]->click();
+            m_pTopButtons[BtnType::Btn_Maximize]->click();
     }
 }
 
-void CWindowPlatform::dragEnterEvent(QDragEnterEvent *event)
+/*void CWindowPlatform::dragEnterEvent(QDragEnterEvent *event)
 {
     QList<QUrl> urls = event->mimeData()->urls();
     if (urls.length() != 1)
@@ -480,7 +472,7 @@ void CWindowPlatform::dropEvent(QDropEvent *event)
         ((CMainPanel *)_m_pMainPanel)->doOpenLocalFile(opts);
     }
     event->acceptProposedAction();
-}
+}*/
 
 /*void CWindowPlatform::slot_windowChangeState(Qt::WindowState s)
 {
@@ -505,18 +497,6 @@ void CWindowPlatform::dropEvent(QDropEvent *event)
             break;
         }
     }
-}*/
-
-/*void CWindowPlatform::onMinimizeEvent()
-{
-    //CWindowBase::onMinimizeEvent();
-    setWindowState(Qt::WindowMinimized);
-}*/
-
-/*void CWindowPlatform::onMaximizeEvent()
-{
-    //CWindowBase::onMaximizeEvent();
-    setWindowState(windowState().testFlag(Qt::WindowMaximized) ? Qt::WindowNoState : Qt::WindowMaximized);
 }*/
 
 /*void CWindowPlatform::onSizeEvent(int type)
