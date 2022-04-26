@@ -95,7 +95,7 @@ public:
 
 CMainWindow::CMainWindow(const QRect &rect) :
     CWindowPlatform(rect, WindowType::MAIN),
-    CScalingWrapper(dpi_ratio)
+    CScalingWrapper(m_dpiRatio)
     , m_printData(new printdata)
     , m_mainWindowState(Qt::WindowNoState)
     , m_inFiles(NULL)
@@ -304,7 +304,7 @@ void CMainWindow::applyWindowState(Qt::WindowState s)
 #if defined (_WIN32)
 void CMainWindow::focus()
 {
-    _m_pMainPanel->focus();
+    focusToMainPanel();
 }
 
 void CMainWindow::slot_mainPageReady()

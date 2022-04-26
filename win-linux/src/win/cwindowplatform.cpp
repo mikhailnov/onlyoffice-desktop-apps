@@ -58,7 +58,7 @@ auto refresh_window_scaling_factor(CWindowPlatform * window) -> void
     QString css{AscAppManager::getWindowStylesheets(window->m_dpiRatio)};
     if ( !css.isEmpty() ) {
         window->_m_pMainPanel->setStyleSheet(css);
-        window->_m_pMainPanel->setScreenScalingFactor(window->m_dpiRatio);
+        window->setScreenScalingFactor(window->m_dpiRatio);
     }
 }
 
