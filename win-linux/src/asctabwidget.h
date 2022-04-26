@@ -157,7 +157,7 @@ public:
     int  count(const std::wstring& portal, bool exclude = false);
     bool hasForPortal(const QString&);
 
-    void updateScaling(double) override;
+    void updateScalingFactor(double) override;
 protected:
     void tabInserted(int index) override;
     void tabRemoved(int index) override;

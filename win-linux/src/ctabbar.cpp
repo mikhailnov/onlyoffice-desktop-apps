@@ -921,9 +921,9 @@ void CTabBar::activate(bool a)
     }
 }
 
-void CTabBar::updateScaling(double f)
+void CTabBar::updateScalingFactor(double f)
 {
-    CScalingWrapper::updateScaling(f);
+    CScalingWrapper::updateScalingFactor(f);
 
     for (int i(count()); !(--i < 0); ) {
         QWidget * b = TAB_BTNCLOSE(i);

@@ -1150,9 +1150,9 @@ QWidget * CAscTabWidget::fullScreenWidget()
     return m_dataFullScreen ? m_dataFullScreen->widget() : nullptr;
 }
 
-void CAscTabWidget::updateScaling(double f)
+void CAscTabWidget::updateScalingFactor(double f)
 {
-    CScalingWrapper::updateScaling(f);
+    CScalingWrapper::updateScalingFactor(f);
 
     double dpi_ratio = scaling();
 
@@ -1167,7 +1167,7 @@ void CAscTabWidget::updateScaling(double f)
     else
         m_widthParams.tools_width = m_widthParams.title_width = 0;
 
-    m_pBar->updateScaling(f);
+    m_pBar->updateScalingFactor(f);
 }
 
 void CAscTabWidget::setStyleSheet(const QString& stylesheet)

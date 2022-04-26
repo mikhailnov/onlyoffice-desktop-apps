@@ -345,9 +345,9 @@ void CDownloadWidget::applyScaling(double factor)
     QPixmap::grabWidget(m_pToolButton->menu());
 }
 
-void CDownloadWidget::updateScaling(double f)
+void CDownloadWidget::updateScalingFactor(double f)
 {
-    CScalingWrapper::updateScaling(f);
+    CScalingWrapper::updateScalingFactor(f);
     applyScaling(scaling());
 }
 

@@ -64,7 +64,7 @@ public:
 //    void updateProgress();
 //    void cancelAll();
 
-    void updateScaling(double) override;
+    void updateScalingFactor(double) override;
 
 protected:
     QWidget * addFile(const QString&, int);
