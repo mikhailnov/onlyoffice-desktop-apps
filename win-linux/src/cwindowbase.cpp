@@ -39,6 +39,8 @@
 #endif
 #include <QVariant>
 #include <QSettings>
+#include <QHBoxLayout>
+#include <functional>
 
 
 class CWindowBase::CWindowBasePrivate {
@@ -135,6 +137,63 @@ CWindowBase::~CWindowBase()
 }
 
 /** Protected **/
+
+QPushButton* CWindowBase::createToolButton(QWidget * parent, const QString& name)
+{
+    QPushButton * btn = new QPushButton(parent);
+    btn->setObjectName(name);
+    btn->setProperty("class", "normal");
+    btn->setProperty("act", "tool");
+    btn->setFixedSize(int(TOOLBTN_WIDTH*m_dpiRatio), int(TOOLBTN_HEIGHT*m_dpiRatio));
+#ifdef __linux__
+    btn->setMouseTracking(true);
+#endif
+    return btn;
+}
+
+QWidget* CWindowBase::createTopPanel(QWidget *parent, bool isCustom)
+{
+    QWidget *_boxTitleBtns;
+#ifdef __linux__
+    _boxTitleBtns = new QWidget(parent);
+#else
+    _boxTitleBtns = static_cast<QWidget*>(new Caption(parent));
+#endif
+    _boxTitleBtns->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+
+    QHBoxLayout *layoutBtns = new QHBoxLayout(_boxTitleBtns);
+    layoutBtns->setContentsMargins(0, 0, int(4*m_dpiRatio), 0);
+    layoutBtns->setSpacing(int(1*m_dpiRatio));
+    layoutBtns->addStretch();
+    _boxTitleBtns->setLayout(layoutBtns);
+    if (isCustom) {
+        const QString names[3] = {"toolButtonMinimize", "toolButtonMaximize", "toolButtonClose"};
+        std::function<void(void)> btn_methods[3] = {
+            [=]{onMinimizeEvent();}, [=]{onMaximizeEvent();}, [=]{onCloseEvent();}};
+        m_pTopButtons.clear();
+        for (int i = 0; i < 3; i++) {
+            QPushButton *btn = createToolButton(_boxTitleBtns, names[i]);
+            QObject::connect(btn, &QPushButton::clicked, btn_methods[i]);
+            m_pTopButtons.push_back(btn);
+            layoutBtns->addWidget(btn);
+        }
+    }
+
+    return _boxTitleBtns;
+}
+
+void CWindowBase::createTopButtons(QWidget *parent)
+{
+    const QString names[3] = {"toolButtonMinimize", "toolButtonMaximize", "toolButtonClose"};
+    std::function<void(void)> btn_methods[3] = {
+        [=]{onMinimizeEvent();}, [=]{onMaximizeEvent();}, [=]{onCloseEvent();}};
+    m_pTopButtons.clear();
+    for (int i = 0; i < 3; i++) {
+        QPushButton *btn = createToolButton(parent, names[i]);
+        QObject::connect(btn, &QPushButton::clicked, btn_methods[i]);
+        m_pTopButtons.push_back(btn);
+    }
+}
 
 bool CWindowBase::isCustomWindowStyle()
 {

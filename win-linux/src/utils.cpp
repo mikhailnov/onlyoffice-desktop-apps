@@ -57,11 +57,9 @@
 #include <windowsx.h>
 #include "shlobj.h"
 #include "lmcons.h"
-#include "win/caption.h"
 typedef HRESULT (__stdcall *SetCurrentProcessExplicitAppUserModelIDProc)(PCWSTR AppID);
 #else
 #include <sys/stat.h>
-#include "linux/cx11decoration.h"
 #endif
 
 #include <QDebug>
@@ -742,61 +740,5 @@ namespace WindowHelper {
         _panel->setGeometry(0,0,_parent->width(),_parent->height());
 
         return _parent;
-    }
-
-    auto createToolButton(QWidget * parent, const QString& name, double dpiRatio)->QPushButton*
-    {
-        QPushButton * btn = new QPushButton(parent);
-        btn->setObjectName(name);
-        btn->setProperty("class", "normal");
-        btn->setProperty("act", "tool");
-        btn->setFixedSize(int(TOOLBTN_WIDTH*dpiRatio), int(TOOLBTN_HEIGHT*dpiRatio));
-    #ifdef __linux__
-        btn->setMouseTracking(true);
-    #endif
-        return btn;
-    }
-
-    auto createTopButtons(QWidget *parent, QVector<QPushButton*> &buttons,
-                          std::function<void()> (&methods)[3], double dpiRatio)->void
-    {
-        const QString names[3] = {"toolButtonMinimize", "toolButtonMaximize", "toolButtonClose"};
-        buttons.clear();
-        for (int i = 0; i < 3; i++) {
-            QPushButton *btn = createToolButton(parent, names[i], dpiRatio);
-            QObject::connect(btn, &QPushButton::clicked, methods[i]);
-            buttons.push_back(btn);
-        }
-    }
-
-    auto createTopPanel(QWidget *parent, QVector<QPushButton*> &buttons,
-                        std::function<void()> (&methods)[3], bool isCustom,
-                        double dpiRatio)->QWidget*
-    {
-        QWidget *_boxTitleBtns;
-#ifdef __linux__
-        _boxTitleBtns = new QWidget(parent);
-#else
-        _boxTitleBtns = static_cast<QWidget*>(new Caption(parent));
-#endif
-        _boxTitleBtns->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-
-        QHBoxLayout *layoutBtns = new QHBoxLayout(_boxTitleBtns);
-        layoutBtns->setContentsMargins(0, 0, int(4*dpiRatio), 0);
-        layoutBtns->setSpacing(int(1*dpiRatio));
-        layoutBtns->addStretch();
-        _boxTitleBtns->setLayout(layoutBtns);
-        if (isCustom) {
-            const QString names[3] = {"toolButtonMinimize", "toolButtonMaximize", "toolButtonClose"};
-            buttons.clear();
-            for (int i = 0; i < 3; i++) {
-                QPushButton *btn = createToolButton(_boxTitleBtns, names[i], dpiRatio);
-                QObject::connect(btn, &QPushButton::clicked, methods[i]);
-                buttons.push_back(btn);
-                layoutBtns->addWidget(btn);
-            }
-        }
-
-        return _boxTitleBtns;
-    }
+    }   
 }

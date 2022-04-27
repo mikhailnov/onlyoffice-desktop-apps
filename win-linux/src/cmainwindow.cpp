@@ -512,9 +512,7 @@ QWidget* CMainWindow::createMainPanel(QWidget *parent, bool isCustomWindow, doub
     QObject::connect(m_pButtonMain, SIGNAL(clicked()), this, SLOT(pushButtonMainClicked()));
 
     if (isCustomWindow) {
-        std::function<void(void)> btn_methods[3] = {
-            [=]{onMinimizeEvent();}, [=]{onMaximizeEvent();}, [=]{onCloseEvent();}};
-        WindowHelper::createTopButtons(m_boxTitleBtns, m_pTopButtons, btn_methods, 1);
+        createTopButtons(m_boxTitleBtns);
         foreach (auto btn, m_pTopButtons)
             layoutBtns->addWidget(btn);
 

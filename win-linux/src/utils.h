@@ -36,8 +36,6 @@
 #include <QStringList>
 #include <QFileInfo>
 #include <QWidget>
-#include <QPushButton>
-#include <functional>
 #ifdef Q_OS_WIN
 # include <Windows.h>
 #endif
@@ -113,13 +111,6 @@ namespace WindowHelper {
     auto correctWindowMinimumSize(const QRect&, const QSize&) -> QSize;
     auto isLeftButtonPressed() -> bool;
     auto constructFullscreenWidget(QWidget * panel) -> QWidget *;
-    auto createToolButton(QWidget * parent, const QString& name,
-                          double dpiRatio)->QPushButton*;
-    auto createTopButtons(QWidget *parent, QVector<QPushButton*> &buttons,
-                          std::function<void()> (&methods)[3], double dpiRatio)->void;
-    auto createTopPanel(QWidget *parent, QVector<QPushButton*> &buttons,
-                        std::function<void()> (&methods)[3], bool isCustom,
-                        double dpiRatio)->QWidget*;
 }
 
 #endif // UTILS_H

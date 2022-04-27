@@ -666,10 +666,7 @@ public:
     QPushButton * buttonDock()
     {
         if ( !btndock ) {
-            btndock = WindowHelper::createToolButton(window->m_boxTitleBtns,
-                                                     "toolButtonDock",
-                                                     window->m_dpiRatio);
-            //btndock->setObjectName("toolButtonDock");
+            btndock = window->createToolButton(window->m_boxTitleBtns, "toolButtonDock");
         }
 
         return btndock;

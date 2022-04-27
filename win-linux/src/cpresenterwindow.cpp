@@ -132,9 +132,7 @@ QWidget * CPresenterWindow::createMainPanel(QWidget * parent, const QString& tit
     layoutBtns->addWidget(m_labelTitle);
 
     if (custom) {
-        std::function<void(void)> methods[3] = {
-            [=]{onMinimizeEvent();}, [=]{onMaximizeEvent();}, [=]{onCloseEvent();}};
-        WindowHelper::createTopButtons(m_boxTitleBtns, m_pTopButtons, methods, m_dpiRatio);
+        createTopButtons(m_boxTitleBtns);
         foreach (auto btn, m_pTopButtons)
             layoutBtns->addWidget(btn);
 #ifdef __linux__
