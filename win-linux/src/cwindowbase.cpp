@@ -36,6 +36,8 @@
 #include "clangater.h"
 #ifdef __linux__
 # include "defines.h"
+#else
+# include "win/caption.h"
 #endif
 #include <QVariant>
 #include <QSettings>
