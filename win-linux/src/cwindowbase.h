@@ -49,6 +49,8 @@
 #define TITLE_HEIGHT        28
 
 #include <QMainWindow>
+#include <QWidget>
+#include <QVector>
 #include <QPushButton>
 #include <QLabel>
 #include <memory>
@@ -106,11 +108,13 @@ protected:
     virtual void focus() = 0;
 #endif
 
-    QWidget * m_boxTitleBtns;
-    QWidget *_m_pMainPanel;
-    QWidget * m_pMainPanel;
-    QWidget * m_pMainView;
     QVector<QPushButton*> m_pTopButtons;
+    QWidget *m_pMainPanel,
+            *m_boxTitleBtns,
+            *m_pMainView;
+
+    int a;
+
     CElipsisLabel * m_labelTitle;
     double m_dpiRatio;
 

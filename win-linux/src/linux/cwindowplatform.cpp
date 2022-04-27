@@ -314,8 +314,8 @@ void CWindowPlatform::setScreenScalingFactor(double factor)
         QString css(AscAppManager::getWindowStylesheets(factor));
         if (!css.isEmpty()) {
             onScreenScalingFactor(factor);
-            _m_pMainPanel->setStyleSheet(css);
-            //_m_pMainPanel->setScreenScalingFactor(factor);
+            m_pMainPanel->setStyleSheet(css);
+            //m_pMainPanel->setScreenScalingFactor(factor);
             // TODO: skip window min size for usability test
     //        setMinimumSize(WindowHelper::correctWindowMinimumSize(_src_rect, {MAIN_WINDOW_MIN_WIDTH * factor, MAIN_WINDOW_MIN_HEIGHT * factor}));
         }
@@ -469,7 +469,7 @@ void CWindowPlatform::dropEvent(QDropEvent *event)
     }
     else
     {
-        ((CMainPanel *)_m_pMainPanel)->doOpenLocalFile(opts);
+        ((CMainPanel *)m_pMainPanel)->doOpenLocalFile(opts);
     }
     event->acceptProposedAction();
 }*/

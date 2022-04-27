@@ -105,18 +105,18 @@ CMainWindow::CMainWindow(const QRect &rect) :
 #ifdef __linux__
     isDecorated = !CX11Decoration::isDecorated();
 #endif
-    _m_pMainPanel = createMainPanel(this, isDecorated, m_dpiRatio);
-    setCentralWidget(_m_pMainPanel);
+    m_pMainPanel = createMainPanel(this, isDecorated, m_dpiRatio);
+    setCentralWidget(m_pMainPanel);
 #ifdef __linux__
     if (!CX11Decoration::isDecorated()) {
         CX11Decoration::setTitleWidget(m_boxTitleBtns);
-        _m_pMainPanel->setMouseTracking(true);
+        m_pMainPanel->setMouseTracking(true);
         setMouseTracking(true);
     }
     QMetaObject::connectSlotsByName(this);
 #endif
     QObject::connect(&AscAppManager::getInstance().commonEvents(), &CEventDriver::onModalDialog, this, &CMainWindow::slot_modalDialog);
-    _m_pMainPanel->setStyleSheet(AscAppManager::getWindowStylesheets(m_dpiRatio));
+    m_pMainPanel->setStyleSheet(AscAppManager::getWindowStylesheets(m_dpiRatio));
     updateScalingFactor(m_dpiRatio);
     goStart();
 }
@@ -210,14 +210,14 @@ int CMainWindow::editorsCount(const std::wstring& portal)
 
 bool CMainWindow::pointInTabs(const QPoint& pt)
 {
-    QRect _rc_title(_m_pMainPanel->geometry());
+    QRect _rc_title(m_pMainPanel->geometry());
     _rc_title.setHeight(tabWidget()->tabBar()->height());
 //#if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
 #ifdef Q_OS_LINUX
     _rc_title.moveTop(1);
 #endif
 //#endif
-    return _rc_title.contains(_m_pMainPanel->mapFromGlobal(pt));
+    return _rc_title.contains(m_pMainPanel->mapFromGlobal(pt));
 }
 
 bool CMainWindow::holdView(int id) const
@@ -228,7 +228,7 @@ bool CMainWindow::holdView(int id) const
 void CMainWindow::applyTheme(const std::wstring& theme)
 {
     CWindowPlatform::applyTheme(theme);
-    _m_pMainPanel->setProperty("uitheme", QString::fromStdWString(theme));
+    m_pMainPanel->setProperty("uitheme", QString::fromStdWString(theme));
     for (int i(m_pTabs->count()); !(--i < 0);) {
         CAscTabData& _doc = *m_pTabs->panel(i)->data();
         if ( _doc.isViewType(cvwtEditor) && !_doc.closed() ) {
@@ -243,8 +243,8 @@ void CMainWindow::applyTheme(const std::wstring& theme)
             btn->style()->polish(btn);
     }
     m_pTabs->applyUITheme(theme);
-    _m_pMainPanel->style()->polish(_m_pMainPanel);
-    _m_pMainPanel->update();
+    m_pMainPanel->style()->polish(m_pMainPanel);
+    m_pMainPanel->update();
     //double dpiratio = scaling();
     m_pButtonMain->setIcon(":/logo.svg", AscAppManager::themes().current().isDark() ? "logo-light" : "logo-dark");
 }
@@ -541,7 +541,7 @@ void CMainWindow::attachStartPanel(QCefView * const view)
 #ifdef __linux
     view->setMouseTracking(m_pButtonMain->hasMouseTracking());
 #endif
-    m_pMainWidget->setParent(_m_pMainPanel);
+    m_pMainWidget->setParent(m_pMainPanel);
     m_pMainGridLayout->addWidget(m_pMainWidget, 1, 0, 1, 4);
     m_pMainWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     if (!m_pTabs->isActiveWidget())
@@ -552,7 +552,7 @@ void CMainWindow::attachStartPanel(QCefView * const view)
 void CMainWindow::setMouseTracking(bool enable)
 {
     QWidget::setMouseTracking(enable);
-    _m_pMainPanel->findChild<QLabel *>("labelAppTitle")->setMouseTracking(enable);
+    m_pMainPanel->findChild<QLabel *>("labelAppTitle")->setMouseTracking(enable);
 
     m_boxTitleBtns->setMouseTracking(enable);
     m_pTabs->setMouseTracking(enable);
@@ -1472,7 +1472,7 @@ void CMainWindow::setScreenScalingFactor(double s)
 {
     CWindowPlatform::setScreenScalingFactor(s);
     updateScalingFactor(s);
-    CScalingWrapper::updateChildScaling(_m_pMainPanel, s);
+    CScalingWrapper::updateChildScaling(m_pMainPanel, s);
 }
 
 bool CMainWindow::holdUid(int uid) const

@@ -57,7 +57,7 @@ auto refresh_window_scaling_factor(CWindowPlatform * window) -> void
 {
     QString css{AscAppManager::getWindowStylesheets(window->m_dpiRatio)};
     if ( !css.isEmpty() ) {
-        window->_m_pMainPanel->setStyleSheet(css);
+        window->m_pMainPanel->setStyleSheet(css);
         window->setScreenScalingFactor(window->m_dpiRatio);
     }
 }
@@ -258,14 +258,14 @@ void CWindowPlatform::captureMouse()
 {
     if (m_winType != WindowType::MAIN) return;
     ReleaseCapture();
-    if (tabindex >= 0 && tabindex < _m_pMainPanel->tabWidget()->count()) {
-        QPoint spt = _m_pMainPanel->tabWidget()->tabBar()->tabRect(tabindex).topLeft() + QPoint(30, 10);
-        QPoint gpt = _m_pMainPanel->tabWidget()->tabBar()->mapToGlobal(spt);
+    if (tabindex >= 0 && tabindex < m_pMainPanel->tabWidget()->count()) {
+        QPoint spt = m_pMainPanel->tabWidget()->tabBar()->tabRect(tabindex).topLeft() + QPoint(30, 10);
+        QPoint gpt = m_pMainPanel->tabWidget()->tabBar()->mapToGlobal(spt);
 #if (QT_VERSION < QT_VERSION_CHECK(5, 10, 0))
         gpt = m_pWinPanel->mapToGlobal(gpt);
 #endif
         SetCursorPos(gpt.x(), gpt.y());
-        QWidget * _widget = _m_pMainPanel->tabWidget()->tabBar();
+        QWidget * _widget = m_pMainPanel->tabWidget()->tabBar();
         QTimer::singleShot(0,[_widget,spt] {
             INPUT _input{INPUT_MOUSE};
             _input.mi.dwFlags = MOUSEEVENTF_ABSOLUTE|MOUSEEVENTF_LEFTDOWN;
@@ -306,8 +306,8 @@ void CWindowPlatform::setScreenScalingFactor(double factor)
         if ( !css.isEmpty() ) {
             double change_factor = factor / m_dpiRatio;
             m_dpiRatio = factor;
-            _m_pMainPanel->setStyleSheet(css);
-            //_m_pMainPanel->setScreenScalingFactor(factor);
+            m_pMainPanel->setStyleSheet(css);
+            //m_pMainPanel->setScreenScalingFactor(factor);
             setPlacement(m_hWnd, m_moveNormalRect, change_factor);
         }
         m_skipSizing = false;

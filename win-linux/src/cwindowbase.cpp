@@ -123,11 +123,12 @@ auto CElipsisLabel::updateText() -> void
 
 CWindowBase::CWindowBase()
     : QMainWindow(nullptr)
-    , m_boxTitleBtns(nullptr)
-    , m_pMainPanel(nullptr)
-    , m_pMainView(nullptr)
     , m_pTopButtons(3, nullptr)
+    , m_pMainPanel(nullptr)
+    , m_boxTitleBtns(nullptr)
+    , m_pMainView(nullptr)
     , m_labelTitle(nullptr)
+    , m_dpiRatio(1.0)
     , pimpl{new CWindowBasePrivate}
 {
     setWindowIcon(Utils::appIcon());

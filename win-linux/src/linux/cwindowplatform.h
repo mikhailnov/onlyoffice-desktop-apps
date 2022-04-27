@@ -42,7 +42,7 @@ class CWindowPlatform : public CWindowBase, public CX11Decoration
 {
 public:
     explicit CWindowPlatform(const QRect&, const WindowType);
-    ~CWindowPlatform();
+    virtual ~CWindowPlatform();
 
     QWidget * handle() const;
     void sendSertificate(int viewid);
