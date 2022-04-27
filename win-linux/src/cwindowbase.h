@@ -49,8 +49,6 @@
 #define TITLE_HEIGHT        28
 
 #include <QMainWindow>
-#include <QWidget>
-#include <QVector>
 #include <QPushButton>
 #include <QLabel>
 #include <memory>
@@ -60,15 +58,6 @@
 # include <windowsx.h>
 # include <dwmapi.h>
 #endif
-
-enum BtnType {
-    Btn_Minimize, Btn_Maximize, Btn_Close
-};
-
-enum class WindowType : uint_fast8_t
-{
-    MAIN, SINGLE, REPORTER
-};
 
 class CElipsisLabel : public QLabel
 {
@@ -96,6 +85,14 @@ public:
     virtual ~CWindowBase();
 
 protected:
+    enum BtnType {
+        Btn_Minimize, Btn_Maximize, Btn_Close
+    };
+    enum class WindowType : uint_fast8_t
+    {
+        MAIN, SINGLE, REPORTER
+    };
+
     QPushButton* createToolButton(QWidget * parent, const QString& name);
     QWidget* createTopPanel(QWidget *parent, bool isCustom);
     bool isCustomWindowStyle();
@@ -106,17 +103,13 @@ protected:
     virtual void onCloseEvent();
 #if defined (_WIN32)
     virtual void focus() = 0;
-#endif
-
+#endif    
     QVector<QPushButton*> m_pTopButtons;
-    QWidget *m_pMainPanel,
-            *m_boxTitleBtns,
-            *m_pMainView;
-
-    int a;
-
-    CElipsisLabel * m_labelTitle;
-    double m_dpiRatio;
+    CElipsisLabel *m_labelTitle;
+    QWidget       *m_pMainPanel,
+                  *m_boxTitleBtns,
+                  *m_pMainView;
+    double         m_dpiRatio;
 
 private:
     class CWindowBasePrivate;

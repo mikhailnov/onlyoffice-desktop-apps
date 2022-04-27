@@ -170,25 +170,17 @@ protected:
 
 private:
     int  trySaveDocument(int);
-    std::wstring    m_sDownloadName;
 
-    QWidget*        m_pMainWidget = nullptr;
-    QGridLayout*    m_pMainGridLayout;
-
-    QPushButton*    m_pButtonProfile;
-
-    bool            m_isMaximized = false,
-                    m_isCustomWindow;
-
-    CDownloadWidget * m_pWidgetDownload = Q_NULLPTR;
-
-    printdata *    m_printData;
-    Qt::WindowState m_mainWindowState;
-
-    QStringList * m_inFiles;
-
-    QString m_savePortal;
-    int m_saveAction;   
+    QWidget*         m_pMainWidget;
+    QPushButton*     m_pButtonProfile;
+    CDownloadWidget* m_pWidgetDownload;
+    printdata*       m_printData;
+    QStringList*     m_inFiles;
+    QString          m_savePortal;
+    Qt::WindowState  m_mainWindowState;
+    bool             m_isMaximized,
+                     m_isCustomWindow;
+    int              m_saveAction;
 };
 
 #endif // CMAINWINDOW_H

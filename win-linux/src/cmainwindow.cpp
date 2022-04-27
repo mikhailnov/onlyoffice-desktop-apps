@@ -95,20 +95,28 @@ public:
 
 CMainWindow::CMainWindow(const QRect &rect) :
     CWindowPlatform(rect, WindowType::MAIN),
-    CScalingWrapper(m_dpiRatio)
-    , m_printData(new printdata)
-    , m_mainWindowState(Qt::WindowNoState)
-    , m_inFiles(NULL)
-    , m_saveAction(0)
+    CScalingWrapper(m_dpiRatio),
+    m_pTabBarWrapper(nullptr),
+    m_pTabs(nullptr),
+    m_pButtonMain(nullptr),
+    m_pMainWidget(nullptr),
+    m_pButtonProfile(nullptr),
+    m_pWidgetDownload(nullptr),
+    m_printData(new printdata),
+    m_inFiles(nullptr),
+    m_savePortal(QString()),
+    m_mainWindowState(Qt::WindowNoState),
+    m_isMaximized(false),
+    m_isCustomWindow(true),
+    m_saveAction(0)
 {
-    bool isDecorated = true;
 #ifdef __linux__
-    isDecorated = !CX11Decoration::isDecorated();
+    m_isCustomWindow = !CX11Decoration::isDecorated();
 #endif
-    m_pMainPanel = createMainPanel(this, isDecorated, m_dpiRatio);
+    m_pMainPanel = createMainPanel(this, m_isCustomWindow, m_dpiRatio);
     setCentralWidget(m_pMainPanel);
 #ifdef __linux__
-    if (!CX11Decoration::isDecorated()) {
+    if (m_isCustomWindow) {
         CX11Decoration::setTitleWidget(m_boxTitleBtns);
         m_pMainPanel->setMouseTracking(true);
         setMouseTracking(true);
@@ -467,21 +475,21 @@ QWidget* CMainWindow::createMainPanel(QWidget *parent, bool isCustomWindow, doub
     QWidget *mainPanel = new QWidget(parent);
     mainPanel->setObjectName("mainPanel");
     mainPanel->setProperty("uitheme", QString::fromStdWString(AscAppManager::themes().current().id()));
-    m_pMainGridLayout = new QGridLayout(mainPanel);
-    m_pMainGridLayout->setSpacing(0);
-    m_pMainGridLayout->setObjectName(QString::fromUtf8("mainGridLayout"));
-    m_pMainGridLayout->setContentsMargins(0, 0, 0, 0);
-    mainPanel->setLayout(m_pMainGridLayout);
+    QGridLayout *_pMainGridLayout = new QGridLayout(mainPanel);
+    _pMainGridLayout->setSpacing(0);
+    _pMainGridLayout->setObjectName(QString::fromUtf8("mainGridLayout"));
+    _pMainGridLayout->setContentsMargins(0, 0, 0, 0);
+    mainPanel->setLayout(_pMainGridLayout);
 
     // Set custom TabBar
     m_pTabBarWrapper = new CTabBarWrapper(mainPanel);
     m_pTabBarWrapper->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    m_pMainGridLayout->addWidget(m_pTabBarWrapper, 0, 1, 1, 1);
+    _pMainGridLayout->addWidget(m_pTabBarWrapper, 0, 1, 1, 1);
 
 //    QSize wide_btn_size(29*g_dpi_ratio, TOOLBTN_HEIGHT*g_dpi_ratio);
     m_boxTitleBtns = createTopPanel(mainPanel, isCustomWindow);
     m_boxTitleBtns->setObjectName("CX11Caption");
-    m_pMainGridLayout->addWidget(m_boxTitleBtns, 0, 2, 1, 1);
+    _pMainGridLayout->addWidget(m_boxTitleBtns, 0, 2, 1, 1);
 
 #ifdef __DONT_WRITE_IN_APP_TITLE
     QLabel * label = new QLabel(m_boxTitleBtns);
@@ -497,13 +505,13 @@ QWidget* CMainWindow::createMainPanel(QWidget *parent, bool isCustomWindow, doub
     m_pButtonMain->setObjectName( "toolButtonMain" );
     m_pButtonMain->setProperty("class", "active");
     m_pButtonMain->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-    m_pMainGridLayout->addWidget(m_pButtonMain, 0, 0, 1, 1);
+    _pMainGridLayout->addWidget(m_pButtonMain, 0, 0, 1, 1);
     QObject::connect(m_pButtonMain, SIGNAL(clicked()), this, SLOT(pushButtonMainClicked()));
 
     QPalette palette;
     if (isCustomWindow) {
 #ifdef __linux__
-        m_pMainGridLayout->setMargin( CX11Decoration::customWindowBorderWith() * dpi_ratio );
+        _pMainGridLayout->setMargin( CX11Decoration::customWindowBorderWith() * dpi_ratio );
         //connect(m_boxTitleBtns, SIGNAL(mouseDoubleClicked()), SLOT(onMaximizeEvent()));
 #endif
     } else {
@@ -518,7 +526,7 @@ QWidget* CMainWindow::createMainPanel(QWidget *parent, bool isCustomWindow, doub
     // Set TabWidget
     m_pTabs = new CAscTabWidget(mainPanel, tabBar());
     m_pTabs->setObjectName(QString::fromUtf8("ascTabWidget"));
-    m_pMainGridLayout->addWidget(m_pTabs, 1, 0, 1, 4);
+    _pMainGridLayout->addWidget(m_pTabs, 1, 0, 1, 4);
     m_pTabs->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     m_pTabs->activate(false);
     m_pTabs->applyUITheme(AscAppManager::themes().current().id());
@@ -542,7 +550,7 @@ void CMainWindow::attachStartPanel(QCefView * const view)
     view->setMouseTracking(m_pButtonMain->hasMouseTracking());
 #endif
     m_pMainWidget->setParent(m_pMainPanel);
-    m_pMainGridLayout->addWidget(m_pMainWidget, 1, 0, 1, 4);
+    dynamic_cast<QGridLayout*>(m_pMainPanel->layout())->addWidget(m_pMainWidget, 1, 0, 1, 4);
     m_pMainWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     if (!m_pTabs->isActiveWidget())
         m_pMainWidget->show();
