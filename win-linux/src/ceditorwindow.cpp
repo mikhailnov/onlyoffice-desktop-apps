@@ -243,7 +243,7 @@ QWidget * CEditorWindow::createMainPanel(QWidget * parent, const QString& title)
     mainPanel->setLayout(mainGridLayout);
 
     if (isCustom) {
-        m_boxTitleBtns = createTopPanel(parent, isCustom);
+        m_boxTitleBtns = createTopPanel(mainPanel, isCustom);
         m_boxTitleBtns->setObjectName("box-title-tools");
 
         m_labelTitle = new CElipsisLabel(title, m_boxTitleBtns);
