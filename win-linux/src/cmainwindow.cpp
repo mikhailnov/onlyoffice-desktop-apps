@@ -479,20 +479,9 @@ QWidget* CMainWindow::createMainPanel(QWidget *parent, bool isCustomWindow, doub
     m_pMainGridLayout->addWidget(m_pTabBarWrapper, 0, 1, 1, 1);
 
 //    QSize wide_btn_size(29*g_dpi_ratio, TOOLBTN_HEIGHT*g_dpi_ratio);
-    QPalette palette;
-#ifdef __linux__
-    m_boxTitleBtns = new QWidget(mainPanel);
-#else
-    m_boxTitleBtns = static_cast<QWidget*>(new Caption(mainPanel));
-#endif
+    m_boxTitleBtns = createTopPanel(mainPanel, isCustomWindow);
     m_boxTitleBtns->setObjectName("CX11Caption");
-    m_boxTitleBtns->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     m_pMainGridLayout->addWidget(m_boxTitleBtns, 0, 2, 1, 1);
-    QHBoxLayout * layoutBtns = new QHBoxLayout(m_boxTitleBtns);
-    layoutBtns->setContentsMargins(0,0,int(4*dpi_ratio),0);
-    layoutBtns->setSpacing(int(1*dpi_ratio));
-    layoutBtns->addStretch();
-    m_boxTitleBtns->setLayout(layoutBtns);
 
 #ifdef __DONT_WRITE_IN_APP_TITLE
     QLabel * label = new QLabel(m_boxTitleBtns);
@@ -501,7 +490,7 @@ QWidget* CMainWindow::createMainPanel(QWidget *parent, bool isCustomWindow, doub
 #endif
     label->setObjectName("labelAppTitle");
     label->setAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
-    layoutBtns->addWidget(label);
+    static_cast<QHBoxLayout*>(m_boxTitleBtns->layout())->insertWidget(1,label);
 
     // Main
     m_pButtonMain = new CSVGPushButton(mainPanel);
@@ -511,11 +500,8 @@ QWidget* CMainWindow::createMainPanel(QWidget *parent, bool isCustomWindow, doub
     m_pMainGridLayout->addWidget(m_pButtonMain, 0, 0, 1, 1);
     QObject::connect(m_pButtonMain, SIGNAL(clicked()), this, SLOT(pushButtonMainClicked()));
 
+    QPalette palette;
     if (isCustomWindow) {
-        createTopButtons(m_boxTitleBtns);
-        foreach (auto btn, m_pTopButtons)
-            layoutBtns->addWidget(btn);
-
 #ifdef __linux__
         m_pMainGridLayout->setMargin( CX11Decoration::customWindowBorderWith() * dpi_ratio );
         //connect(m_boxTitleBtns, SIGNAL(mouseDoubleClicked()), SLOT(onMaximizeEvent()));

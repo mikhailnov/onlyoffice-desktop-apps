@@ -67,9 +67,7 @@ public:
     virtual void applyTheme(const std::wstring&) final;
 
 private:
-    QWidget * createTopPanel(QWidget *, const QString&);
-    QWidget * createMainPanel(QWidget *, const QString&, bool custom = true,
-                              QWidget * view = nullptr);
+    QWidget * createMainPanel(QWidget *, const QString&);
     CTabPanel * mainView() const;
     void recalculatePlaces();
     void updateTitleCaption();

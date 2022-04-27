@@ -112,29 +112,17 @@ QWidget * CPresenterWindow::createMainPanel(QWidget * parent, const QString& tit
     mainGridLayout->setMargin(0);
     mainPanel->setLayout(mainGridLayout);
 
-#ifdef __linux__
-    m_boxTitleBtns = new QWidget(mainPanel);
-#else
-    m_boxTitleBtns = static_cast<QWidget*>(new Caption(mainPanel));
-#endif
+    m_boxTitleBtns = createTopPanel(mainPanel, custom);
     m_boxTitleBtns->setObjectName("box-title-tools");
-    m_boxTitleBtns->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    //m_boxTitleBtns->setFixedHeight(TOOLBTN_HEIGHT * m_dpiRatio);
-
-    QHBoxLayout * layoutBtns = new QHBoxLayout(m_boxTitleBtns);
-    layoutBtns->setContentsMargins(0,0,0,0);
-    layoutBtns->setSpacing(int(1*m_dpiRatio));
-    m_boxTitleBtns->setLayout(layoutBtns);
 
     m_labelTitle = new CElipsisLabel(title, m_boxTitleBtns);
     m_labelTitle->setObjectName("labelAppTitle");
     m_labelTitle->setAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
-    layoutBtns->addWidget(m_labelTitle);
+    m_labelTitle->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    static_cast<QHBoxLayout*>(m_boxTitleBtns->layout())->insertWidget(0, m_labelTitle);
+    static_cast<QHBoxLayout*>(m_boxTitleBtns->layout())->insertStretch(0);
 
     if (custom) {
-        createTopButtons(m_boxTitleBtns);
-        foreach (auto btn, m_pTopButtons)
-            layoutBtns->addWidget(btn);
 #ifdef __linux__
         m_labelTitle->setMouseTracking(true);
         mainGridLayout->setMargin(CX11Decoration::customWindowBorderWith() * m_dpiRatio);

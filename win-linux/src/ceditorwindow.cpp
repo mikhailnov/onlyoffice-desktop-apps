@@ -225,42 +225,10 @@ void CEditorWindow::applyTheme(const std::wstring& theme)
 
 /** Private **/
 
-QWidget * CEditorWindow::createTopPanel(QWidget * parent, const QString& title)
-{
-    if (isCustomWindowStyle()) {
-#ifdef __linux__
-        m_boxTitleBtns = new QWidget(parent);
-#else
-        m_boxTitleBtns = static_cast<QWidget*>(new Caption(parent));
-#endif
-        m_boxTitleBtns->setObjectName("box-title-tools");
-        m_boxTitleBtns->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-        //m_boxTitleBtns->setFixedHeight(TOOLBTN_HEIGHT * m_dpiRatio);
-
-        QHBoxLayout * layoutBtns = new QHBoxLayout(m_boxTitleBtns);
-        layoutBtns->setContentsMargins(0,0,0,0);
-        layoutBtns->setSpacing(int(1 * m_dpiRatio));
-        m_boxTitleBtns->setLayout(layoutBtns);
-
-        m_labelTitle = new CElipsisLabel(title, m_boxTitleBtns);
-        m_labelTitle->setObjectName("labelTitle");
-        m_labelTitle->setMouseTracking(true);
-        m_labelTitle->setEllipsisMode(Qt::ElideMiddle);
-        m_labelTitle->setMaximumWidth(100);
-
-        layoutBtns->addStretch();
-        layoutBtns->addWidget(m_labelTitle, 0);
-        layoutBtns->addStretch();
-
-        createTopButtons(m_boxTitleBtns);
-    }
-
-    return nullptr;
-}
-
-QWidget * CEditorWindow::createMainPanel(QWidget * parent, const QString& title, bool, QWidget*)
+QWidget * CEditorWindow::createMainPanel(QWidget * parent, const QString& title)
 {
     // create min/max/close buttons
+    bool isCustom = isCustomWindowStyle();
     QWidget * mainPanel = new QWidget(parent);
     mainPanel->setObjectName("mainPanel");
 
@@ -269,11 +237,23 @@ QWidget * CEditorWindow::createMainPanel(QWidget * parent, const QString& title,
 #ifdef Q_OS_WIN
     mainGridLayout->setMargin(0);
 #else
-    int b = !isCustomWindowStyle() ? 0 : CX11Decoration::customWindowBorderWith() * m_dpiRatio;
+    int b = !isCustom ? 0 : CX11Decoration::customWindowBorderWith() * m_dpiRatio;
     mainGridLayout->setContentsMargins(QMargins(b,b,b,b));
 #endif
     mainPanel->setLayout(mainGridLayout);
-    createTopPanel(mainPanel, title);
+
+    if (isCustom) {
+        m_boxTitleBtns = createTopPanel(parent, isCustom);
+        m_boxTitleBtns->setObjectName("box-title-tools");
+
+        m_labelTitle = new CElipsisLabel(title, m_boxTitleBtns);
+        m_labelTitle->setObjectName("labelTitle");
+        m_labelTitle->setMouseTracking(true);
+        m_labelTitle->setEllipsisMode(Qt::ElideMiddle);
+        m_labelTitle->setMaximumWidth(100);
+        static_cast<QHBoxLayout*>(m_boxTitleBtns->layout())->insertWidget(0, m_labelTitle);
+        static_cast<QHBoxLayout*>(m_boxTitleBtns->layout())->insertStretch(0);
+    }
 
     if ( m_dpiRatio > 1.75 )
         mainPanel->setProperty("zoom", "2x");
@@ -291,7 +271,7 @@ QWidget * CEditorWindow::createMainPanel(QWidget * parent, const QString& title,
     mainPanel->setStyleSheet(AscAppManager::getWindowStylesheets(m_dpiRatio) + m_css);
 
     bool _canExtendTitle = false;
-    if ( isCustomWindowStyle() ) {
+    if (isCustom) {
         if ( !d_ptr->canExtendTitle() ) {
             //mainGridLayout->addWidget(m_boxTitleBtns);
             mainGridLayout->addWidget(m_boxTitleBtns, 0, 0);
@@ -301,11 +281,8 @@ QWidget * CEditorWindow::createMainPanel(QWidget * parent, const QString& title,
                 mainPanel->setProperty("window", "pretty");
             //m_boxTitleBtns->setParent(mainPanel);
             _canExtendTitle = true;
-            m_boxTitleBtns->layout()->addWidget(d_ptr.get()->iconUser());
+            static_cast<QHBoxLayout*>(m_boxTitleBtns->layout())->insertWidget(3, d_ptr.get()->iconUser());
         }
-
-        foreach (auto btn, m_pTopButtons)
-            m_boxTitleBtns->layout()->addWidget(btn);
 
         d_ptr->customizeTitleLabel();
 //        m_boxTitleBtns->setFixedSize(282*m_dpiRatio, TOOLBTN_HEIGHT*m_dpiRatio);

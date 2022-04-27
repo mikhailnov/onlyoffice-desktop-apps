@@ -164,7 +164,7 @@ QWidget* CWindowBase::createTopPanel(QWidget *parent, bool isCustom)
     _boxTitleBtns->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
     QHBoxLayout *layoutBtns = new QHBoxLayout(_boxTitleBtns);
-    layoutBtns->setContentsMargins(0, 0, int(4*m_dpiRatio), 0);
+    layoutBtns->setContentsMargins(0, 0, int(1*m_dpiRatio), 0);
     layoutBtns->setSpacing(int(1*m_dpiRatio));
     layoutBtns->addStretch();
     _boxTitleBtns->setLayout(layoutBtns);
@@ -182,19 +182,6 @@ QWidget* CWindowBase::createTopPanel(QWidget *parent, bool isCustom)
     }
 
     return _boxTitleBtns;
-}
-
-void CWindowBase::createTopButtons(QWidget *parent)
-{
-    const QString names[3] = {"toolButtonMinimize", "toolButtonMaximize", "toolButtonClose"};
-    std::function<void(void)> btn_methods[3] = {
-        [=]{onMinimizeEvent();}, [=]{onMaximizeEvent();}, [=]{onCloseEvent();}};
-    m_pTopButtons.clear();
-    for (int i = 0; i < 3; i++) {
-        QPushButton *btn = createToolButton(parent, names[i]);
-        QObject::connect(btn, &QPushButton::clicked, btn_methods[i]);
-        m_pTopButtons.push_back(btn);
-    }
 }
 
 bool CWindowBase::isCustomWindowStyle()
