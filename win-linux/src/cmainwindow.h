@@ -40,6 +40,7 @@
 # include "linux/cwindowplatform.h"
 #endif
 #include "cscalingwrapper.h"
+#include "cmainpanelimpl.h"
 #include "asctabwidget.h"
 #include "cdownloadwidget.h"
 #include "csvgpushbutton.h"
@@ -49,7 +50,7 @@
 
 struct printdata;
 
-class CMainWindow : public CWindowPlatform, public CScalingWrapper
+class CMainWindow : public CWindowPlatform, public CScalingWrapper, public CMainPanelImpl
 {
     Q_OBJECT
 public:
@@ -154,23 +155,19 @@ public slots:
     void onOutsideAuth(QString);
     void onEditorAllowedClose(int);
     void onWebTitleChanged(int, std::wstring json) {}
-    virtual void onLocalOptions(const QString&);
+    //virtual void onLocalOptions(const QString&);
     virtual void onLocalFileSaveAs(void *);
     virtual void onDocumentPrint(void *);
     virtual void onDocumentReady(int);
 
-protected:
-    virtual void refreshAboutVersion();
-    virtual QString getSaveMessage() const;
-
-protected:
-    CTabBarWrapper* m_pTabBarWrapper;
-    CAscTabWidget * m_pTabs;
-    CSVGPushButton* m_pButtonMain; 
-
 private:
     int  trySaveDocument(int);
+    //virtual void refreshAboutVersion();
+    virtual QString getSaveMessage() const;
 
+    CTabBarWrapper*  m_pTabBarWrapper;
+    CAscTabWidget *  m_pTabs;
+    CSVGPushButton*  m_pButtonMain;
     QWidget*         m_pMainWidget;
     QPushButton*     m_pButtonProfile;
     CDownloadWidget* m_pWidgetDownload;

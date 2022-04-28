@@ -44,6 +44,7 @@
 #include "version.h"
 #include "cmessage.h"
 #include "../Common/OfficeFileFormats.h"
+#include "cmainpanelimpl.h"
 #include <QDesktopWidget>
 #include <QGridLayout>
 #include <QTimer>
@@ -96,6 +97,7 @@ public:
 CMainWindow::CMainWindow(const QRect &rect) :
     CWindowPlatform(rect, WindowType::MAIN),
     CScalingWrapper(m_dpiRatio),
+    CMainPanelImpl(),
     m_pTabBarWrapper(nullptr),
     m_pTabs(nullptr),
     m_pButtonMain(nullptr),
@@ -253,8 +255,9 @@ void CMainWindow::applyTheme(const std::wstring& theme)
     m_pTabs->applyUITheme(theme);
     m_pMainPanel->style()->polish(m_pMainPanel);
     m_pMainPanel->update();
-    //double dpiratio = scaling();
-    m_pButtonMain->setIcon(":/logo.svg", AscAppManager::themes().current().isDark() ? "logo-light" : "logo-dark");
+
+    m_pButtonMain->setIcon(MAIN_ICON_PATH, AscAppManager::themes().current().isDark() ? "logo-light" : "logo-dark");
+    m_pButtonMain->setIconSize(MAIN_ICON_SIZE * m_dpiRatio);
 }
 
 #ifdef _UPDMODULE
@@ -537,7 +540,6 @@ QWidget* CMainWindow::createMainPanel(QWidget *parent, bool isCustomWindow, doub
     connect(m_pTabs, &CAscTabWidget::closeAppRequest, this, &CMainWindow::onAppCloseRequest);
     connect(m_pTabs, &CAscTabWidget::editorInserted, bind(&CMainWindow::onTabsCountChanged, this, _2, _1, 1));
     connect(m_pTabs, &CAscTabWidget::editorRemoved, bind(&CMainWindow::onTabsCountChanged, this, _2, _1, -1));
-    QObject::connect(CLangater::getInstance(), &CLangater::onLangChanged, std::bind(&CMainWindow::refreshAboutVersion, this));
     m_pTabs->setPalette(palette);
     m_pTabs->setCustomWindowParams(isCustomWindow);
     return mainPanel;
@@ -1472,8 +1474,8 @@ void CMainWindow::updateScalingFactor(double dpiratio)
     m_pTabs->setStyleSheet(_style);
     m_pTabs->updateScalingFactor(dpiratio);
     m_pTabs->reloadTabIcons();
-    m_pButtonMain->setIcon(":/logo.svg", AscAppManager::themes().current().isDark() ? "logo-light" : "logo-dark");
-    m_pButtonMain->setIconSize(QSize(85,20)*dpiratio);
+    m_pButtonMain->setIcon(MAIN_ICON_PATH, AscAppManager::themes().current().isDark() ? "logo-light" : "logo-dark");
+    m_pButtonMain->setIconSize(MAIN_ICON_SIZE * dpiratio);
 }
 
 void CMainWindow::setScreenScalingFactor(double s)
@@ -1518,7 +1520,7 @@ CTabBar *CMainWindow::tabBar()
 
 /** MainPanelImpl **/
 
-void CMainWindow::refreshAboutVersion()
+/*void CMainWindow::refreshAboutVersion()
 {
     QString _license = tr("Licensed under") + " &lt;a class=\"link\" onclick=\"window.open('" URL_AGPL "')\" draggable=\"false\" href=\"#\"&gt;GNU AGPL v3&lt;/a&gt;";
 
@@ -1574,9 +1576,9 @@ void CMainWindow::refreshAboutVersion()
     AscAppManager::sendCommandTo(SEND_TO_ALL_START_PAGE, "settings:init", Utils::stringifyJson(_json_obj));
     if ( InputArgs::contains(L"--ascdesktop-reveal-app-config") )
             AscAppManager::sendCommandTo( nullptr, "retrive:localoptions", "" );
-}
+}*/
 
-void CMainWindow::onLocalOptions(const QString& json)
+/*void CMainWindow::onLocalOptions(const QString& json)
 {
     QJsonParseError jerror;
     QJsonDocument jdoc = QJsonDocument::fromJson(json.toLatin1(), &jerror);
@@ -1587,4 +1589,4 @@ void CMainWindow::onLocalOptions(const QString& json)
         file.write(jdoc.toJson());
         file.close();
     }
-}
+}*/

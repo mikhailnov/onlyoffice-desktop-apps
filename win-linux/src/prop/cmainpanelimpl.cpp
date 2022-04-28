@@ -30,7 +30,7 @@
  *
 */
 
-/*#include "cmainpanelimpl.h"
+#include "cmainpanelimpl.h"
 #include "cascapplicationmanagerwrapper.h"
 #include "defines.h"
 #include "utils.h"
@@ -43,8 +43,7 @@
 
 #define QCEF_CAST(Obj) qobject_cast<QCefView *>(Obj)
 
-CMainPanelImpl::CMainPanelImpl(QWidget *parent, bool isCustomWindow, double scale)
-    : CMainPanel(parent, isCustomWindow, scale)
+CMainPanelImpl::CMainPanelImpl()
 {
     QObject::connect(CLangater::getInstance(), &CLangater::onLangChanged, std::bind(&CMainPanelImpl::refreshAboutVersion, this));
 }
@@ -107,22 +106,21 @@ void CMainPanelImpl::refreshAboutVersion()
             AscAppManager::sendCommandTo( nullptr, "retrive:localoptions", "" );
 }
 
-void CMainPanelImpl::updateScaling(double dpiratio)
+/*void CMainPanelImpl::updateScalingFactor(double dpiratio)
 {
-    CMainPanel::updateScaling(dpiratio);
-
+    //CMainPanel::updateScaling(dpiratio);
     m_pButtonMain->setIcon(":/logo.svg", AscAppManager::themes().current().isDark() ? "logo-light" : "logo-dark");
     m_pButtonMain->setIconSize(QSize(85,20)*dpiratio);
 }
 
 void CMainPanelImpl::applyTheme(const std::wstring& theme)
 {
-    CMainPanel::applyTheme(theme);
-
+    //CMainPanel::applyTheme(theme);
+    Q_UNUSED(theme)
     double dpiratio = scaling();
     m_pButtonMain->setIcon(":/logo.svg", AscAppManager::themes().current().isDark() ? "logo-light" : "logo-dark");
     m_pButtonMain->setIconSize(QSize(85,20)*dpiratio);
-}
+}*/
 
 void CMainPanelImpl::onLocalOptions(const QString& json)
 {
@@ -135,4 +133,4 @@ void CMainPanelImpl::onLocalOptions(const QString& json)
         file.write(jdoc.toJson());
         file.close();
     }
-}*/
+}

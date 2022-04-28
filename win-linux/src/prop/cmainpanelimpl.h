@@ -33,22 +33,24 @@
 #ifndef CMAINPANELIMPL_H
 #define CMAINPANELIMPL_H
 
-/*#include "cmainpanel.h"
 #include <QCoreApplication>
 
-class CMainPanelImpl : public CMainPanel
+#define MAIN_ICON_SIZE QSize(85,20)
+#define MAIN_ICON_PATH QString(":/logo.svg")
+
+class CMainPanelImpl
 {
     Q_DECLARE_TR_FUNCTIONS(CMainPanelImpl)
 
 public:
-    CMainPanelImpl(QWidget *, bool, double);
+    CMainPanelImpl();
 
-    void updateScaling(double) override;
-    void applyTheme(const std::wstring&) override;
+    //void updateScalingFactor(double);
+    //void applyTheme(const std::wstring&);
+    void onLocalOptions(const QString&);
 
-    void onLocalOptions(const QString&) override;
-private:
-    void refreshAboutVersion() override;
-};*/
+protected:
+    void refreshAboutVersion();
+};
 
 #endif // CMAINPANELIMPL_H
