@@ -40,7 +40,7 @@
 # include "linux/cwindowplatform.h"
 #endif
 #include "cscalingwrapper.h"
-#include "cmainpanelimpl.h"
+#include "cmainwindowimpl.h"
 #include "asctabwidget.h"
 #include "cdownloadwidget.h"
 #include "csvgpushbutton.h"
@@ -50,7 +50,7 @@
 
 struct printdata;
 
-class CMainWindow : public CWindowPlatform, public CScalingWrapper, public CMainPanelImpl
+class CMainWindow : public CWindowPlatform, public CScalingWrapper, public CMainWindowImpl
 {
     Q_OBJECT
 public:

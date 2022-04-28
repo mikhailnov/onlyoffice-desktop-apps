@@ -97,7 +97,7 @@ public:
 CMainWindow::CMainWindow(const QRect &rect) :
     CWindowPlatform(rect, WindowType::MAIN),
     CScalingWrapper(m_dpiRatio),
-    CMainPanelImpl(),
+    CMainWindowImpl(),
     m_pTabBarWrapper(nullptr),
     m_pTabs(nullptr),
     m_pButtonMain(nullptr),
