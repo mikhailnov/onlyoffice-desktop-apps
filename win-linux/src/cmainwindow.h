@@ -90,7 +90,7 @@ private:
 
 private slots:
 #ifdef _WIN32
-    void slot_mainPageReady();
+    virtual void slot_mainPageReady() final;
 #endif
     virtual void onCloseEvent() final;
 

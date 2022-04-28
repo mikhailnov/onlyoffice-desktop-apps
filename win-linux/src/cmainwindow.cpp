@@ -124,8 +124,6 @@ CMainWindow::CMainWindow(const QRect &rect) :
         setMouseTracking(true);
     }
     QMetaObject::connectSlotsByName(this);
-#else
-    QObject::connect(this, &CMainWindowImpl::mainPageReady, this, &CMainWindow::slot_mainPageReady);
 #endif
     QObject::connect(&AscAppManager::getInstance().commonEvents(), &CEventDriver::onModalDialog, this, &CMainWindow::slot_modalDialog);
     m_pMainPanel->setStyleSheet(AscAppManager::getWindowStylesheets(m_dpiRatio));
