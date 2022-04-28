@@ -34,6 +34,7 @@
 #define CMAINWINDOWIMPL_H
 
 #include <QCoreApplication>
+#include "asctabwidget.h"
 
 #define MAIN_ICON_SIZE QSize(85,20)
 #define MAIN_ICON_PATH QString(":/logo.svg")
@@ -48,7 +49,14 @@ public:
     void onLocalOptions(const QString&);
 
 protected:
+    QString getSaveMessage() const;
     void refreshAboutVersion();
+    void doOpenLocalFile(COpenOptions&);
+    void onLocalFileSaveAs(void *);
+    void onDocumentReady(int);
+
+signals:
+    void mainPageReady();
 };
 
 #endif // CMAINWINDOWIMPL_H

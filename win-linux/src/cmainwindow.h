@@ -41,7 +41,6 @@
 #endif
 #include "cscalingwrapper.h"
 #include "cmainwindowimpl.h"
-#include "asctabwidget.h"
 #include "cdownloadwidget.h"
 #include "csvgpushbutton.h"
 #include <QSettings>
@@ -117,7 +116,7 @@ public:
 #ifdef __linux
     void setMouseTracking(bool);
 #endif
-    virtual void doOpenLocalFile(COpenOptions&);
+    void doOpenLocalFile(COpenOptions&);
     virtual void setScreenScalingFactor(double) final;
     virtual void updateScalingFactor(double) final;
 
@@ -156,14 +155,14 @@ public slots:
     void onEditorAllowedClose(int);
     void onWebTitleChanged(int, std::wstring json) {}
     //virtual void onLocalOptions(const QString&);
-    virtual void onLocalFileSaveAs(void *);
-    virtual void onDocumentPrint(void *);
-    virtual void onDocumentReady(int);
+    //void onLocalFileSaveAs(void *);
+    void onDocumentPrint(void *);
+    void onDocumentReady(int);
 
 private:
     int  trySaveDocument(int);
     //virtual void refreshAboutVersion();
-    virtual QString getSaveMessage() const;
+    //QString getSaveMessage() const;
 
     CTabBarWrapper*  m_pTabBarWrapper;
     CAscTabWidget *  m_pTabs;

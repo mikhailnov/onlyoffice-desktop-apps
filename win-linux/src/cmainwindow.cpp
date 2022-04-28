@@ -124,6 +124,8 @@ CMainWindow::CMainWindow(const QRect &rect) :
         setMouseTracking(true);
     }
     QMetaObject::connectSlotsByName(this);
+#else
+    QObject::connect(this, &CMainWindowImpl::mainPageReady, this, &CMainWindow::slot_mainPageReady);
 #endif
     QObject::connect(&AscAppManager::getInstance().commonEvents(), &CEventDriver::onModalDialog, this, &CMainWindow::slot_modalDialog);
     m_pMainPanel->setStyleSheet(AscAppManager::getWindowStylesheets(m_dpiRatio));
@@ -835,6 +837,8 @@ void CMainWindow::onCloudDocumentOpen(std::wstring url, int id, bool select)
 
 void CMainWindow::doOpenLocalFile(COpenOptions& opts)
 {
+    CMainWindowImpl::doOpenLocalFile(opts);
+
     QFileInfo info(opts.url);
     if (!info.exists()) { return; }
     if (!info.isFile()) { return; }
@@ -844,7 +848,7 @@ void CMainWindow::doOpenLocalFile(COpenOptions& opts)
         toggleButtonMain(false, true);
     } else
     if (result == -255) {
-        QTimer::singleShot(0, [=]{
+        QTimer::singleShot(0, this, [=] {
             CMessage::error(TOP_NATIVE_WINDOW_HANDLE, tr("File format not supported."));
         });
     }
@@ -1036,6 +1040,8 @@ void CMainWindow::onWebAppsFeatures(int id, std::wstring opts)
 
 void CMainWindow::onDocumentReady(int uid)
 {
+    CMainWindowImpl::onDocumentReady(uid);
+
     if ( uid < 0 ) {
         QTimer::singleShot(20, this, [=]{
             refreshAboutVersion();
@@ -1300,8 +1306,10 @@ void CMainWindow::onDocumentPrint(void * opts)
     RELEASEINTERFACE(pData)
 }
 
-void CMainWindow::onLocalFileSaveAs(void * d)
-{}
+/*void CMainWindow::onLocalFileSaveAs(void * d)
+{
+    CMainWindowImpl::onLocalFileSaveAs(d);
+}*/
 
 void CMainWindow::onFullScreen(int id, bool apply)
 {
@@ -1310,7 +1318,7 @@ void CMainWindow::onFullScreen(int id, bool apply)
             m_isMaximized = (m_mainWindowState == Qt::WindowMaximized);
             m_mainWindowState = Qt::WindowFullScreen;
             m_pTabs->setFullScreen(apply, id);
-            QTimer::singleShot(0, [=]{
+            QTimer::singleShot(0, this, [=] {
                 CAscMenuEvent * pEvent = new CAscMenuEvent(ASC_MENU_EVENT_TYPE_CEF_ONFULLSCREENENTER);
                 AscAppManager::getInstance().GetViewById(id)->Apply(pEvent);
             });
@@ -1438,10 +1446,10 @@ void CMainWindow::setInputFiles(QStringList * list)
     m_inFiles = list;
 }
 
-QString CMainWindow::getSaveMessage() const
+/*QString CMainWindow::getSaveMessage() const
 {
     return tr("%1 is modified.<br>Do you want to keep changes?");
-}
+}*/
 
 void CMainWindow::updateScalingFactor(double dpiratio)
 {

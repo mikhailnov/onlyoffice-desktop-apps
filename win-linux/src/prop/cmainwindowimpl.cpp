@@ -118,3 +118,22 @@ void CMainWindowImpl::onLocalOptions(const QString& json)
         file.close();
     }
 }
+void CMainWindowImpl::doOpenLocalFile(COpenOptions& opts)
+{
+    Q_UNUSED(opts)
+}
+
+QString CMainWindowImpl::getSaveMessage() const
+{
+    return tr("%1 is modified.<br>Do you want to keep changes?");
+}
+
+void CMainWindowImpl::onLocalFileSaveAs(void * d)
+{
+    Q_UNUSED(d)
+}
+
+void CMainWindowImpl::onDocumentReady(int uid)
+{
+    Q_UNUSED(uid)
+}
