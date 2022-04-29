@@ -43,7 +43,7 @@
 #include <QWidgetAction>
 #include "qcefview.h"
 #include "common/Types.h"
-#include "cwindowbase.h"
+#include "windows/cwindowbase.h"
 
 #include <QDebug>
 

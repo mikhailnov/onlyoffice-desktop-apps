@@ -64,41 +64,42 @@ INCLUDEPATH += \
     $$CORE_ROOT_DIR/Common
 
 HEADERS += \
+    $$PWD/src/windows/cmainwindow.h \
+    $$PWD/src/windows/cwindowbase.h \
+    $$PWD/src/windows/ceditorwindow.h \
+    $$PWD/src/windows/ceditorwindow_p.h \
+    $$PWD/src/windows/cpresenterwindow.h \
     $$PWD/src/components/asctabwidget.h \
     $$PWD/src/components/ctabbarwrapper.h \
-    $$PWD/src/version.h \
-    $$PWD/src/defines.h \
     $$PWD/src/components/cdownloadwidget.h \
     $$PWD/src/components/cpushbutton.h \
     $$PWD/src/components/cfiledialog.h \
     $$PWD/src/components/cprintprogress.h \
+    $$PWD/src/components/ctabbar.h \
+    $$PWD/src/components/cmessage.h \
+    $$PWD/src/components/canimatedicon.h \
+    $$PWD/src/components/ctabpanel.h \
+    $$PWD/src/components/csvgpushbutton.h \
+    $$PWD/src/components/celipsislabel.h \
+    $$PWD/src/version.h \
+    $$PWD/src/defines.h \
     $$PWD/src/ccefeventstransformer.h \
     $$PWD/src/cascapplicationmanagerwrapper.h \
     $$PWD/src/cascapplicationmanagerwrapper_private.h \
-    $$PWD/src/components/ctabbar.h \
     $$PWD/src/casctabdata.h \
     $$PWD/src/utils.h \
     $$PWD/src/cstyletweaks.h \
     $$PWD/src/chelp.h \
     $$PWD/src/csplash.h \
-    $$PWD/src/components/cmessage.h \
     $$PWD/src/cfilechecker.h \
     $$PWD/src/clogger.h \
     $$PWD/src/clangater.h \
-    $$PWD/src/components/canimatedicon.h \
     $$PWD/src/cscalingwrapper.h \
     $$PWD/src/ctabundockevent.h \
-    $$PWD/src/windows/cmainwindow.h \
-    $$PWD/src/windows/cwindowbase.h \
-    $$PWD/src/components/ctabpanel.h \
-    $$PWD/src/windows/ceditorwindow.h \
     $$PWD/src/ccefeventsgate.h \
-    $$PWD/src/windows/ceditorwindow_p.h \
-    $$PWD/src/windows/cpresenterwindow.h \
     $$PWD/src/ceditortools.h \
     $$PWD/src/cwindowsqueue.h \
     $$PWD/src/ceventdriver.h \
-    $$PWD/src/components/csvgpushbutton.h \
     $$PWD/src/cappeventfilter.h \
     $$PWD/src/cthemes.h
 #    src/ctabbar_p.h \
@@ -107,37 +108,38 @@ HEADERS += \
 #    src/components/casclabel.h
 
 SOURCES += \
-    $$PWD/src/csplash.cpp \
-    $$PWD/src/components/ctabbarwrapper.cpp \
-    $$PWD/src/main.cpp \
+    $$PWD/src/windows/cmainwindow.cpp \
+    $$PWD/src/windows/cwindowbase.cpp \
+    $$PWD/src/windows/ceditorwindow.cpp \
+    $$PWD/src/windows/cpresenterwindow.cpp \
     $$PWD/src/components/asctabwidget.cpp\
     $$PWD/src/components/cdownloadwidget.cpp \
     $$PWD/src/components/cpushbutton.cpp \
     $$PWD/src/components/cfiledialog.cpp \
     $$PWD/src/components/cprintprogress.cpp \
+    $$PWD/src/components/ctabbarwrapper.cpp \
+    $$PWD/src/components/ctabbar.cpp \
+    $$PWD/src/components/cmessage.cpp \
+    $$PWD/src/components/canimatedicon.cpp \
+    $$PWD/src/components/ctabpanel.cpp \
+    $$PWD/src/components/csvgpushbutton.cpp \
+    $$PWD/src/components/celipsislabel.cpp \
+    $$PWD/src/csplash.cpp \    
+    $$PWD/src/main.cpp \
     $$PWD/src/ccefeventstransformer.cpp \
     $$PWD/src/cascapplicationmanagerwrapper.cpp \
-    $$PWD/src/components/ctabbar.cpp \
     $$PWD/src/casctabdata.cpp \
     $$PWD/src/utils.cpp \
     $$PWD/src/cstyletweaks.cpp \
     $$PWD/src/chelp.cpp \
-    $$PWD/src/components/cmessage.cpp \
     $$PWD/src/cfilechecker.cpp \
     $$PWD/src/clogger.cpp \
     $$PWD/src/clangater.cpp \
-    $$PWD/src/components/canimatedicon.cpp \
     $$PWD/src/cscalingwrapper.cpp \
     $$PWD/src/ctabundockevent.cpp \
-    $$PWD/src/windows/cmainwindow.cpp \
-    $$PWD/src/windows/cwindowbase.cpp \
-    $$PWD/src/components/ctabpanel.cpp \
-    $$PWD/src/windows/ceditorwindow.cpp \
-    $$PWD/src/windows/cpresenterwindow.cpp \
     $$PWD/src/ccefeventsgate.cpp \
     $$PWD/src/ceditortools.cpp \
     $$PWD/src/ceventdriver.cpp \
-    $$PWD/src/components/csvgpushbutton.cpp \
     $$PWD/src/cappeventfilter.cpp \
     $$PWD/src/cthemes.cpp
 #    src/ctabstyle.cpp
