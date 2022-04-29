@@ -30,7 +30,7 @@
  *
 */
 
-#include "cmessage.h"
+#include "components/cmessage.h"
 #include <QPushButton>
 #include <QFormLayout>
 #include <QLabel>

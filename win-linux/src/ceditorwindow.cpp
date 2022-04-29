@@ -34,8 +34,8 @@
 #include "utils.h"
 #include "defines.h"
 #include "cascapplicationmanagerwrapper.h"
-#include "cfiledialog.h"
-#include "cmessage.h"
+#include "components/cfiledialog.h"
+#include "components/cmessage.h"
 #include "../Common/OfficeFileFormats.h"
 #include "common/Types.h"
 

@@ -30,7 +30,7 @@
  *
 */
 
-#include "asctabwidget.h"
+#include "components/asctabwidget.h"
 #include <QRegExp>
 
 #include <QDebug>
@@ -49,7 +49,7 @@
 #include "defines.h"
 #include "utils.h"
 #include "cfilechecker.h"
-#include "canimatedicon.h"
+#include "components/canimatedicon.h"
 #include "ceditortools.h"
 
 #include "cascapplicationmanagerwrapper.h"

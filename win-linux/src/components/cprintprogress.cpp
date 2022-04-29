@@ -30,7 +30,7 @@
  *
 */
 
-#include "cprintprogress.h"
+#include "components/cprintprogress.h"
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QKeyEvent>

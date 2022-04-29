@@ -39,7 +39,7 @@
 # include "win/cwindowplatform.h"
 #endif
 
-#include "ctabpanel.h"
+#include "components/ctabpanel.h"
 #include <memory>
 #include <QCoreApplication>
 

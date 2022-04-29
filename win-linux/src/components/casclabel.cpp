@@ -30,33 +30,65 @@
  *
 */
 
-#ifndef CMAINWINDOWIMPL_H
-#define CMAINWINDOWIMPL_H
+#include "casclabel.h"
+#include <QGraphicsOpacityEffect>
+#include <QResizeEvent>
 
-#include <QCoreApplication>
-#include "components/asctabwidget.h"
+#include <QDebug>
 
-#define MAIN_ICON_SIZE QSize(85,20)
-#define MAIN_ICON_PATH QString(":/logo.svg")
-
-class CMainWindowImpl
+CAscLabel::CAscLabel(QWidget * parent) :
+    QLabel(parent)
 {
-    Q_DECLARE_TR_FUNCTIONS(CMainWindowImpl)
 
-public:
-    CMainWindowImpl();
+}
 
-    void onLocalOptions(const QString&);
+CAscLabel::CAscLabel(const QString& caption, QWidget * parent) :
+    QLabel(caption, parent)
+{
+    QLinearGradient alphaGradient(rect().topLeft(), rect().topRight());
 
-protected:
-    QString getSaveMessage() const;
-    void refreshAboutVersion();
-    void doOpenLocalFile(COpenOptions&);
-    void onLocalFileSaveAs(void *);
-    void onDocumentReady(int);
-#ifdef Q_OS_WIN
-    virtual void slot_mainPageReady() = 0;
-#endif
-};
+    alphaGradient.setColorAt(0.8, Qt::black);
+    alphaGradient.setColorAt(1.0, Qt::transparent);
 
-#endif // CMAINWINDOWIMPL_H
+    QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect;
+    effect->setOpacityMask(alphaGradient);
+
+    setGraphicsEffect(effect);
+}
+
+CAscLabel::~CAscLabel()
+{
+
+}
+
+void CAscLabel::paintEvent(QPaintEvent * e)
+{
+//    QPainter p(this);
+//    QFontMetrics fm(font());
+
+//    if (fm.width(text()) > contentsRect().width()) {
+//        QString elided_txt;
+
+//        if(ELIDE_MIDDLE) // ELIDE_MIDDLE is part of a class enum
+//            elided_txt = this->fontMetrics().elidedText(text(), Qt::ElideMiddle, rect().width(), Qt::TextShowMnemonic);
+//        else { //Handle all other elide modes you want to support.
+//        }
+
+//        p.drawText(rect(), elided_txt);
+//    } else
+        QLabel::paintEvent(e);
+}
+
+void CAscLabel::resizeEvent(QResizeEvent * e) {
+    QLabel::resizeEvent(e);
+
+    QLinearGradient alphaGradient(QPointF(0,0), QPointF(e->size().width(),0));
+
+    alphaGradient.setColorAt(0.8, Qt::black);
+    alphaGradient.setColorAt(1.0, Qt::transparent);
+
+    QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect;
+    effect->setOpacityMask(alphaGradient);
+
+    setGraphicsEffect(effect);
+}

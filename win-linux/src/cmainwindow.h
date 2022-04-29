@@ -41,8 +41,8 @@
 #endif
 #include "cscalingwrapper.h"
 #include "cmainwindowimpl.h"
-#include "cdownloadwidget.h"
-#include "csvgpushbutton.h"
+#include "components/cdownloadwidget.h"
+#include "components/csvgpushbutton.h"
 #include <QSettings>
 #include <math.h>
 

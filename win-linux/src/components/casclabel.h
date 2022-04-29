@@ -30,33 +30,22 @@
  *
 */
 
-#ifndef CMAINWINDOWIMPL_H
-#define CMAINWINDOWIMPL_H
+#ifndef CASCLABEL_H
+#define CASCLABEL_H
 
-#include <QCoreApplication>
-#include "components/asctabwidget.h"
+#include <QLabel>
 
-#define MAIN_ICON_SIZE QSize(85,20)
-#define MAIN_ICON_PATH QString(":/logo.svg")
-
-class CMainWindowImpl
+class CAscLabel: public QLabel
 {
-    Q_DECLARE_TR_FUNCTIONS(CMainWindowImpl)
-
 public:
-    CMainWindowImpl();
+    CAscLabel(QWidget * parent = 0);
+    CAscLabel(const QString& caption, QWidget * parent = 0);
 
-    void onLocalOptions(const QString&);
+    virtual ~CAscLabel();
 
 protected:
-    QString getSaveMessage() const;
-    void refreshAboutVersion();
-    void doOpenLocalFile(COpenOptions&);
-    void onLocalFileSaveAs(void *);
-    void onDocumentReady(int);
-#ifdef Q_OS_WIN
-    virtual void slot_mainPageReady() = 0;
-#endif
+    void paintEvent(QPaintEvent *);
+    void resizeEvent(QResizeEvent *);
 };
 
-#endif // CMAINWINDOWIMPL_H
+#endif // CASCLABEL_H

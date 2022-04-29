@@ -30,7 +30,7 @@
  *
 */
 
-#include "cdownloadwidget.h"
+#include "components/cdownloadwidget.h"
 
 #include <QVBoxLayout>
 #include <QLabel>

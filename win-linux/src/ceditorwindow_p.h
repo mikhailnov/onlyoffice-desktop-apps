@@ -40,10 +40,10 @@
 #include "applicationmanager_events.h"
 #include "utils.h"
 #include "common/Types.h"
-#include "cmessage.h"
+#include "components/cmessage.h"
 #include "qascprinter.h"
 #include "ceditortools.h"
-#include "csvgpushbutton.h"
+#include "components/csvgpushbutton.h"
 #include "defines.h"
 
 #include <QPrinterInfo>

@@ -30,11 +30,11 @@
  *
 */
 
-#include "cfiledialog.h"
+#include "components/cfiledialog.h"
 #include <QFileDialog>
 #include "defines.h"
 #include "utils.h"
-#include "cmessage.h"
+#include "components/cmessage.h"
 #include "cascapplicationmanagerwrapper.h"
 
 #include "../Common/OfficeFileFormats.h"
