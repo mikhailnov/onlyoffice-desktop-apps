@@ -295,8 +295,10 @@ void CWindowPlatform::setScreenScalingFactor(double factor)
 {
     auto normalizeTitleSize = [=](double _factor){
         QSize small_btn_size(int(TOOLBTN_WIDTH * _factor), int(TOOLBTN_HEIGHT*_factor));
-        foreach (auto btn, m_pTopButtons)
-            btn->setFixedSize(small_btn_size);
+        if (m_pTopButtons[BtnType::Btn_Minimize]) {
+            foreach (auto btn, m_pTopButtons)
+                btn->setFixedSize(small_btn_size);
+        }
         m_boxTitleBtns->setFixedHeight(int(TOOLBTN_HEIGHT * _factor));
         m_boxTitleBtns->layout()->setSpacing(int(1 * _factor));
     };

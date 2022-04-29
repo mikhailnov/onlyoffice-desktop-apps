@@ -192,8 +192,10 @@ bool CWindowBase::isCustomWindowStyle()
 
 void CWindowBase::applyWindowState(Qt::WindowState s)
 {
-    m_pTopButtons[BtnType::Btn_Maximize]->setProperty("class", s == Qt::WindowMaximized ? "min" : "normal") ;
-    m_pTopButtons[BtnType::Btn_Maximize]->style()->polish(m_pTopButtons[BtnType::Btn_Maximize]);
+    if (m_pTopButtons[BtnType::Btn_Minimize]) {
+        m_pTopButtons[BtnType::Btn_Maximize]->setProperty("class", s == Qt::WindowMaximized ? "min" : "normal") ;
+        m_pTopButtons[BtnType::Btn_Maximize]->style()->polish(m_pTopButtons[BtnType::Btn_Maximize]);
+    }
 }
 
 void CWindowBase::setWindowTitle(const QString& title)

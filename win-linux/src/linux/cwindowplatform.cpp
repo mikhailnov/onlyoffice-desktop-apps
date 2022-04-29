@@ -413,12 +413,9 @@ void CWindowPlatform::mouseReleaseEvent(QMouseEvent *e)
 
 void CWindowPlatform::mouseDoubleClickEvent(QMouseEvent *)
 {
-    if (m_winType == WindowType::SINGLE) {
+    if (m_boxTitleBtns) {
         if (m_boxTitleBtns->underMouse())
             onMaximizeEvent();
-    } else {
-        if (m_boxTitleBtns->underMouse())
-            m_pTopButtons[BtnType::Btn_Maximize]->click();
     }
 }
 

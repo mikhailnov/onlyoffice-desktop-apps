@@ -568,8 +568,10 @@ void CMainWindow::setMouseTracking(bool enable)
     m_pTabs->setMouseTracking(enable);
     m_pTabs->tabBar()->setMouseTracking(enable);
     m_pButtonMain->setMouseTracking(enable);
-    foreach (auto btn, m_pTopButtons)
-        btn->setMouseTracking(enable);
+    if (m_pTopButtons[BtnType::Btn_Minimize]) {
+        foreach (auto btn, m_pTopButtons)
+            btn->setMouseTracking(enable);
+    }
     if ( m_pMainWidget )
         m_pMainWidget->setMouseTracking(enable);
 }

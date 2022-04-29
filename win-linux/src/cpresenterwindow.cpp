@@ -85,8 +85,10 @@ void CPresenterWindow::applyTheme(const std::wstring& theme)
     m_pMainPanel->setProperty("uitheme", QString::fromStdWString(theme));
     if (m_boxTitleBtns) {
         m_labelTitle->style()->polish(m_labelTitle);
-        foreach (auto btn, m_pTopButtons)
-            btn->style()->polish(btn);
+        if (m_pTopButtons[BtnType::Btn_Minimize]) {
+            foreach (auto btn, m_pTopButtons)
+                btn->style()->polish(btn);
+        }
         m_boxTitleBtns->style()->polish(m_boxTitleBtns);
     }
     m_pMainPanel->style()->polish(m_pMainPanel);
@@ -164,8 +166,10 @@ QWidget * CPresenterWindow::createMainPanel(QWidget * parent, const QString& tit
 
 void CPresenterWindow::onMaximizeEvent()
 {
-    m_pTopButtons[BtnType::Btn_Maximize]->setProperty("class", isMaximized() ? "min" : "normal");
-    m_pTopButtons[BtnType::Btn_Maximize]->style()->polish(m_pTopButtons[BtnType::Btn_Maximize]);
+    if (m_pTopButtons[BtnType::Btn_Minimize]) {
+        m_pTopButtons[BtnType::Btn_Maximize]->setProperty("class", isMaximized() ? "min" : "normal");
+        m_pTopButtons[BtnType::Btn_Maximize]->style()->polish(m_pTopButtons[BtnType::Btn_Maximize]);
+    }
     CWindowBase::onMaximizeEvent();
 }
 
