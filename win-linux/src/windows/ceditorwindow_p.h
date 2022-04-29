@@ -324,12 +324,14 @@ public:
     void onDocumentName(void * data) override
     {
         CCefEventsGate::onDocumentName(data);
-        Q_ASSERT(window->m_boxTitleBtns != nullptr);
-        window->setWindowTitle(m_panel->data()->title());
-        window->m_boxTitleBtns->repaint();
 
-        if ( !canExtendTitle() || !window->isCustomWindowStyle() ) {
-            window->m_labelTitle->setText(APP_TITLE);
+        if ( window->isCustomWindowStyle() ) {
+            if ( !canExtendTitle() /*|| !window->isCustomWindowStyle()*/ ) {
+                window->m_labelTitle->setText(APP_TITLE);
+            } else {
+                window->setWindowTitle(m_panel->data()->title());
+                window->m_boxTitleBtns->repaint();
+            }
         }
     }
 
