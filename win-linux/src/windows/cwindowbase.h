@@ -64,7 +64,8 @@ class CWindowBase : public QMainWindow
 {
 public:
     explicit CWindowBase();
-    virtual ~CWindowBase();
+    virtual ~CWindowBase();   
+    bool isCustomWindowStyle();
 
 protected:
     enum BtnType {
@@ -77,7 +78,7 @@ protected:
 
     QPushButton* createToolButton(QWidget * parent, const QString& name);
     QWidget* createTopPanel(QWidget *parent, bool isCustom);
-    bool isCustomWindowStyle();
+
     virtual void applyWindowState(Qt::WindowState);
     virtual void setWindowTitle(const QString&);
     virtual void onMinimizeEvent();
