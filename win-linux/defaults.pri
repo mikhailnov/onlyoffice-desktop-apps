@@ -88,13 +88,13 @@ HEADERS += \
     $$PWD/src/components/canimatedicon.h \
     $$PWD/src/cscalingwrapper.h \
     $$PWD/src/ctabundockevent.h \
-    $$PWD/src/cmainwindow.h \
-    $$PWD/src/cwindowbase.h \
+    $$PWD/src/windows/cmainwindow.h \
+    $$PWD/src/windows/cwindowbase.h \
     $$PWD/src/components/ctabpanel.h \
-    $$PWD/src/ceditorwindow.h \
+    $$PWD/src/windows/ceditorwindow.h \
     $$PWD/src/ccefeventsgate.h \
-    $$PWD/src/ceditorwindow_p.h \
-    $$PWD/src/cpresenterwindow.h \
+    $$PWD/src/windows/ceditorwindow_p.h \
+    $$PWD/src/windows/cpresenterwindow.h \
     $$PWD/src/ceditortools.h \
     $$PWD/src/cwindowsqueue.h \
     $$PWD/src/ceventdriver.h \
@@ -129,11 +129,11 @@ SOURCES += \
     $$PWD/src/components/canimatedicon.cpp \
     $$PWD/src/cscalingwrapper.cpp \
     $$PWD/src/ctabundockevent.cpp \
-    $$PWD/src/cmainwindow.cpp \
-    $$PWD/src/cwindowbase.cpp \
+    $$PWD/src/windows/cmainwindow.cpp \
+    $$PWD/src/windows/cwindowbase.cpp \
     $$PWD/src/components/ctabpanel.cpp \
-    $$PWD/src/ceditorwindow.cpp \
-    $$PWD/src/cpresenterwindow.cpp \
+    $$PWD/src/windows/ceditorwindow.cpp \
+    $$PWD/src/windows/cpresenterwindow.cpp \
     $$PWD/src/ccefeventsgate.cpp \
     $$PWD/src/ceditortools.cpp \
     $$PWD/src/ceventdriver.cpp \

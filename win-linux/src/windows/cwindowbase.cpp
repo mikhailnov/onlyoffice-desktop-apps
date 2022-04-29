@@ -30,7 +30,7 @@
  *
 */
 
-#include "cwindowbase.h"
+#include "windows/cwindowbase.h"
 #include "utils.h"
 #include "ccefeventsgate.h"
 #include "clangater.h"

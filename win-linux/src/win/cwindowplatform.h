@@ -33,7 +33,7 @@
 #ifndef CWINDOWPLATFORM_H
 #define CWINDOWPLATFORM_H
 
-#include "cwindowbase.h"
+#include "windows/cwindowbase.h"
 #include <QtWidgets/QApplication>
 #include <QShowEvent>
 #include <QMargins>

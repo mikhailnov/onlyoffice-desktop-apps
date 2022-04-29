@@ -30,7 +30,7 @@
  *
 */
 
-#include "ceditorwindow.h"
+#include "windows/ceditorwindow.h"
 #include "utils.h"
 #include "defines.h"
 #include "cascapplicationmanagerwrapper.h"
@@ -47,7 +47,7 @@
 #include <QJsonObject>
 #include <QDir>
 
-#include "ceditorwindow_p.h"
+#include "windows/ceditorwindow_p.h"
 #ifdef _WIN32
 # include "win/caption.h"
 #endif

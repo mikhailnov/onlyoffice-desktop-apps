@@ -40,12 +40,12 @@
 #include <memory>
 #include "ccefeventstransformer.h"
 #include "ccefeventsgate.h"
-#include "ceditorwindow.h"
+#include "windows/ceditorwindow.h"
 #include "cwindowsqueue.h"
 #include "ceventdriver.h"
 
-#include "cmainwindow.h"
-#include "cpresenterwindow.h"
+#include "windows/cmainwindow.h"
+#include "windows/cpresenterwindow.h"
 
 #ifndef _WIN32
 #include "linux/singleapplication.h"

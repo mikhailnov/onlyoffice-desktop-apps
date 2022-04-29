@@ -31,7 +31,7 @@
 */
 
 
-#include "cpresenterwindow.h"
+#include "windows/cpresenterwindow.h"
 #include "cascapplicationmanagerwrapper.h"
 #include "defines.h"
 #include "utils.h"
