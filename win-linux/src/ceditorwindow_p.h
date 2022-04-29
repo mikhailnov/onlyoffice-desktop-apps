@@ -229,6 +229,7 @@ public:
     }
 
     auto extendableTitleToSimple() -> void {
+        Q_ASSERT(window->m_boxTitleBtns != nullptr);
         QGridLayout * const _layout = static_cast<QGridLayout*>(window->m_pMainPanel->layout());
         if ( !_layout->findChild<QWidget*>(window->m_boxTitleBtns->objectName()) ) {
             _layout->addWidget(window->m_boxTitleBtns,0,0,Qt::AlignTop);
@@ -323,7 +324,7 @@ public:
     void onDocumentName(void * data) override
     {
         CCefEventsGate::onDocumentName(data);
-
+        Q_ASSERT(window->m_boxTitleBtns != nullptr);
         window->setWindowTitle(m_panel->data()->title());
         window->m_boxTitleBtns->repaint();
 
@@ -639,6 +640,7 @@ public:
 
     QLabel * iconUser()
     {
+        Q_ASSERT(window->m_boxTitleBtns != nullptr);
         if ( !iconuser ) {
             iconuser = new CElipsisLabel(window->m_boxTitleBtns);
             iconuser->setObjectName("iconuser");
@@ -653,6 +655,7 @@ public:
 
     QLabel * iconCrypted()
     {
+        Q_ASSERT(window->m_boxTitleBtns != nullptr);
         if ( !iconcrypted ) {
             iconcrypted = new QLabel(window->m_boxTitleBtns);
             iconcrypted->setObjectName("iconcrypted");
@@ -665,6 +668,7 @@ public:
 
     QPushButton * buttonDock()
     {
+        Q_ASSERT(window->m_boxTitleBtns != nullptr);
         if ( !btndock ) {
             btndock = window->createToolButton(window->m_boxTitleBtns, "toolButtonDock");
         }
@@ -747,6 +751,7 @@ public:
     }
 
     auto customizeTitleLabel() -> void {
+        Q_ASSERT(window->m_boxTitleBtns != nullptr);
         QHBoxLayout * _layout = qobject_cast<QHBoxLayout *>(window->m_boxTitleBtns->layout());
         _layout->removeWidget(window->m_labelTitle);
 
@@ -767,6 +772,7 @@ public:
     }
 
     auto ffWindowCustomize() -> void {
+        Q_ASSERT(window->m_boxTitleBtns != nullptr);
         QGridLayout * const _layout = static_cast<QGridLayout*>(window->m_pMainPanel->layout());
         if ( !_layout->findChild<QWidget*>(window->m_boxTitleBtns->objectName()) ) {
             _layout->addWidget(window->m_boxTitleBtns,0,0,Qt::AlignTop);

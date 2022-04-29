@@ -215,6 +215,7 @@ void CWindowPlatform::captureMouse()
     QMouseEvent _event(QEvent::MouseButtonRelease, QCursor::pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
     QApplication::sendEvent(AscAppManager::mainWindow(), &_event);
     setGeometry(QRect(QCursor::pos() - QPoint(300, 15), size()));
+    Q_ASSERT(m_boxTitleBtns != nullptr);
     QPoint pt_in_title = (m_boxTitleBtns->geometry().topLeft() + QPoint(300,15));
     _event = {QEvent::MouseButtonPress, pt_in_title, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier};
 //    QApplication::sendEvent(this, &_event1);
