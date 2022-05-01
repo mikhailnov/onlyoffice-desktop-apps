@@ -305,6 +305,23 @@ bool CFileDialogWrapper::modalSaveAs(QString& fileName, int selected)
 #else
     QString _croped_name = fileName.left(fileName.lastIndexOf("."));
     QWidget * _mess_parent = (QWidget *)parent();
+
+    auto _getGnomeFilters = [](QString &filters)->void {
+        QString flt("");
+        foreach (QString str, filters.split(";;")) {
+            const int pos = str.indexOf('(');
+            if (pos != -1) {
+                const QString suffix = str.mid(pos);
+                str.replace("(", "\uFF08").replace(")", "\uFF09");
+                str += suffix;
+            }
+            flt += str + ";;";
+        }
+        const int pos = flt.lastIndexOf(";;");
+        if (pos != -1)
+            flt = flt.mid(0, pos);
+        filters = flt;
+    };
 #endif
     reFilter.setPattern("\\(\\*(\\.\\w+)\\)$");
 
@@ -314,6 +331,13 @@ bool CFileDialogWrapper::modalSaveAs(QString& fileName, int selected)
         if ( !m_useNativeDialogFlag )
             _opts |= QFileDialog::DontUseNativeDialog;
 #else
+#endif
+
+#ifndef _WIN32
+        if (WindowHelper::getEnvInfo() == "GNOME") {
+            _getGnomeFilters(f);
+            _getGnomeFilters(sf);
+        }
 #endif
         return QFileDialog::getSaveFileName(p, tr("Save As"), n, f, &sf, _opts);
     };
