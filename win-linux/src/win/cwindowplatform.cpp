@@ -497,15 +497,23 @@ bool CWindowPlatform::nativeEvent(const QByteArray &eventType, void *message, lo
     }
 
     case WM_DPICHANGED: {
-        if (!WindowHelper::isLeftButtonPressed()) {
-            double dpi_ratio = Utils::getScreenDpiRatioByHWND(LONG_PTR(m_hWnd));
-            if (dpi_ratio != m_dpiRatio) {
-                if (m_winType == WindowType::MAIN) {
+        if (m_winType == WindowType::MAIN) {
+            if (!WindowHelper::isLeftButtonPressed()) {
+                double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
+                if (dpi_ratio != m_dpiRatio) {
                     m_dpiRatio = dpi_ratio;
                     refresh_window_scaling_factor(this);
                     adjustGeometry();
-                } else
-                if (m_winType == WindowType::SINGLE) {
+                }
+            } else
+            if (AscAppManager::IsUseSystemScaling()) {
+                updateScaling();
+            }
+        } else
+        if (m_winType == WindowType::SINGLE) {
+            if (!WindowHelper::isLeftButtonPressed() || AscAppManager::IsUseSystemScaling()) {
+                double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
+                if (dpi_ratio != m_dpiRatio) {
                     setScreenScalingFactor(dpi_ratio);
                 }
             }
@@ -738,6 +746,7 @@ bool CWindowPlatform::nativeEvent(const QByteArray &eventType, void *message, lo
                 adjustGeometry();
             }
 #else
+        if (!AscAppManager::IsUseSystemScaling())
             updateScaling();
 #endif
         } else
