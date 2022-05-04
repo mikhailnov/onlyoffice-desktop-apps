@@ -35,9 +35,9 @@
 
 
 #ifdef _WIN32
-# include "win/cwindowplatform.h"
+# include "win/cmainwindowplatform.h"
 #else
-# include "linux/cwindowplatform.h"
+# include "linux/cmainwindowplatform.h"
 #endif
 #include "cscalingwrapper.h"
 #include "cmainwindowimpl.h"
@@ -49,7 +49,7 @@
 
 struct printdata;
 
-class CMainWindow : public CWindowPlatform, public CScalingWrapper, public CMainWindowImpl
+class CMainWindow : public CMainWindowPlatform, public CScalingWrapper, public CMainWindowImpl
 {
     Q_OBJECT
 public:

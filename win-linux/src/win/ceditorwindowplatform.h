@@ -30,35 +30,41 @@
  *
 */
 
-#ifndef CPRESENTERWINDOW_H
-#define CPRESENTERWINDOW_H
+#ifndef CEDITORWINDOWPLATFORM_H
+#define CEDITORWINDOWPLATFORM_H
 
-#ifdef _WIN32
-# include "win/cpresenterwindowplatform.h"
-#else
-# include "linux/cpresenterwindowplatform.h"
-#endif
-#include "qcefview.h"
+#include "win/cwindowplatform.h"
 
 
-class CPresenterWindow : public CPresenterWindowPlatform
+class CEditorWindowPlatform : public CWindowPlatform
 {
 public:
-    explicit CPresenterWindow(const QRect&, const QString&, QCefView*);
-    virtual ~CPresenterWindow();
+    explicit CEditorWindowPlatform(const QRect&);
+    virtual ~CEditorWindowPlatform();
 
+    void updateScaling();
 
-    virtual void applyTheme(const std::wstring&) final;
-    virtual bool holdView(int id) const final;
+protected:
+    void captureMouse();
+    virtual void setScreenScalingFactor(double);
+
+protected slots:
+    void slot_modalDialog(bool,  WId);
 
 private:
-    QWidget * createMainPanel(QWidget *, const QString&, bool custom = true, QWidget * view = nullptr);
-    virtual void onMaximizeEvent() final;
-    virtual void onCloseEvent() final;
-#if defined (_WIN32)
-    virtual void focus() final;
-#endif
+    int dpiCorrectValue(int v) const;
+
+    virtual void showEvent(QShowEvent*) final;
+    virtual bool nativeEvent(const QByteArray&, void*, long*) final;
+
+    QRect m_moveNormalRect,
+          m_window_rect;
+
+    HWND m_hWnd,
+         m_modalHwnd;
+
+    bool m_skipSizing,
+         m_windowActivated;
 };
 
-
-#endif // CPRESENTERWINDOW_H
+#endif // CEDITORWINDOWPLATFORM_H

@@ -30,27 +30,41 @@
  *
 */
 
-#ifndef CMAINPANELIMPL_H
-#define CMAINPANELIMPL_H
+#ifndef CMAINWINDOWPLATFORM_H
+#define CMAINWINDOWPLATFORM_H
 
-#include <QCoreApplication>
+#include "win/cwindowplatform.h"
 
-#define MAIN_ICON_SIZE QSize(85,20)
-#define MAIN_ICON_PATH QString(":/logo.svg")
 
-class CMainPanelImpl
+class CMainWindowPlatform : public CWindowPlatform
 {
-    Q_DECLARE_TR_FUNCTIONS(CMainPanelImpl)
-
 public:
-    CMainPanelImpl();
+    explicit CMainWindowPlatform(const QRect&);
+    virtual ~CMainWindowPlatform();
 
-    //void updateScalingFactor(double);
-    //void applyTheme(const std::wstring&);
-    void onLocalOptions(const QString&);
+    void updateScaling();
 
 protected:
-    void refreshAboutVersion();
+    virtual void setScreenScalingFactor(double);
+
+protected slots:
+    void slot_modalDialog(bool,  WId);
+
+private:
+    void refresh_window_scaling_factor();
+
+    virtual void showEvent(QShowEvent*) final;
+    virtual void changeEvent(QEvent*) final;
+    virtual bool nativeEvent(const QByteArray&, void*, long*) final;
+
+    QRect m_moveNormalRect,
+          m_window_rect;
+
+    HWND m_hWnd,
+         m_modalHwnd;
+
+    bool m_skipSizing,
+         m_windowActivated;
 };
 
-#endif // CMAINPANELIMPL_H
+#endif // CMAINWINDOWPLATFORM_H

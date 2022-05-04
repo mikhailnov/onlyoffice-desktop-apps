@@ -44,7 +44,6 @@
 #include "version.h"
 #include "components/cmessage.h"
 #include "../Common/OfficeFileFormats.h"
-#include "cmainpanelimpl.h"
 #include <QDesktopWidget>
 #include <QGridLayout>
 #include <QTimer>
@@ -95,7 +94,7 @@ public:
 };
 
 CMainWindow::CMainWindow(const QRect &rect) :
-    CWindowPlatform(rect, WindowType::MAIN),
+    CMainWindowPlatform(rect),
     CScalingWrapper(m_dpiRatio),
     CMainWindowImpl(),
     m_pTabBarWrapper(nullptr),
@@ -1488,7 +1487,7 @@ void CMainWindow::updateScalingFactor(double dpiratio)
 
 void CMainWindow::setScreenScalingFactor(double s)
 {
-    CWindowPlatform::setScreenScalingFactor(s);
+    CMainWindowPlatform::setScreenScalingFactor(s);
     updateScalingFactor(s);
     CScalingWrapper::updateChildScaling(m_pMainPanel, s);
 }

@@ -54,7 +54,7 @@
 
 
 CEditorWindow::CEditorWindow(const QRect& rect, CTabPanel* panel)
-    : CWindowPlatform(rect, WindowType::SINGLE)
+    : CEditorWindowPlatform(rect)
     , d_ptr(new CEditorWindowPrivate(this))
 {
     d_ptr.get()->init(panel);
@@ -490,7 +490,7 @@ void CEditorWindow::onDpiChanged(double newfactor, double prevfactor)
 
 void CEditorWindow::setScreenScalingFactor(double newfactor)
 {
-    CWindowPlatform::setScreenScalingFactor(newfactor);
+    CEditorWindowPlatform::setScreenScalingFactor(newfactor);
 
     if ( newfactor > 1.75 ) m_pMainPanel->setProperty("zoom", "2x"); else
     if ( newfactor > 1.5 ) m_pMainPanel->setProperty("zoom", "1.75x"); else

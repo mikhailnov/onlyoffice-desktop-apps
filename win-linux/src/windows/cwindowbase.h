@@ -71,10 +71,10 @@ protected:
     enum BtnType {
         Btn_Minimize, Btn_Maximize, Btn_Close
     };
-    enum class WindowType : uint_fast8_t
+    /*enum class WindowType : uint_fast8_t
     {
         MAIN, SINGLE, REPORTER
-    };
+    };*/
 
     QPushButton* createToolButton(QWidget * parent, const QString& name);
     QWidget* createTopPanel(QWidget *parent, bool isCustom);

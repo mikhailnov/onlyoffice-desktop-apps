@@ -213,9 +213,15 @@ core_windows {
     RC_ICONS += ./res/icons/desktop_icons.ico
 
     HEADERS += $$PWD/src/win/cwindowplatform.h \
+               $$PWD/src/win/cmainwindowplatform.h \
+               $$PWD/src/win/ceditorwindowplatform.h \
+               $$PWD/src/win/cpresenterwindowplatform.h \
                $$PWD/src/win/caption.h
 
     SOURCES += $$PWD/src/win/cwindowplatform.cpp \
+               $$PWD/src/win/cmainwindowplatform.cpp \
+               $$PWD/src/win/ceditorwindowplatform.cpp \
+               $$PWD/src/win/cpresenterwindowplatform.cpp \
 
 
     LIBS += -lwininet \

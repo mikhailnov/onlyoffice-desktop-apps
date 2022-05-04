@@ -54,7 +54,7 @@ using namespace std::placeholders;
 
 
 CPresenterWindow::CPresenterWindow(const QRect &rect, const QString &title, QCefView *view) :
-    CWindowPlatform(rect, WindowType::REPORTER)
+    CPresenterWindowPlatform(rect)
 {    
     bool isDecorated = true;
 #ifdef __linux__

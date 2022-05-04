@@ -50,7 +50,7 @@ struct CWindowGeometry
 class CWindowPlatform : public CWindowBase
 {
 public:
-    explicit CWindowPlatform(const QRect&, const WindowType);
+    explicit CWindowPlatform();
     virtual ~CWindowPlatform();
 
     QWidget * handle() const;
@@ -61,38 +61,27 @@ public:
     void setWindowBackgroundColor(const QColor&);
     void setWindowColors(const QColor&, const QColor& border = QColor());
     void show(bool);
-    void updateScaling();
+    //void updateScaling();
     virtual void applyTheme(const std::wstring&);
 
 protected:
-    void captureMouse();
-    //void captureMouse(int);
+    void setPlacement(HWND& hwnd, QRect& moveNormalRect, double change_factor);
     void setMinimumSize(const int, const int);
     void setMaximumSize(const int, const int);
-    virtual void setScreenScalingFactor(double);
-
-protected slots:
-    void slot_modalDialog(bool,  WId);
+    virtual void showEvent(QShowEvent*) override;
+    virtual void changeEvent(QEvent*) override;
+    virtual bool nativeEvent(const QByteArray&, void*, long*) override;
 
 private:
-    friend auto refresh_window_scaling_factor(CWindowPlatform * window)->void;
+    //friend auto refresh_window_scaling_factor(CWindowPlatform * window)->void;
     void setResizeable(bool);
     void setResizeableAreaWidth(int);
     void setContentsMargins(int, int, int, int);
-    int dpiCorrectValue(int v) const;
 
-    virtual void showEvent(QShowEvent*) final;
-    virtual void changeEvent(QEvent*) final;
-    virtual bool nativeEvent(const QByteArray&, void*, long*) final;
-
-
-    WindowType m_winType;
     CWindowGeometry m_minSize;
     CWindowGeometry m_maxSize;
     Qt::WindowStates m_previousState;
 
-    QRect m_moveNormalRect,
-          m_window_rect;
     QMargins m_margins,
              m_frame;
 
@@ -102,7 +91,6 @@ private:
     int  m_resAreaWidth;
     bool m_borderless,
          m_closed,
-         m_skipSizing,
          m_isMaximized,
          m_isResizeable,
          m_taskBarClicked,
