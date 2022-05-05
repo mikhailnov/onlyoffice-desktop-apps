@@ -30,42 +30,24 @@
  *
 */
 
-#ifndef CWINDOWPLATFORM_H
-#define CWINDOWPLATFORM_H
+#ifndef CPRESENTERWINDOWPLATFORM_H
+#define CPRESENTERWINDOWPLATFORM_H
 
-#include "windows/cwindowbase.h"
-#include "cx11decoration.h"
-#include <memory>
+#include "linux/cwindowplatform.h"
 
 
-class CWindowPlatform : public CWindowBase, public CX11Decoration
+class CPresenterWindowPlatform : public CWindowPlatform
 {
 public:
-    explicit CWindowPlatform();
-    virtual ~CWindowPlatform();
-
-    QWidget * handle() const;
-    void sendSertificate(int viewid);
-    void bringToTop();
-    void show(bool);
-    void updateScaling();
-    virtual void applyTheme(const std::wstring&);
+    explicit CPresenterWindowPlatform(const QRect&);
+    virtual ~CPresenterWindowPlatform();
 
 protected:
-    virtual bool event(QEvent *event) override;
-    virtual void setScreenScalingFactor(double) = 0;
+    virtual bool event(QEvent*) override;
+    virtual void setScreenScalingFactor(double) override;
 
 private:
-    //virtual void closeEvent(QCloseEvent *) override;
-    virtual void showEvent(QShowEvent *) override;
-    virtual void mouseMoveEvent(QMouseEvent *) final;
-    virtual void mousePressEvent(QMouseEvent *) final;
-    virtual void mouseReleaseEvent(QMouseEvent *) final;
-    virtual void mouseDoubleClickEvent(QMouseEvent *) final;
-
-    bool m_windowActivated;
-
-
+    virtual void closeEvent(QCloseEvent*) final;
 };
 
-#endif // CWINDOWPLATFORM_H
+#endif // CPRESENTERWINDOWPLATFORM_H

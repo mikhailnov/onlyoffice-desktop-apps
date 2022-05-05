@@ -184,12 +184,18 @@ core_linux {
     HEADERS +=  $$PWD/src/linux/cx11decoration.h \
                 $$PWD/src/linux/gtk_addon.h \
                 $$PWD/src/linux/cwindowplatform.h \
+                $$PWD/src/linux/cmainwindowplatform.h \
+                $$PWD/src/linux/ceditorwindowplatform.h \
+                $$PWD/src/linux/cpresenterwindowplatform.h \
                 $$PWD/src/linux/singleapplication.h
 
     SOURCES +=  $$PWD/src/linux/cx11decoration.cpp \
                 $$PWD/src/linux/gtk_addon.cpp \
                 $$PWD/src/linux/cx11caption.cpp \
                 $$PWD/src/linux/cwindowplatform.cpp \
+                $$PWD/src/linux/cmainwindowplatform.cpp \
+                $$PWD/src/linux/ceditorwindowplatform.cpp \
+                $$PWD/src/linux/cpresenterwindowplatform.cpp \
                 $$PWD/src/linux/singleapplication.cpp
 
     HEADERS += $$PWD/src/linux/cdialogopenssl.h \

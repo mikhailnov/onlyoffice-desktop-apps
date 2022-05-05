@@ -476,7 +476,7 @@ bool CEditorWindow::event(QEvent * event)
         QMoveEvent * _e = static_cast<QMoveEvent *>(event);
         onMoveEvent(QRect(_e->pos(), QSize(1,1)));
     }
-    return CWindowPlatform::event(event);
+    return CEditorWindowPlatform::event(event);
 }
 
 void CEditorWindow::onDpiChanged(double newfactor, double prevfactor)

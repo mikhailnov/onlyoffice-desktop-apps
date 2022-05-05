@@ -30,42 +30,32 @@
  *
 */
 
-#ifndef CWINDOWPLATFORM_H
-#define CWINDOWPLATFORM_H
+#ifndef CEDITORWINDOWPLATFORM_H
+#define CEDITORWINDOWPLATFORM_H
 
-#include "windows/cwindowbase.h"
-#include "cx11decoration.h"
-#include <memory>
+#include "linux/cwindowplatform.h"
 
 
-class CWindowPlatform : public CWindowBase, public CX11Decoration
+class CEditorWindowPlatform : public CWindowPlatform
 {
 public:
-    explicit CWindowPlatform();
-    virtual ~CWindowPlatform();
-
-    QWidget * handle() const;
-    void sendSertificate(int viewid);
-    void bringToTop();
-    void show(bool);
-    void updateScaling();
-    virtual void applyTheme(const std::wstring&);
+    explicit CEditorWindowPlatform(const QRect&);
+    virtual ~CEditorWindowPlatform();
 
 protected:
-    virtual bool event(QEvent *event) override;
-    virtual void setScreenScalingFactor(double) = 0;
+    void captureMouse();
+    virtual bool event(QEvent*) override;
+    virtual void setScreenScalingFactor(double) override;
+
+protected slots:
+    void slot_modalDialog(bool,  WId);
 
 private:
-    //virtual void closeEvent(QCloseEvent *) override;
-    virtual void showEvent(QShowEvent *) override;
-    virtual void mouseMoveEvent(QMouseEvent *) final;
-    virtual void mousePressEvent(QMouseEvent *) final;
-    virtual void mouseReleaseEvent(QMouseEvent *) final;
-    virtual void mouseDoubleClickEvent(QMouseEvent *) final;
-
-    bool m_windowActivated;
+    virtual void closeEvent(QCloseEvent *) final;
 
 
+    class impl;
+    std::unique_ptr<impl> pimpl;
 };
 
-#endif // CWINDOWPLATFORM_H
+#endif // CEDITORWINDOWPLATFORM_H
