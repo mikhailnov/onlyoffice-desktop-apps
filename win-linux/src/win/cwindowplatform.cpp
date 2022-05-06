@@ -46,40 +46,29 @@
 #include <QIcon>
 
 
-#define CAPTURED_WINDOW_CURSOR_OFFSET_X     180
-#define CAPTURED_WINDOW_CURSOR_OFFSET_Y     15
-
 using namespace std::placeholders;
 
 Q_GUI_EXPORT HICON qt_pixmapToWinHICON(const QPixmap &);
 
-auto refresh_window_scaling_factor(CWindowPlatform * window) -> void
+/*auto refresh_window_scaling_factor(CWindowPlatform * window) -> void
 {
     QString css{AscAppManager::getWindowStylesheets(window->m_dpiRatio)};
     if ( !css.isEmpty() ) {
         window->m_pMainPanel->setStyleSheet(css);
         window->setScreenScalingFactor(window->m_dpiRatio);
     }
-}
+}*/
 
-auto SetForegroundWindowInternal(HWND hWnd)
+/*auto SetForegroundWindowInternal(HWND hWnd)
 {
     AllocConsole();
     auto hWndConsole = GetConsoleWindow();
     SetWindowPos(hWndConsole, nullptr, 0, 0, 0, 0, SWP_NOACTIVATE);
     FreeConsole();
     SetForegroundWindow(hWnd);
-}
+}*/
 
-auto adjustRect(QRect& window_rect, const QRect& screen_size)->void
-{
-    window_rect.setLeft(screen_size.left()),
-    window_rect.setTop(screen_size.top());
-    if (screen_size.width() < window_rect.width()) window_rect.setWidth(screen_size.width());
-    if (screen_size.height() < window_rect.height()) window_rect.setHeight(screen_size.height());
-}
-
-auto setPlacement(HWND& hwnd, QRect& moveNormalRect, double change_factor)->void
+/*auto setPlacement(HWND& hwnd, QRect& moveNormalRect, double change_factor)->void
 {
     WINDOWPLACEMENT wp{sizeof(WINDOWPLACEMENT)};
     if ( GetWindowPlacement(hwnd, &wp) ) {
@@ -101,10 +90,10 @@ auto setPlacement(HWND& hwnd, QRect& moveNormalRect, double change_factor)->void
             SetWindowPos(hwnd, NULL, dest_rect.left(), dest_rect.top(), dest_rect.width(), dest_rect.height(), SWP_NOZORDER);
         }
     }
-}
+}*/
 
-CWindowPlatform::CWindowPlatform(const QRect &rect, const WindowType winType) :
-    m_winType(winType),
+CWindowPlatform::CWindowPlatform(const QRect &rect) :
+    //m_winType(winType),
     m_previousState(Qt::WindowNoState),
     m_margins(QMargins()),
     m_frame(QMargins()),
@@ -122,34 +111,21 @@ CWindowPlatform::CWindowPlatform(const QRect &rect, const WindowType winType) :
     setWindowFlags(windowFlags() | Qt::Window | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint);
     m_hWnd = (HWND)winId();
     setResizeable(m_isResizeable);
+
+    m_dpiRatio = CSplash::startupDpiRatio();
     m_window_rect = rect;
-    if (m_winType == WindowType::MAIN) {
-        m_dpiRatio = CSplash::startupDpiRatio();
-        if (m_window_rect.isEmpty())
-            m_window_rect = QRect(QPoint(100, 100)*m_dpiRatio, MAIN_WINDOW_DEFAULT_SIZE * m_dpiRatio);
-        QRect _screen_size = Utils::getScreenGeometry(m_window_rect.topLeft());
-        if (_screen_size.intersects(m_window_rect)) {
-            if (_screen_size.width() < m_window_rect.width() || _screen_size.height() < m_window_rect.height()) {
-                adjustRect(m_window_rect, _screen_size);
-            }
-        } else {
-            m_window_rect = QRect(QPoint(100, 100)*m_dpiRatio, QSize(MAIN_WINDOW_MIN_WIDTH, MAIN_WINDOW_MIN_HEIGHT)*m_dpiRatio);
+    if (m_window_rect.isEmpty())
+        m_window_rect = QRect(QPoint(100, 100)*m_dpiRatio, MAIN_WINDOW_DEFAULT_SIZE * m_dpiRatio);
+    QRect _screen_size = Utils::getScreenGeometry(m_window_rect.topLeft());
+    if (_screen_size.intersects(m_window_rect)) {
+        if (_screen_size.width() < m_window_rect.width() || _screen_size.height() < m_window_rect.height()) {
+            m_window_rect.setLeft(_screen_size.left()),
+            m_window_rect.setTop(_screen_size.top());
+            if (_screen_size.width() < m_window_rect.width()) m_window_rect.setWidth(_screen_size.width());
+            if (_screen_size.height() < m_window_rect.height()) m_window_rect.setHeight(_screen_size.height());
         }
-        m_moveNormalRect = m_window_rect;
-    } else
-    if (m_winType == WindowType::SINGLE) {
-        m_dpiRatio = CSplash::startupDpiRatio();
-    } else
-    if (m_winType == WindowType::REPORTER) {
-        m_borderless = false;
-        m_dpiRatio = Utils::getScreenDpiRatio(m_window_rect.topLeft());
-        if (m_window_rect.isEmpty())
-            m_window_rect = QRect(QPoint(100, 100)*m_dpiRatio, MAIN_WINDOW_DEFAULT_SIZE * m_dpiRatio);
-        QRect _screen_size = Utils::getScreenGeometry(m_window_rect.topLeft());
-        if (_screen_size.width() < m_window_rect.width() + 120 || _screen_size.height() < m_window_rect.height() + 120) {
-            adjustRect(m_window_rect, _screen_size);
-        }
-        setMinimumSize(WINDOW_MIN_WIDTH * m_dpiRatio, WINDOW_MIN_HEIGHT * m_dpiRatio);
+    } else {
+        m_window_rect = QRect(QPoint(100, 100)*m_dpiRatio, QSize(MAIN_WINDOW_MIN_WIDTH, MAIN_WINDOW_MIN_HEIGHT)*m_dpiRatio);
     }
 }
 
@@ -196,49 +172,45 @@ void CWindowPlatform::bringToTop()
     SetActiveWindow(m_hWnd);
 }
 
-void CWindowPlatform::setWindowBackgroundColor(const QColor& background)
-{
-    setWindowColors(background);
-}
-
 void CWindowPlatform::setWindowColors(const QColor& background, const QColor& border)
 {
     Q_UNUSED(border)
-    QPalette pal = QPalette();
+    QPalette pal = palette();
     pal.setColor(QPalette::Window, background);
+    /*setStyleSheet(QString("QMainWindow{border:1px solid %1; border-top:2px solid %1;}").
+                  arg(border.name()));*/
     setAutoFillBackground(true);
     setPalette(pal);
 }
 
 void CWindowPlatform::show(bool maximized)
 {
-    maximized ? QMainWindow::showMaximized() : QMainWindow::show();
+    maximized ? CWindowBase::showMaximized() : CWindowBase::show();
 }
 
-void CWindowPlatform::applyTheme(const std::wstring& theme)
+/*void CWindowPlatform::applyTheme(const std::wstring& theme)
 {
-    QColor color = AscAppManager::themes().current().
-            color(CTheme::ColorRole::ecrWindowBackground);
-    setWindowColors(color);
-}
+    Q_UNUSED(theme)
+
+}*/
 
 void CWindowPlatform::updateScaling()
 {
-    double dpi_ratio = Utils::getScreenDpiRatioByHWND(int(m_hWnd));
+    double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
     if ( dpi_ratio != m_dpiRatio ) {
-        if ( !WindowHelper::isWindowSystemDocked(m_hWnd) ) {
+        //if ( !WindowHelper::isWindowSystemDocked(m_hWnd) ) {
             setScreenScalingFactor(dpi_ratio);
-        } else {
+        /*} else {
             m_dpiRatio = dpi_ratio;
             refresh_window_scaling_factor(this);
-        }
+        }*/
         adjustGeometry();
     }
 }
 
 /** Protected **/
 
-void CWindowPlatform::captureMouse()
+/*void CWindowPlatform::captureMouse()
 {
     if (m_winType != WindowType::SINGLE) return;
     POINT cursor{0,0};
@@ -252,7 +224,7 @@ void CWindowPlatform::captureMouse()
         ReleaseCapture();
         PostMessage(m_hWnd, WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(cursor.x, cursor.y));
     }
-}
+}*/
 
 /*void CWindowPlatform::captureMouse(int tabindex)
 {
@@ -291,7 +263,7 @@ void CWindowPlatform::setMaximumSize( const int width, const int height )
     m_maxSize.height = height;
 }
 
-void CWindowPlatform::setScreenScalingFactor(double factor)
+/*void CWindowPlatform::setScreenScalingFactor(double factor)
 {
     auto normalizeTitleSize = [=](double _factor){
         QSize small_btn_size(int(TOOLBTN_WIDTH * _factor), int(TOOLBTN_HEIGHT*_factor));
@@ -348,8 +320,9 @@ void CWindowPlatform::setScreenScalingFactor(double factor)
         }
     }
 }
+*/
 
-void CWindowPlatform::slot_modalDialog(bool status,  WId h)
+/*void CWindowPlatform::slot_modalDialog(bool status,  WId h)
 {
     Q_UNUSED(h)
     if (m_winType == WindowType::MAIN) {
@@ -358,20 +331,9 @@ void CWindowPlatform::slot_modalDialog(bool status,  WId h)
         if ( status ) {
             _disabler->disable(this);
         } else _disabler->enable();
-    }/* else
+    } else
     if (m_winType == WindowType::SINGLE) {
         status ? pimpl->lockParentUI() : pimpl->unlockParentUI();
-    }*/
-}
-
-/*void CWindowPlatform::onExitSizeMove()
-{
-    setMinimumSize(0, 0);
-    double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
-    if ( dpi_ratio != m_dpiRatio ) {
-        //if ( WindowHelper::isWindowSystemDocked(m_hWnd) )
-        setScreenScalingFactor(dpi_ratio);
-        //else setScreenScalingFactor(dpi_ratio);
     }
 }*/
 
@@ -402,7 +364,7 @@ void CWindowPlatform::setResizeableAreaWidth(int width)
 void CWindowPlatform::setContentsMargins(int left, int top, int right, int bottom)
 {
     m_margins = QMargins(left, top, right, bottom);
-    QMainWindow::setContentsMargins(left + m_frame.left(), top + m_frame.top(),
+    CWindowBase::setContentsMargins(left + m_frame.left(), top + m_frame.top(),
                                     right + m_frame.right(), bottom + m_frame.bottom());
 }
 
@@ -413,30 +375,29 @@ int CWindowPlatform::dpiCorrectValue(int v) const
 
 void CWindowPlatform::showEvent(QShowEvent *event)
 {
-    QMainWindow::showEvent(event);
+    CWindowBase::showEvent(event);
     if (!m_windowActivated) {
         m_windowActivated = true;
         setGeometry(m_window_rect);
         int border = int(MAIN_WINDOW_BORDER_WIDTH * m_dpiRatio);
         setContentsMargins(border, border + 1, border, border);
-        if (m_winType == WindowType::MAIN || m_winType == WindowType::REPORTER)
-            CWindowPlatform::applyTheme(L"");
+        applyTheme(AscAppManager::themes().current().id());
     }
 }
 
 void CWindowPlatform::changeEvent(QEvent *event)
 {
-    QMainWindow::changeEvent(event);
+    CWindowBase::changeEvent(event);
     if (event->type() == QEvent::WindowStateChange) {
         if (isMinimized()) {
             applyWindowState(Qt::WindowMinimized);
         } else {
             if (isVisible()) {
-                if (WindowHelper::isLeftButtonPressed() && m_winType == WindowType::MAIN) {
+                /*if (WindowHelper::isLeftButtonPressed() && m_winType == WindowType::MAIN) {
                     double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
                     if (dpi_ratio != m_dpiRatio)
                         setScreenScalingFactor(dpi_ratio);
-                }
+                }*/
                 if (isMaximized()) {
                     applyWindowState(Qt::WindowMaximized);
                 } else applyWindowState(Qt::WindowNoState);
@@ -456,7 +417,7 @@ bool CWindowPlatform::nativeEvent(const QByteArray &eventType, void *message, lo
 
     switch (msg->message)
     {
-    case WM_ACTIVATE: {
+    /*case WM_ACTIVATE: {
         if (m_winType == WindowType::MAIN) {
             if (LOWORD(msg->wParam) != WA_INACTIVE) {
                 WindowHelper::correctModalOrder(m_hWnd, m_modalHwnd);
@@ -468,9 +429,8 @@ bool CWindowPlatform::nativeEvent(const QByteArray &eventType, void *message, lo
             //is_mainwindow_prev = false;
             if (!IsWindowEnabled(m_hWnd) && m_modalHwnd && m_modalHwnd != m_hWnd) {
                 if (LOWORD(msg->wParam) != WA_INACTIVE ) {
-                    SetActiveWindow(m_modalHwnd);
-                    SetWindowPos(m_hWnd, m_modalHwnd, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-                    return 0;
+                    WindowHelper::correctModalOrder(m_hWnd, m_modalHwnd);
+                    return false;
                 }
             } else {
                 if ( LOWORD(msg->wParam) != WA_INACTIVE ) {
@@ -494,30 +454,11 @@ bool CWindowPlatform::nativeEvent(const QByteArray &eventType, void *message, lo
             }
         }
         break;
-    }
+    }*/
 
     case WM_DPICHANGED: {
-        if (m_winType == WindowType::MAIN) {
-            if (!WindowHelper::isLeftButtonPressed()) {
-                double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
-                if (dpi_ratio != m_dpiRatio) {
-                    m_dpiRatio = dpi_ratio;
-                    refresh_window_scaling_factor(this);
-                    adjustGeometry();
-                }
-            } else
-            if (AscAppManager::IsUseSystemScaling()) {
-                updateScaling();
-            }
-        } else
-        if (m_winType == WindowType::SINGLE) {
-            if (!WindowHelper::isLeftButtonPressed() || AscAppManager::IsUseSystemScaling()) {
-                double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
-                if (dpi_ratio != m_dpiRatio) {
-                    setScreenScalingFactor(dpi_ratio);
-                }
-            }
-        }
+        double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
+        onSystemDpiChanged(dpi_ratio);
         qDebug() << "WM_DPICHANGED: " << LOWORD(msg->wParam);
         break;
     }
@@ -638,11 +579,11 @@ bool CWindowPlatform::nativeEvent(const QByteArray &eventType, void *message, lo
                                int(double(frame.bottom)/dpr + 0.5),
                                int(double(frame.right)/dpr + 0.5),
                                int(double(frame.bottom)/dpr + 0.5));
-            QMainWindow::setContentsMargins(m_frame + m_margins);
+            CWindowBase::setContentsMargins(m_frame + m_margins);
             m_isMaximized = true;
         } else {
             if (m_isMaximized) {
-                QMainWindow::setContentsMargins(m_margins);
+                CWindowBase::setContentsMargins(m_margins);
                 m_frame = QMargins();
                 m_isMaximized = false;
             }
@@ -660,16 +601,13 @@ bool CWindowPlatform::nativeEvent(const QByteArray &eventType, void *message, lo
     }
 
     case WM_SETFOCUS: {
-        if (!m_closed) {
-            if (m_winType == WindowType::MAIN) {
-                if (IsWindowEnabled(m_hWnd))
-                    focus();
-            } else focus();
+        if (!m_closed && IsWindowEnabled(m_hWnd)) {
+            focus();
         }
         break;
     }
 
-    case WM_CLOSE: {
+    /*case WM_CLOSE: {
         if (m_winType == WindowType::MAIN) {
             AscAppManager::getInstance().closeQueue().enter(sWinTag{1, size_t(this)});
         } else
@@ -686,25 +624,25 @@ bool CWindowPlatform::nativeEvent(const QByteArray &eventType, void *message, lo
             });
         }
         return false;
-    }
+    }*/
 
     case WM_TIMER:
         AscAppManager::getInstance().CheckKeyboard();
         break;
 
-    case WM_ENDSESSION:
+    /*case WM_ENDSESSION:
         if (m_winType == WindowType::MAIN)
             CAscApplicationManagerWrapper::getInstance().CloseApplication();
-        break;
+        break;*/
 
     case UM_INSTALL_UPDATE:
-        if (m_winType == WindowType::MAIN)
+        //if (m_winType == WindowType::MAIN)
             QTimer::singleShot(500, this, [=](){
                 onCloseEvent();
             });
         break;
 
-    case WM_ENTERSIZEMOVE: {
+    /*case WM_ENTERSIZEMOVE: {
         if (m_winType != WindowType::REPORTER) {
             WINDOWPLACEMENT wp{sizeof(WINDOWPLACEMENT)};
             if (GetWindowPlacement(m_hWnd, &wp)) {
@@ -715,54 +653,23 @@ bool CWindowPlatform::nativeEvent(const QByteArray &eventType, void *message, lo
             }
         }
         break;
-    }
+    }*/
 
-    case WM_EXITSIZEMOVE: {
+    /*case WM_EXITSIZEMOVE: {
         if (m_winType == WindowType::MAIN) {
             setMinimumSize(0, 0);
-#if defined(DEBUG_SCALING) && defined(_DEBUG)
-            QRect windowRect;
-            WINDOWPLACEMENT wp{sizeof(WINDOWPLACEMENT)};
-            if (GetWindowPlacement(m_hWnd, &wp)) {
-                GET_REGISTRY_USER(reg_user)
-                wp.showCmd == SW_MAXIMIZE ?
-                            reg_user.setValue("maximized", true) : reg_user.remove("maximized");
-
-                windowRect.setTopLeft(QPoint(wp.rcNormalPosition.left, wp.rcNormalPosition.top));
-                windowRect.setBottomRight(QPoint(wp.rcNormalPosition.right, wp.rcNormalPosition.bottom));
-                windowRect.adjust(0,0,-1,-1);
-            }
-
-            int _scr_num = QApplication::desktop()->screenNumber(windowRect.topLeft()) + 1;
-            double dpi_ratio = _scr_num;
-
-            if ( dpi_ratio != m_dpiRatio ) {
-                if ( !WindowHelper::isWindowSystemDocked(m_hWnd) ) {
-                    setScreenScalingFactor(dpi_ratio);
-                } else {
-                    m_dpiRatio = dpi_ratio;
-                    refresh_window_scaling_factor(this);
-                }
-                adjustGeometry();
-            }
-#else
-        if (!AscAppManager::IsUseSystemScaling())
-            updateScaling();
-#endif
+            if (!AscAppManager::IsUseSystemScaling())
+                updateScaling();
         } else
-        /*if (m_winType == WindowType::SINGLE) {
-            onExitSizeMove();
-            return false;
-        } else*/
         if (m_winType == WindowType::REPORTER) {
-            double dpi_ratio = Utils::getScreenDpiRatioByHWND(int(m_hWnd));
+            double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
             if (dpi_ratio != m_dpiRatio)
                 setScreenScalingFactor(dpi_ratio);
         }
         break;
-    }
+    }*/
 
-    case WM_COPYDATA: {
+    /*case WM_COPYDATA: {
         if (m_winType != WindowType::REPORTER) {
             COPYDATASTRUCT* pcds = (COPYDATASTRUCT*)msg->lParam;
             if (pcds->dwData == 1) {
@@ -785,18 +692,8 @@ bool CWindowPlatform::nativeEvent(const QByteArray &eventType, void *message, lo
             }
         }
         break;
-    }
+    }*/
 
-#if 0
-    case WM_INPUTLANGCHANGE:
-    case WM_INPUTLANGCHANGEREQUEST: {
-        if (m_winType == WindowType::MAIN) {
-            int _lang = LOWORD(msg->lParam);
-            m_oLanguage.Check(_lang);
-        }
-        break;
-    }
-#endif
     default:
         break;
     }

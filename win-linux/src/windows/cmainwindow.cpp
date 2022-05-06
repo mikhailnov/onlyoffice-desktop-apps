@@ -95,7 +95,7 @@ public:
 };
 
 CMainWindow::CMainWindow(const QRect &rect) :
-    CWindowPlatform(rect, WindowType::MAIN),
+    CWindowPlatform(rect/*, WindowType::MAIN*/),
     CScalingWrapper(m_dpiRatio),
     CMainWindowImpl(),
     m_pTabBarWrapper(nullptr),
@@ -237,7 +237,10 @@ bool CMainWindow::holdView(int id) const
 
 void CMainWindow::applyTheme(const std::wstring& theme)
 {
-    CWindowPlatform::applyTheme(theme);
+    QColor background = AscAppManager::themes().current().color(CTheme::ColorRole::ecrWindowBackground);
+    QColor border = AscAppManager::themes().current().color(CTheme::ColorRole::ecrWindowBorder);
+    setWindowColors(background, border);
+
     m_pMainPanel->setProperty("uitheme", QString::fromStdWString(theme));
     for (int i(m_pTabs->count()); !(--i < 0);) {
         CAscTabData& _doc = *m_pTabs->panel(i)->data();
@@ -316,6 +319,25 @@ void CMainWindow::applyWindowState(Qt::WindowState s)
 void CMainWindow::focus()
 {
     focusToMainPanel();
+}
+
+void CMainWindow::onSystemDpiChanged(double dpi_ratio)
+{
+    if (!WindowHelper::isLeftButtonPressed()) {
+        //double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
+        if (dpi_ratio != m_dpiRatio) {
+            m_dpiRatio = dpi_ratio;
+            QString css{AscAppManager::getWindowStylesheets(m_dpiRatio)};
+            if ( !css.isEmpty() ) {
+                m_pMainPanel->setStyleSheet(css);
+                setScreenScalingFactor(m_dpiRatio);
+            }
+            adjustGeometry();
+        }
+    } else
+    if (AscAppManager::IsUseSystemScaling()) {
+        updateScaling();
+    };
 }
 
 void CMainWindow::slot_mainPageReady()
@@ -772,6 +794,16 @@ int CMainWindow::trySaveDocument(int index)
     }
 
     return modal_res;
+}
+
+void CMainWindow::slot_modalDialog(bool status, WId h)
+{
+    Q_UNUSED(h)
+    //static WindowHelper::CParentDisable * const _disabler = new WindowHelper::CParentDisable;
+    std::unique_ptr<WindowHelper::CParentDisable> _disabler(new WindowHelper::CParentDisable);
+    if (status) {
+        _disabler->disable(this);
+    } else _disabler->enable();
 }
 
 void CMainWindow::onPortalLogout(std::wstring wjson)
@@ -1486,11 +1518,30 @@ void CMainWindow::updateScalingFactor(double dpiratio)
     m_pButtonMain->setIconSize(MAIN_ICON_SIZE * dpiratio);
 }
 
-void CMainWindow::setScreenScalingFactor(double s)
+void CMainWindow::setScreenScalingFactor(double factor)
 {
-    CWindowPlatform::setScreenScalingFactor(s);
-    updateScalingFactor(s);
-    CScalingWrapper::updateChildScaling(m_pMainPanel, s);
+    //CWindowPlatform::setScreenScalingFactor(s);
+#ifdef Q_OS_LINUX
+    CX11Decoration::onDpiChanged(factor);
+#endif
+    QString css(AscAppManager::getWindowStylesheets(factor));
+    if (!css.isEmpty()) {
+        setMinimumSize(0,0);
+        double change_factor = factor / m_dpiRatio;
+        m_dpiRatio = factor;
+        if (!isMaximized()) {
+            QRect _src_rect = geometry();
+            int dest_width_change = int(_src_rect.width() * (1 - change_factor));
+            QRect _dest_rect = QRect{_src_rect.translated(dest_width_change/2,0).topLeft(), _src_rect.size() * change_factor};
+            setGeometry(_dest_rect);
+        }
+        m_pMainPanel->setStyleSheet(css);
+        //m_pMainPanel->setScreenScalingFactor(factor);
+        // TODO: skip window min size for usability test
+//        setMinimumSize(WindowHelper::correctWindowMinimumSize(_src_rect, {MAIN_WINDOW_MIN_WIDTH * factor, MAIN_WINDOW_MIN_HEIGHT * factor}));
+    }
+    updateScalingFactor(factor);
+    CScalingWrapper::updateChildScaling(m_pMainPanel, factor);
 }
 
 bool CMainWindow::holdUid(int uid) const

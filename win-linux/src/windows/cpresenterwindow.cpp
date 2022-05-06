@@ -54,7 +54,7 @@ using namespace std::placeholders;
 
 
 CPresenterWindow::CPresenterWindow(const QRect &rect, const QString &title, QCefView *view) :
-    CWindowPlatform(rect, WindowType::REPORTER)
+    CWindowPlatform(rect/*, WindowType::REPORTER*/)
 {    
     bool isDecorated = true;
 #ifdef __linux__
@@ -81,7 +81,10 @@ CPresenterWindow::~CPresenterWindow()
 
 void CPresenterWindow::applyTheme(const std::wstring& theme)
 {
-    CWindowPlatform::applyTheme(theme);
+    QColor background = AscAppManager::themes().current().color(CTheme::ColorRole::ecrWindowBackground);
+    QColor border = AscAppManager::themes().current().color(CTheme::ColorRole::ecrWindowBorder);
+    setWindowColors(background, border);
+
     m_pMainPanel->setProperty("uitheme", QString::fromStdWString(theme));
     if (m_boxTitleBtns) {
         m_labelTitle->style()->polish(m_labelTitle);
@@ -162,6 +165,24 @@ QWidget * CPresenterWindow::createMainPanel(QWidget * parent, const QString& tit
     mainGridLayout->addWidget(m_pMainView, 1, 0);
 
     return mainPanel;
+}
+
+void CPresenterWindow::setScreenScalingFactor(double factor)
+{
+    QString css(AscAppManager::getWindowStylesheets(factor));
+    if (!css.isEmpty()) {
+        setMinimumSize(0,0);
+        double change_factor = factor / m_dpiRatio;
+        m_dpiRatio = factor;
+        if (!isMaximized()) {
+            QRect _src_rect = geometry();
+            int dest_width_change = int(_src_rect.width() * (1 - change_factor));
+            QRect _dest_rect = QRect{_src_rect.translated(dest_width_change/2,0).topLeft(), _src_rect.size() * change_factor};
+            setGeometry(_dest_rect);
+        }
+        m_pMainPanel->setStyleSheet(css);
+//        setMinimumSize(WindowHelper::correctWindowMinimumSize(_dest_rect, {WINDOW_MIN_WIDTH*factor, WINDOW_MIN_HEIGHT*factor}));
+    }
 }
 
 void CPresenterWindow::onMaximizeEvent()

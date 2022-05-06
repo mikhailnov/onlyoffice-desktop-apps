@@ -247,7 +247,7 @@ public:
             btn->setFillDark(!AscAppManager::themes().current().isDark());
 
 #ifdef Q_OS_WIN
-            window->setWindowBackgroundColor(AscAppManager::themes().current().color(CTheme::ColorRole::ecrWindowBackground));
+            window->setWindowColors(AscAppManager::themes().current().color(CTheme::ColorRole::ecrWindowBackground));
 #endif
         }
     }

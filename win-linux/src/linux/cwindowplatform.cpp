@@ -190,7 +190,7 @@ void CWindowPlatform::updateScaling()
         setScreenScalingFactor(dpi_ratio);
 }
 
-void CWindowPlatform::applyTheme(const std::wstring& theme)
+/*void CWindowPlatform::applyTheme(const std::wstring& theme)
 {
     Q_UNUSED(theme)
     if (m_winType == WindowType::MAIN) {
@@ -205,11 +205,24 @@ void CWindowPlatform::applyTheme(const std::wstring& theme)
             setPalette(_palette);
         }
     }
+}*/
+
+void CWindowPlatform::setWindowColors(const QColor& background, const QColor& border)
+{
+    Q_UNUSED(border)
+    if (!CX11Decoration::isDecorated()) {
+        QPalette pal = palette();
+        pal.setColor(QPalette::Window, background);
+        /*setStyleSheet(QString("QMainWindow{border:1px solid %1; border-top:2px solid %1;}").
+                      arg(border.name()));*/
+        setAutoFillBackground(true);
+        setPalette(pal);
+    }
 }
 
 /** Protected **/
 
-void CWindowPlatform::captureMouse()
+/*void CWindowPlatform::captureMouse()
 {
     if (m_winType != WindowType::SINGLE) return;
     QMouseEvent _event(QEvent::MouseButtonRelease, QCursor::pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
@@ -223,7 +236,7 @@ void CWindowPlatform::captureMouse()
     _event = {QEvent::MouseMove, QCursor::pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier};
 //    QApplication::sendEvent(this, &_event);
     CX11Decoration::dispatchMouseMove(&_event);
-}
+}*/
 
 /*void CWindowPlatform::captureMouse(int tabindex)
 {
@@ -308,7 +321,7 @@ bool CWindowPlatform::event(QEvent * event)
     return CWindowBase::event(event);
 }
 
-void CWindowPlatform::setScreenScalingFactor(double factor)
+/*void CWindowPlatform::setScreenScalingFactor(double factor)
 {
     if (m_winType == WindowType::MAIN) {
         CX11Decoration::onDpiChanged(factor);
@@ -341,7 +354,7 @@ void CWindowPlatform::setScreenScalingFactor(double factor)
     //        setMinimumSize(WindowHelper::correctWindowMinimumSize(_dest_rect, {WINDOW_MIN_WIDTH*factor, WINDOW_MIN_HEIGHT*factor}));
         }
     }
-}
+}*/
 
 void CWindowPlatform::slot_modalDialog(bool status, WId h)
 {
@@ -359,7 +372,7 @@ void CWindowPlatform::slot_modalDialog(bool status, WId h)
 
 /** Private **/
 
-void CWindowPlatform::onScreenScalingFactor(double factor)
+/*void CWindowPlatform::onScreenScalingFactor(double factor)
 {
     setMinimumSize(QSize(0,0));
     double change_factor = factor / m_dpiRatio;
@@ -370,7 +383,7 @@ void CWindowPlatform::onScreenScalingFactor(double factor)
     QRect _dest_rect = QRect{_src_rect.translated(dest_width_change/2,0).topLeft(), _src_rect.size() * change_factor};
     setGeometry(_dest_rect);
 //    setMinimumSize(WindowHelper::correctWindowMinimumSize(geometry(), {EDITOR_WINDOW_MIN_WIDTH * f, MAIN_WINDOW_MIN_HEIGHT * f}));
-}
+}*/
 
 void CWindowPlatform::closeEvent(QCloseEvent * e)
 {
@@ -384,7 +397,8 @@ void CWindowPlatform::showEvent(QShowEvent * e)
     QMainWindow::showEvent(e);
     if (!m_windowActivated) {
         m_windowActivated = true;
-        if (!CX11Decoration::isDecorated()) {
+        applyTheme(AscAppManager::themes().current().id());
+        /*if (!CX11Decoration::isDecorated()) {
             QPalette _palette(palette());
             _palette.setColor(QPalette::Background, AscAppManager::themes().current()
                               .color(CTheme::ColorRole::ecrWindowBackground));
@@ -393,7 +407,7 @@ void CWindowPlatform::showEvent(QShowEvent * e)
                                                        value(CTheme::ColorRole::ecrWindowBorder))));
             setAutoFillBackground(true);
             setPalette(_palette);
-        }
+        }*/
     }
 }
 

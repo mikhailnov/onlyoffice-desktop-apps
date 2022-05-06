@@ -49,19 +49,20 @@ public:
     void bringToTop();
     void show(bool);
     void updateScaling();
-    virtual void applyTheme(const std::wstring&);
+    void setWindowColors(const QColor&, const QColor& border = QColor());
+    virtual void applyTheme(const std::wstring&) = 0;
 
 protected:
-    void captureMouse();
+    //void captureMouse();
     //void captureMouse(int);
     virtual bool event(QEvent *event) override;
-    virtual void setScreenScalingFactor(double);
+    virtual void setScreenScalingFactor(double) = 0;
 
 protected slots:
     void slot_modalDialog(bool status, WId h);
 
 private:
-    void onScreenScalingFactor(double f);
+    //void onScreenScalingFactor(double f);
     virtual void closeEvent(QCloseEvent *) final;
     virtual void showEvent(QShowEvent *) final;
     virtual void mouseMoveEvent(QMouseEvent *) final;

@@ -52,17 +52,16 @@
 # include "win/caption.h"
 #endif
 
+#define CAPTURED_WINDOW_CURSOR_OFFSET_X     180
+#define CAPTURED_WINDOW_CURSOR_OFFSET_Y     15
 
 CEditorWindow::CEditorWindow(const QRect& rect, CTabPanel* panel)
-    : CWindowPlatform(rect, WindowType::SINGLE)
+    : CWindowPlatform(rect/*, WindowType::SINGLE*/)
     , d_ptr(new CEditorWindowPrivate(this))
 {
     d_ptr.get()->init(panel);
 
 #ifdef __linux__
-    if ( !CX11Decoration::isDecorated() )
-        applyTheme(AscAppManager::themes().current().id());
-
     setObjectName("editorWindow");
     m_pMainPanel = createMainPanel(this, d_ptr->panel()->data()->title());
     setCentralWidget(m_pMainPanel);
@@ -74,9 +73,6 @@ CEditorWindow::CEditorWindow(const QRect& rect, CTabPanel* panel)
     }
     connect(&AscAppManager::getInstance().commonEvents(), &CEventDriver::onModalDialog, this, &CEditorWindow::slot_modalDialog);
 #else
-
-    applyTheme(AscAppManager::themes().current().id());
-
     m_pMainPanel = createMainPanel(this, d_ptr->panel()->data()->title());
     setCentralWidget(m_pMainPanel);
 
@@ -419,6 +415,35 @@ void CEditorWindow::onExitSizeMove()
     }
 }
 
+void CEditorWindow::captureMouse()
+{
+#ifdef _WIN32
+    POINT cursor{0,0};
+    if (GetCursorPos(&cursor)) {
+        QRect _g{geometry()};
+        int _window_offset_x;
+        if (cursor.x - _g.x() < dpiCorrectValue(CAPTURED_WINDOW_CURSOR_OFFSET_X)) _window_offset_x = dpiCorrectValue(CAPTURED_WINDOW_CURSOR_OFFSET_X);
+        else if ( cursor.x > _g.right() - dpiCorrectValue(150) ) _window_offset_x = _g.right() - dpiCorrectValue(150);
+        else _window_offset_x = cursor.x - _g.x();
+        move(cursor.x - _window_offset_x, cursor.y - dpiCorrectValue(CAPTURED_WINDOW_CURSOR_OFFSET_Y));
+        ReleaseCapture();
+        PostMessage((HWND)winId(), WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(cursor.x, cursor.y));
+    }
+#else
+    QMouseEvent _event(QEvent::MouseButtonRelease, QCursor::pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+    QApplication::sendEvent(AscAppManager::mainWindow(), &_event);
+    setGeometry(QRect(QCursor::pos() - QPoint(300, 15), size()));
+    Q_ASSERT(m_boxTitleBtns != nullptr);
+    QPoint pt_in_title = (m_boxTitleBtns->geometry().topLeft() + QPoint(300,15));
+    _event = {QEvent::MouseButtonPress, pt_in_title, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier};
+//    QApplication::sendEvent(this, &_event1);
+    CX11Decoration::dispatchMouseDown(&_event);
+    _event = {QEvent::MouseMove, QCursor::pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier};
+//    QApplication::sendEvent(this, &_event);
+    CX11Decoration::dispatchMouseMove(&_event);
+#endif
+}
+
 int CEditorWindow::calcTitleCaptionWidth()
 {
     int base_width = (isCustomWindowStyle()) ? m_boxTitleBtns->width() -
@@ -490,7 +515,17 @@ void CEditorWindow::onDpiChanged(double newfactor, double prevfactor)
 
 void CEditorWindow::setScreenScalingFactor(double newfactor)
 {
-    CWindowPlatform::setScreenScalingFactor(newfactor);
+    //CWindowPlatform::setScreenScalingFactor(newfactor);
+    if (m_dpiRatio != newfactor) {
+        if (isCustomWindowStyle()) {
+            QSize small_btn_size(int(TOOLBTN_WIDTH * newfactor), int(TOOLBTN_HEIGHT*newfactor));
+            foreach (auto btn, m_pTopButtons)
+                btn->setFixedSize(small_btn_size);
+            m_boxTitleBtns->setFixedHeight(int(TOOLBTN_HEIGHT * newfactor));
+            m_boxTitleBtns->layout()->setSpacing(int(1 * newfactor));
+        }
+        m_dpiRatio = newfactor;
+    }
 
     if ( newfactor > 1.75 ) m_pMainPanel->setProperty("zoom", "2x"); else
     if ( newfactor > 1.5 ) m_pMainPanel->setProperty("zoom", "1.75x"); else
@@ -511,7 +546,23 @@ void CEditorWindow::setScreenScalingFactor(double newfactor)
     updateTitleCaption();
 }
 
+void CEditorWindow::onSystemDpiChanged(double dpi_ratio)
+{
+    if (!WindowHelper::isLeftButtonPressed() || AscAppManager::IsUseSystemScaling()) {
+        //double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
+        if (dpi_ratio != m_dpiRatio) {
+            setScreenScalingFactor(dpi_ratio);
+        }
+    }
+}
+
 void CEditorWindow::onClickButtonHome()
 {
     AscAppManager::gotoMainWindow(size_t(this));
+}
+
+void CEditorWindow::slot_modalDialog(bool status, WId h)
+{
+    Q_UNUSED(h)
+    //status ? pimpl->lockParentUI() : pimpl->unlockParentUI();
 }

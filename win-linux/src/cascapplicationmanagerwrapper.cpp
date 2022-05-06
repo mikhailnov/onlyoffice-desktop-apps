@@ -392,7 +392,7 @@ bool CAscApplicationManagerWrapper::processCommonEvent(NSEditorApi::CAscCefMenuE
         reporterWindow->show(false);
 #else
         reporterWindow->show(false);
-        reporterWindow->toggleBorderless(false);
+        //reporterWindow->toggleBorderless(false);
 #endif
 
 //        RELEASEINTERFACE(event);

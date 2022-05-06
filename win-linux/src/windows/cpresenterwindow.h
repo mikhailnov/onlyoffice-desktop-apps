@@ -53,10 +53,12 @@ public:
 
 private:
     QWidget * createMainPanel(QWidget *, const QString&, bool custom = true, QWidget * view = nullptr);
+    virtual void setScreenScalingFactor(double) final;
     virtual void onMaximizeEvent() final;
     virtual void onCloseEvent() final;
 #if defined (_WIN32)
     virtual void focus() final;
+    virtual void onSystemDpiChanged(double) final {};
 #endif
 };
 

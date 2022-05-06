@@ -74,6 +74,7 @@ private:
     void onSizeEvent(int);
     void onMoveEvent(const QRect&);
     void onExitSizeMove();
+    void captureMouse();
     virtual int calcTitleCaptionWidth() final;
     virtual void focus() final;
     virtual void onCloseEvent() final;
@@ -82,6 +83,9 @@ private:
     virtual bool event(QEvent *) final;
     virtual void onDpiChanged(double,double) final;
     virtual void setScreenScalingFactor(double) final;
+#ifdef _WIN32
+    virtual void onSystemDpiChanged(double) final;
+#endif
 
     QMetaObject::Connection m_modalSlotConnection;
     QString m_css;
@@ -92,6 +96,7 @@ private:
 
 private slots:
     void onClickButtonHome();
+    void slot_modalDialog(bool,  WId);
 };
 
 #endif // CEDITORWINDOW_H
