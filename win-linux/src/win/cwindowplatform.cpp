@@ -37,18 +37,18 @@
 #include "csplash.h"
 #include "clogger.h"
 #include "clangater.h"
-#include <QDesktopWidget>
-#include <QGridLayout>
+//#include <QDesktopWidget>
+//#include <QGridLayout>
 #include <QTimer>
-#include <stdexcept>
-#include <functional>
-#include <QApplication>
-#include <QIcon>
+//#include <stdexcept>
+//#include <functional>
+//#include <QApplication>
+//#include <QIcon>
 
 
-using namespace std::placeholders;
+//using namespace std::placeholders;
 
-Q_GUI_EXPORT HICON qt_pixmapToWinHICON(const QPixmap &);
+//Q_GUI_EXPORT HICON qt_pixmapToWinHICON(const QPixmap &);
 
 /*auto refresh_window_scaling_factor(CWindowPlatform * window) -> void
 {
