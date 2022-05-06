@@ -47,7 +47,6 @@ public:
     explicit CPresenterWindow(const QRect&, const QString&, QCefView*);
     virtual ~CPresenterWindow();
 
-
     virtual void applyTheme(const std::wstring&) final;
     virtual bool holdView(int id) const final;
 

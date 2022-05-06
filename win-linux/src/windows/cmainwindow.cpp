@@ -328,8 +328,7 @@ void CMainWindow::applyWindowState(Qt::WindowState s)
 #ifdef __linux__
         layout()->setMargin(s == Qt::WindowMaximized ? 0 : CX11Decoration::customWindowBorderWith() * scaling());
 #endif
-        m_pTopButtons[BtnType::Btn_Maximize]->setProperty("class", s == Qt::WindowMaximized ? "min" : "normal");
-        m_pTopButtons[BtnType::Btn_Maximize]->style()->polish(m_pTopButtons[BtnType::Btn_Maximize]);
+        CWindowBase::applyWindowState(s);
     }
 }
 

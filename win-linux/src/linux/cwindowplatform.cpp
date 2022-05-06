@@ -153,8 +153,8 @@ void CWindowPlatform::setWindowColors(const QColor& background, const QColor& bo
     if (!CX11Decoration::isDecorated()) {
         QPalette pal = palette();
         pal.setColor(QPalette::Window, background);
-        /*setStyleSheet(QString("QMainWindow{border:1px solid %1; border-top:2px solid %1;}").
-                      arg(border.name()));*/
+        setStyleSheet(QString("QMainWindow{border:1px solid %1;}").
+                      arg(border.name()));
         setAutoFillBackground(true);
         setPalette(pal);
     }
@@ -332,7 +332,7 @@ bool CWindowPlatform::event(QEvent * event)
 
 void CWindowPlatform::showEvent(QShowEvent * e)
 {
-    QMainWindow::showEvent(e);
+    CWindowBase::showEvent(e);
     if (!m_windowActivated) {
         m_windowActivated = true;
         setGeometry(m_window_rect);

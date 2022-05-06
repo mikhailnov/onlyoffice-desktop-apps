@@ -190,10 +190,8 @@ void CPresenterWindow::setScreenScalingFactor(double factor)
 
 void CPresenterWindow::onMaximizeEvent()
 {
-    if (m_pTopButtons[BtnType::Btn_Minimize]) {
-        m_pTopButtons[BtnType::Btn_Maximize]->setProperty("class", isMaximized() ? "min" : "normal");
-        m_pTopButtons[BtnType::Btn_Maximize]->style()->polish(m_pTopButtons[BtnType::Btn_Maximize]);
-    }
+    Qt::WindowState s = isMaximized() ? Qt::WindowMaximized : Qt::WindowNoState;
+    CWindowBase::applyWindowState(s);
     CWindowBase::onMaximizeEvent();
 }
 
