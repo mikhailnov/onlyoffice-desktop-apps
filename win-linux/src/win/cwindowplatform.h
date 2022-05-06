@@ -61,7 +61,7 @@ public:
     void setWindowColors(const QColor&, const QColor& border = QColor());
     void show(bool);
     void updateScaling();
-    virtual void applyTheme(const std::wstring&) = 0;
+    virtual void applyTheme(const std::wstring&);
 
 protected:
     int dpiCorrectValue(int v) const;

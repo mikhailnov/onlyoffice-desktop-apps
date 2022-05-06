@@ -81,10 +81,7 @@ CPresenterWindow::~CPresenterWindow()
 
 void CPresenterWindow::applyTheme(const std::wstring& theme)
 {
-    QColor background = AscAppManager::themes().current().color(CTheme::ColorRole::ecrWindowBackground);
-    QColor border = AscAppManager::themes().current().color(CTheme::ColorRole::ecrWindowBorder);
-    setWindowColors(background, border);
-
+    CWindowPlatform::applyTheme(theme);
     m_pMainPanel->setProperty("uitheme", QString::fromStdWString(theme));
     if (m_boxTitleBtns) {
         m_labelTitle->style()->polish(m_labelTitle);

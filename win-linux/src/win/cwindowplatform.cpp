@@ -188,11 +188,13 @@ void CWindowPlatform::show(bool maximized)
     maximized ? CWindowBase::showMaximized() : CWindowBase::show();
 }
 
-/*void CWindowPlatform::applyTheme(const std::wstring& theme)
+void CWindowPlatform::applyTheme(const std::wstring& theme)
 {
     Q_UNUSED(theme)
-
-}*/
+    QColor background = AscAppManager::themes().current().color(CTheme::ColorRole::ecrWindowBackground);
+    QColor border = AscAppManager::themes().current().color(CTheme::ColorRole::ecrWindowBorder);
+    setWindowColors(background, border);
+}
 
 void CWindowPlatform::updateScaling()
 {

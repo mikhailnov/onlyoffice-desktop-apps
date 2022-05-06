@@ -237,10 +237,7 @@ bool CMainWindow::holdView(int id) const
 
 void CMainWindow::applyTheme(const std::wstring& theme)
 {
-    QColor background = AscAppManager::themes().current().color(CTheme::ColorRole::ecrWindowBackground);
-    QColor border = AscAppManager::themes().current().color(CTheme::ColorRole::ecrWindowBorder);
-    setWindowColors(background, border);
-
+    CWindowPlatform::applyTheme(theme);
     m_pMainPanel->setProperty("uitheme", QString::fromStdWString(theme));
     for (int i(m_pTabs->count()); !(--i < 0);) {
         CAscTabData& _doc = *m_pTabs->panel(i)->data();
