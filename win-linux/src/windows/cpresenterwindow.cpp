@@ -54,12 +54,18 @@ using namespace std::placeholders;
 
 
 CPresenterWindow::CPresenterWindow(const QRect &rect, const QString &title, QCefView *view) :
-    CWindowPlatform(rect/*, WindowType::REPORTER*/)
+    CWindowPlatform(rect)
 {    
     bool isDecorated = true;
 #ifdef __linux__
+    GET_REGISTRY_SYSTEM(reg_system)
+    GET_REGISTRY_USER(reg_user)
+    if (reg_user.value("titlebar") == "custom" ||
+            reg_system.value("titlebar") == "custom" )
+        CX11Decoration::turnOff();
     isDecorated = !CX11Decoration::isDecorated();
 #endif
+
     m_pMainPanel = createMainPanel(this, title, isDecorated, static_cast<QWidget*>(view));
     setCentralWidget(m_pMainPanel);
 #ifdef __linux__

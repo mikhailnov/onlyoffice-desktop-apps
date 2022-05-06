@@ -42,7 +42,7 @@
 # include "cdialogopenssl.h"
 #endif
 
-class CWindowPlatform::impl {
+/*class CWindowPlatform::impl {
     CWindowPlatform * m_owner = nullptr;
     WindowHelper::CParentDisable * m_disabler = nullptr;
 public:
@@ -64,80 +64,29 @@ public:
     void unlockParentUI() {
         m_disabler->enable();
     }
-};
+};*/
 
-auto adjustRect(QRect& window_rect, const double dpiRatio)->void
-{
-    if (window_rect.isEmpty())
-        window_rect = QRect(100, 100, 1324 * dpiRatio, 800 * dpiRatio);
-    QRect _screen_size = Utils::getScreenGeometry(window_rect.topLeft());
-    if (_screen_size.width() < window_rect.width() + 120 ||
-            _screen_size.height() < window_rect.height() + 120 )
-    {
-        window_rect.setLeft(_screen_size.left()),
-        window_rect.setTop(_screen_size.top());
-        if (_screen_size.width() < window_rect.width()) window_rect.setWidth(_screen_size.width());
-        if (_screen_size.height() < window_rect.height()) window_rect.setHeight(_screen_size.height());
-    }
-}
-
-CWindowPlatform::CWindowPlatform(const QRect &rect, const WindowType winType) :
+CWindowPlatform::CWindowPlatform(const QRect &rect) :
     CX11Decoration(this),
-    m_winType(winType),
-    m_windowActivated(false),
-    pimpl(new impl(this))
+    //m_winType(winType),
+    m_windowActivated(false)/*,
+    pimpl(new impl(this))*/
 {
-    if (m_winType == WindowType::MAIN) {
-        setAcceptDrops(true);
-        setObjectName("MainWindow");
-
-        GET_REGISTRY_USER(reg_user)
-        if ( InputArgs::contains(L"--system-title-bar") )
-            reg_user.setValue("titlebar", "system");
-        else
-        if ( InputArgs::contains(L"--custom-title-bar") )
-            reg_user.setValue("titlebar", "custom");
-
-        if ( !reg_user.contains("titlebar") )
-            reg_user.setValue("titlebar", "custom");
-
-        QString _title_style = reg_user.value("titlebar").toString();
-        if ( _title_style.isEmpty() ) {
-            GET_REGISTRY_SYSTEM(reg_system);
-            _title_style = reg_system.value("titlebar").toString();
+    m_dpiRatio = Utils::getScreenDpiRatio(QApplication::desktop()->screenNumber(rect.topLeft()));
+    m_window_rect = rect;
+    m_window_rect = rect;
+    if (m_window_rect.isEmpty())
+        m_window_rect = QRect(QPoint(100, 100)*m_dpiRatio, MAIN_WINDOW_DEFAULT_SIZE * m_dpiRatio);
+    QRect _screen_size = Utils::getScreenGeometry(m_window_rect.topLeft());
+    if (_screen_size.intersects(m_window_rect)) {
+        if (_screen_size.width() < m_window_rect.width() + 120 || _screen_size.height() < m_window_rect.height() +120) {
+            m_window_rect.setLeft(_screen_size.left()),
+            m_window_rect.setTop(_screen_size.top());
+            if (_screen_size.width() < m_window_rect.width()) m_window_rect.setWidth(_screen_size.width());
+            if (_screen_size.height() < m_window_rect.height()) m_window_rect.setHeight(_screen_size.height());
         }
-
-        if ( _title_style == "custom" )
-            CX11Decoration::turnOff();
-
-        // adjust window size
-        QRect _window_rect = rect;
-        m_dpiRatio = Utils::getScreenDpiRatio( QApplication::desktop()->screenNumber(_window_rect.topLeft()) );
-        adjustRect(_window_rect, m_dpiRatio);
-        setGeometry(_window_rect);
-
-    } else
-    if (m_winType == WindowType::SINGLE) {
-        //CWindowBase::setWindowTitle(title);
-        if (isCustomWindowStyle())
-            CX11Decoration::turnOff();
-        m_dpiRatio = Utils::getScreenDpiRatio(rect.topLeft());
-        setGeometry(rect);
-    //    setMinimumSize(WindowHelper::correctWindowMinimumSize(geometry(), {EDITOR_WINDOW_MIN_WIDTH * m_dpiRatio, MAIN_WINDOW_MIN_HEIGHT * m_dpiRatio}));
-    } else
-    if (m_winType == WindowType::REPORTER) {
-        //CWindowBase::setWindowTitle(title);
-        GET_REGISTRY_SYSTEM(reg_system)
-        GET_REGISTRY_USER(reg_user)
-        if (reg_user.value("titlebar") == "custom" ||
-                reg_system.value("titlebar") == "custom" )
-            CX11Decoration::turnOff();
-        // adjust window size
-        QRect _window_rect = rect;
-        m_dpiRatio = Utils::getScreenDpiRatio(QApplication::desktop()->screenNumber(rect.topLeft()));
-        adjustRect(_window_rect, m_dpiRatio);
-    //    setMinimumSize(WindowHelper::correctWindowMinimumSize(_window_rect, {WINDOW_MIN_WIDTH * m_dpiRatio, WINDOW_MIN_HEIGHT * m_dpiRatio}));
-        setGeometry(_window_rect);
+    } else {
+        m_window_rect = QRect(QPoint(100, 100)*m_dpiRatio, QSize(MAIN_WINDOW_MIN_WIDTH, MAIN_WINDOW_MIN_HEIGHT)*m_dpiRatio);
     }
 }
 
@@ -190,22 +139,13 @@ void CWindowPlatform::updateScaling()
         setScreenScalingFactor(dpi_ratio);
 }
 
-/*void CWindowPlatform::applyTheme(const std::wstring& theme)
+void CWindowPlatform::applyTheme(const std::wstring& theme)
 {
     Q_UNUSED(theme)
-    if (m_winType == WindowType::MAIN) {
-        if ( !CX11Decoration::isDecorated() ) {
-            QPalette _palette(palette());
-            _palette.setColor(QPalette::Background, AscAppManager::themes()
-                          .current().color(CTheme::ColorRole::ecrWindowBackground));
-            setStyleSheet(QString("QMainWindow{border:1px solid %1;}")
-                          .arg(QString::fromStdWString(AscAppManager::themes().current()
-                          .value(CTheme::ColorRole::ecrWindowBorder))));
-            setAutoFillBackground(true);
-            setPalette(_palette);
-        }
-    }
-}*/
+    QColor background = AscAppManager::themes().current().color(CTheme::ColorRole::ecrWindowBackground);
+    QColor border = AscAppManager::themes().current().color(CTheme::ColorRole::ecrWindowBorder);
+    setWindowColors(background, border);
+}
 
 void CWindowPlatform::setWindowColors(const QColor& background, const QColor& border)
 {
@@ -258,7 +198,7 @@ bool CWindowPlatform::event(QEvent * event)
     if (event->type() == QEvent::WindowStateChange && this->isVisible()) {
         QWindowStateChangeEvent * _e_statechange = static_cast< QWindowStateChangeEvent* >( event );
         CX11Decoration::setMaximized(this->windowState() == Qt::WindowMaximized ? true : false);
-        if (m_winType == WindowType::MAIN) {
+        //if (m_winType == WindowType::MAIN) {
             if( _e_statechange->oldState() == Qt::WindowNoState && windowState() == Qt::WindowMaximized ) {
                 applyWindowState(Qt::WindowMaximized);
             } else
@@ -268,7 +208,7 @@ bool CWindowPlatform::event(QEvent * event)
             if (this->windowState() == Qt::WindowMinimized) {
                 applyWindowState(Qt::WindowMinimized);
             }
-        } else
+        /*} else
         if (m_winType == WindowType::SINGLE || m_winType == WindowType::REPORTER) {
             if (!isCustomWindowStyle() && m_winType == WindowType::SINGLE) return CWindowBase::event(event);
             if(_e_statechange->oldState() == Qt::WindowNoState && windowState() == Qt::WindowMaximized) {
@@ -279,24 +219,22 @@ bool CWindowPlatform::event(QEvent * event)
                 layout()->setMargin(CX11Decoration::customWindowBorderWith() * m_dpiRatio);
                 applyWindowState(Qt::WindowNoState);
             }
-        }
+        }*/
     } else
     if ( event->type() == QEvent::MouseButtonPress ) {
         _flg_left_button = static_cast<QMouseEvent *>(event)->buttons().testFlag(Qt::LeftButton);
     } else
     if ( event->type() == QEvent::MouseButtonRelease ) {
         if ( _flg_left_button && _flg_motion ) {
-            if (m_winType == WindowType::MAIN) {
+            /*if (m_winType == WindowType::MAIN) {
                 updateScaling();
-            } else
+            } else*/
             /*if (m_winType == WindowType::SINGLE) {
                 onExitSizeMove();
             } else*/
-            if (m_winType == WindowType::REPORTER) {
-                double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
-                if (dpi_ratio != m_dpiRatio)
-                    setScreenScalingFactor(dpi_ratio);
-            }
+            //if (m_winType == WindowType::REPORTER) {
+                updateScaling();
+            //}
         }
         _flg_left_button = _flg_motion = false;
     } else
@@ -307,7 +245,7 @@ bool CWindowPlatform::event(QEvent * event)
             QMoveEvent * _e = static_cast<QMoveEvent *>(event);
             onMoveEvent(QRect(_e->pos(), QSize(1,1)));
         }*/
-    } else
+    } /*else
     if (event->type() == QEvent::Close && m_winType == WindowType::SINGLE) {
         if (!AscAppManager::mainWindow() || !AscAppManager::mainWindow()->isVisible()) {
             GET_REGISTRY_USER(reg_user);
@@ -316,7 +254,7 @@ bool CWindowPlatform::event(QEvent * event)
         onCloseEvent();
         event->ignore();
         return false;
-    }
+    }*/
 
     return CWindowBase::event(event);
 }
@@ -356,7 +294,7 @@ bool CWindowPlatform::event(QEvent * event)
     }
 }*/
 
-void CWindowPlatform::slot_modalDialog(bool status, WId h)
+/*void CWindowPlatform::slot_modalDialog(bool status, WId h)
 {
     Q_UNUSED(h)
     if (m_winType == WindowType::MAIN) {
@@ -368,7 +306,7 @@ void CWindowPlatform::slot_modalDialog(bool status, WId h)
     if (m_winType == WindowType::SINGLE) {
         status ? pimpl->lockParentUI() : pimpl->unlockParentUI();
     }
-}
+}*/
 
 /** Private **/
 
@@ -385,18 +323,19 @@ void CWindowPlatform::slot_modalDialog(bool status, WId h)
 //    setMinimumSize(WindowHelper::correctWindowMinimumSize(geometry(), {EDITOR_WINDOW_MIN_WIDTH * f, MAIN_WINDOW_MIN_HEIGHT * f}));
 }*/
 
-void CWindowPlatform::closeEvent(QCloseEvent * e)
+/*void CWindowPlatform::closeEvent(QCloseEvent * e)
 {
     if (m_winType == WindowType::MAIN)
         onCloseEvent();
     e->ignore();
-}
+}*/
 
 void CWindowPlatform::showEvent(QShowEvent * e)
 {
     QMainWindow::showEvent(e);
     if (!m_windowActivated) {
         m_windowActivated = true;
+        setGeometry(m_window_rect);
         applyTheme(AscAppManager::themes().current().id());
         /*if (!CX11Decoration::isDecorated()) {
             QPalette _palette(palette());

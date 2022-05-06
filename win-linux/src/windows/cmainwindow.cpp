@@ -95,7 +95,7 @@ public:
 };
 
 CMainWindow::CMainWindow(const QRect &rect) :
-    CWindowPlatform(rect/*, WindowType::MAIN*/),
+    CWindowPlatform(rect),
     CScalingWrapper(m_dpiRatio),
     CMainWindowImpl(),
     m_pTabBarWrapper(nullptr),
@@ -112,9 +112,30 @@ CMainWindow::CMainWindow(const QRect &rect) :
     m_isCustomWindow(true),
     m_saveAction(0)
 {
+    setObjectName("MainWindow");
 #ifdef __linux__
+    setAcceptDrops(true);
+    GET_REGISTRY_USER(reg_user)
+    if ( InputArgs::contains(L"--system-title-bar") )
+        reg_user.setValue("titlebar", "system");
+    else
+    if ( InputArgs::contains(L"--custom-title-bar") )
+        reg_user.setValue("titlebar", "custom");
+
+    if ( !reg_user.contains("titlebar") )
+        reg_user.setValue("titlebar", "custom");
+
+    QString _title_style = reg_user.value("titlebar").toString();
+    if ( _title_style.isEmpty() ) {
+        GET_REGISTRY_SYSTEM(reg_system);
+        _title_style = reg_system.value("titlebar").toString();
+    }
+
+    if ( _title_style == "custom" )
+        CX11Decoration::turnOff();
     m_isCustomWindow = !CX11Decoration::isDecorated();
 #endif
+
     m_pMainPanel = createMainPanel(this, m_isCustomWindow, m_dpiRatio);
     setCentralWidget(m_pMainPanel);
 #ifdef __linux__

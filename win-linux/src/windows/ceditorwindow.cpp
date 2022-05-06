@@ -56,13 +56,15 @@
 #define CAPTURED_WINDOW_CURSOR_OFFSET_Y     15
 
 CEditorWindow::CEditorWindow(const QRect& rect, CTabPanel* panel)
-    : CWindowPlatform(rect/*, WindowType::SINGLE*/)
+    : CWindowPlatform(rect)
     , d_ptr(new CEditorWindowPrivate(this))
 {
     d_ptr.get()->init(panel);
 
 #ifdef __linux__
     setObjectName("editorWindow");
+    if (isCustomWindowStyle())
+        CX11Decoration::turnOff();
     m_pMainPanel = createMainPanel(this, d_ptr->panel()->data()->title());
     setCentralWidget(m_pMainPanel);
 
@@ -79,7 +81,7 @@ CEditorWindow::CEditorWindow(const QRect& rect, CTabPanel* panel)
     recalculatePlaces();
 #endif
 
-    QTimer::singleShot(0, [=]{m_pMainView->show();});
+    QTimer::singleShot(0, this, [=]{m_pMainView->show();});
     AscAppManager::bindReceiver(panel->cef()->GetId(), d_ptr.get());
     AscAppManager::sendCommandTo(panel->cef(), L"editor:config", L"request");
 
@@ -546,6 +548,7 @@ void CEditorWindow::setScreenScalingFactor(double newfactor)
     updateTitleCaption();
 }
 
+#ifdef _WIN32
 void CEditorWindow::onSystemDpiChanged(double dpi_ratio)
 {
     if (!WindowHelper::isLeftButtonPressed() || AscAppManager::IsUseSystemScaling()) {
@@ -555,6 +558,7 @@ void CEditorWindow::onSystemDpiChanged(double dpi_ratio)
         }
     }
 }
+#endif
 
 void CEditorWindow::onClickButtonHome()
 {
@@ -563,6 +567,7 @@ void CEditorWindow::onClickButtonHome()
 
 void CEditorWindow::slot_modalDialog(bool status, WId h)
 {
+    Q_UNUSED(status)
     Q_UNUSED(h)
     //status ? pimpl->lockParentUI() : pimpl->unlockParentUI();
 }

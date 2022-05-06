@@ -41,7 +41,7 @@
 class CWindowPlatform : public CWindowBase, public CX11Decoration
 {
 public:
-    explicit CWindowPlatform(const QRect&, const WindowType);
+    explicit CWindowPlatform(const QRect&);
     virtual ~CWindowPlatform();
 
     QWidget * handle() const;
@@ -50,7 +50,7 @@ public:
     void show(bool);
     void updateScaling();
     void setWindowColors(const QColor&, const QColor& border = QColor());
-    virtual void applyTheme(const std::wstring&) = 0;
+    virtual void applyTheme(const std::wstring&);
 
 protected:
     //void captureMouse();
@@ -58,12 +58,12 @@ protected:
     virtual bool event(QEvent *event) override;
     virtual void setScreenScalingFactor(double) = 0;
 
-protected slots:
-    void slot_modalDialog(bool status, WId h);
+/*protected slots:
+    void slot_modalDialog(bool status, WId h);*/
 
 private:
     //void onScreenScalingFactor(double f);
-    virtual void closeEvent(QCloseEvent *) final;
+    //virtual void closeEvent(QCloseEvent *) final;
     virtual void showEvent(QShowEvent *) final;
     virtual void mouseMoveEvent(QMouseEvent *) final;
     virtual void mousePressEvent(QMouseEvent *) final;
@@ -72,11 +72,11 @@ private:
     //virtual void dragEnterEvent(QDragEnterEvent *event) final;
     //virtual void dropEvent(QDropEvent *event) final;
 
-    WindowType m_winType;
+    QRect    m_window_rect;
     bool m_windowActivated;
 
-    class impl;
-    std::unique_ptr<impl> pimpl;
+    /*class impl;
+    std::unique_ptr<impl> pimpl;*/
 };
 
 #endif // CWINDOWPLATFORM_H
