@@ -39,13 +39,6 @@
 #include <QMargins>
 #include <QRect>
 
-struct CWindowGeometry
-{
-    CWindowGeometry() {}
-    bool required = false;
-    int width = 0;
-    int height = 0;
-};
 
 class CWindowPlatform : public CWindowBase
 {
@@ -65,8 +58,6 @@ public:
 
 protected:
     int dpiCorrectValue(int v) const;
-    void setMinimumSize(const int, const int);
-    void setMaximumSize(const int, const int);
     virtual void setScreenScalingFactor(double) = 0;
     virtual void onSystemDpiChanged(double) = 0;
 
@@ -76,8 +67,6 @@ private:
     virtual void changeEvent(QEvent*) final;
     virtual bool nativeEvent(const QByteArray&, void*, long*) final;
 
-    CWindowGeometry m_minSize;
-    CWindowGeometry m_maxSize;
     Qt::WindowStates m_previousState;
 
     QRect    m_window_rect;

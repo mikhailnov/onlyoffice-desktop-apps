@@ -162,22 +162,6 @@ void CWindowPlatform::updateScaling()
     }
 }
 
-/** Protected **/
-
-void CWindowPlatform::setMinimumSize( const int width, const int height )
-{
-    m_minSize.required = true;
-    m_minSize.width = width;
-    m_minSize.height = height;
-}
-
-void CWindowPlatform::setMaximumSize( const int width, const int height )
-{
-    m_maxSize.required = true;
-    m_maxSize.width = width;
-    m_maxSize.height = height;
-}
-
 /** Private **/
 
 void CWindowPlatform::setResizeableAreaWidth(int width)
