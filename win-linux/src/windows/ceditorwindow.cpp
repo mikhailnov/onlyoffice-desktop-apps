@@ -225,7 +225,6 @@ void CEditorWindow::applyTheme(const std::wstring& theme)
 
 QWidget * CEditorWindow::createMainPanel(QWidget * parent, const QString& title)
 {
-    // create min/max/close buttons
     bool isCustom = isCustomWindowStyle();
     QWidget * mainPanel = new QWidget(parent);
     mainPanel->setObjectName("mainPanel");
@@ -271,13 +270,11 @@ QWidget * CEditorWindow::createMainPanel(QWidget * parent, const QString& title)
     bool _canExtendTitle = false;
     if (isCustom) {
         if ( !d_ptr->canExtendTitle() ) {
-            //mainGridLayout->addWidget(m_boxTitleBtns);
             mainGridLayout->addWidget(m_boxTitleBtns, 0, 0);
             m_labelTitle->setText(APP_TITLE);
         } else {
             if (d_ptr->panel()->data()->contentType() != etUndefined)
                 mainPanel->setProperty("window", "pretty");
-            //m_boxTitleBtns->setParent(mainPanel);
             _canExtendTitle = true;
             static_cast<QHBoxLayout*>(m_boxTitleBtns->layout())->insertWidget(3, d_ptr.get()->iconUser());
         }
@@ -314,7 +311,6 @@ QWidget * CEditorWindow::createMainPanel(QWidget * parent, const QString& title)
 
 //    m_pMainWidget->setVisible(false);
 
-//    mainGridLayout->addWidget(centralWidget);
     d_ptr.get()->onScreenScalingFactor(m_dpiRatio);
     mainGridLayout->addWidget(m_pMainView, 1, 0);
     mainGridLayout->setRowStretch(1,1);
@@ -337,42 +333,12 @@ void CEditorWindow::recalculatePlaces()
 {
     if ( !m_pMainView || !isCustomWindowStyle() ) return;
 
-    int windowW = m_pMainPanel->width(),
-        windowH = m_pMainPanel->height(),
-        captionH = int(TITLE_HEIGHT * m_dpiRatio);
-
-    if (!QCefView::IsSupportLayers())
-    {
+    if (!QCefView::IsSupportLayers()) {
         d_ptr->panel()->view()->SetCaptionMaskSize(int(TITLE_HEIGHT * m_dpiRatio));
     }
 
-//    int contentH = windowH - captionH;
-//    if ( contentH < 1 ) contentH = 1;
-
-//    int nCaptionR = 200;
-    int nCaptionL = 0 /*d_ptr.get()->titleLeftOffset * m_dpiRatio*/;
-
-    if ( d_ptr->canExtendTitle() )
-    {
-//    QSize _s{TOOLBTN_WIDTH * 3, TOOLBTN_HEIGHT};
-//    _s *= m_dpiRatio;
-//    m_boxTitleBtns->setFixedWidth(_s.width());
-#ifdef Q_OS_WIN
-    //m_boxTitleBtns->setGeometry(nCaptionL, 0, windowW - nCaptionL, captionH);
-#else
-    //int cbw = CX11Decoration::customWindowBorderWith()*m_dpiRatio;
-    //m_boxTitleBtns->setGeometry(cbw, cbw, windowW - cbw * 2, captionH);
-#endif
-//    m_boxTitleBtns->move(windowW - m_boxTitleBtns->width() + cbw, cbw);
-//    m_pMainView->setGeometry(0, captionH, windowW, windowH - captionH);
-
-//    QRegion reg(0, captionH, windowW, windowH - captionH);
-//    reg = reg.united(QRect(0, 0, nCaptionL, captionH));
-//    reg = reg.united(QRect(windowW - nCaptionR, 0, nCaptionR, captionH));
-//    m_pMainView->clearMask();
-//    m_pMainView->setMask(reg);
-
-    m_pMainView->lower();
+    if ( d_ptr->canExtendTitle() ) {
+        m_pMainView->lower();
     }
 }
 
@@ -517,7 +483,6 @@ void CEditorWindow::onDpiChanged(double newfactor, double prevfactor)
 
 void CEditorWindow::setScreenScalingFactor(double newfactor)
 {
-    //CWindowPlatform::setScreenScalingFactor(newfactor);
     if (m_dpiRatio != newfactor) {
         if (isCustomWindowStyle()) {
             QSize small_btn_size(int(TOOLBTN_WIDTH * newfactor), int(TOOLBTN_HEIGHT*newfactor));
@@ -552,7 +517,6 @@ void CEditorWindow::setScreenScalingFactor(double newfactor)
 void CEditorWindow::onSystemDpiChanged(double dpi_ratio)
 {
     if (!WindowHelper::isLeftButtonPressed() || AscAppManager::IsUseSystemScaling()) {
-        //double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
         if (dpi_ratio != m_dpiRatio) {
             setScreenScalingFactor(dpi_ratio);
         }

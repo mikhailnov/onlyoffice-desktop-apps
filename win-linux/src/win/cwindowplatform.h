@@ -71,13 +71,11 @@ protected:
     virtual void onSystemDpiChanged(double) = 0;
 
 private:
-    //friend auto refresh_window_scaling_factor(CWindowPlatform * window)->void;
     void setResizeableAreaWidth(int);
     void setContentsMargins(int, int, int, int);
     virtual void showEvent(QShowEvent*) final;
     virtual void changeEvent(QEvent*) final;
     virtual bool nativeEvent(const QByteArray&, void*, long*) final;
-
 
     CWindowGeometry m_minSize;
     CWindowGeometry m_maxSize;

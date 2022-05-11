@@ -98,7 +98,6 @@ private slots:
 /** MainPanel **/
 
 public:
-    //WId GetHwndForKeyboard() {return ((QWidget*)m_pTabs->parent())->winId();}
     QWidget * createMainPanel(QWidget *parent, bool isCustomWindow, double scale);
     CAscTabWidget * tabWidget();
     CTabBar *tabBar();
@@ -155,15 +154,11 @@ public slots:
     void onOutsideAuth(QString);
     void onEditorAllowedClose(int);
     void onWebTitleChanged(int, std::wstring json) {}
-    //virtual void onLocalOptions(const QString&);
-    //void onLocalFileSaveAs(void *);
     void onDocumentPrint(void *);
     void onDocumentReady(int);
 
 private:
     int  trySaveDocument(int);
-    //virtual void refreshAboutVersion();
-    //QString getSaveMessage() const;
 
     CTabBarWrapper*  m_pTabBarWrapper;
     CAscTabWidget *  m_pTabs;

@@ -37,63 +37,10 @@
 #include "csplash.h"
 #include "clogger.h"
 #include "clangater.h"
-//#include <QDesktopWidget>
-//#include <QGridLayout>
 #include <QTimer>
-//#include <stdexcept>
-//#include <functional>
-//#include <QApplication>
-//#include <QIcon>
 
-
-//using namespace std::placeholders;
-
-//Q_GUI_EXPORT HICON qt_pixmapToWinHICON(const QPixmap &);
-
-/*auto refresh_window_scaling_factor(CWindowPlatform * window) -> void
-{
-    QString css{AscAppManager::getWindowStylesheets(window->m_dpiRatio)};
-    if ( !css.isEmpty() ) {
-        window->m_pMainPanel->setStyleSheet(css);
-        window->setScreenScalingFactor(window->m_dpiRatio);
-    }
-}*/
-
-/*auto SetForegroundWindowInternal(HWND hWnd)
-{
-    AllocConsole();
-    auto hWndConsole = GetConsoleWindow();
-    SetWindowPos(hWndConsole, nullptr, 0, 0, 0, 0, SWP_NOACTIVATE);
-    FreeConsole();
-    SetForegroundWindow(hWnd);
-}*/
-
-/*auto setPlacement(HWND& hwnd, QRect& moveNormalRect, double change_factor)->void
-{
-    WINDOWPLACEMENT wp{sizeof(WINDOWPLACEMENT)};
-    if ( GetWindowPlacement(hwnd, &wp) ) {
-        if ( wp.showCmd == SW_MAXIMIZE ) {
-            MONITORINFO info{sizeof(MONITORINFO)};
-            GetMonitorInfo(MonitorFromWindow(hwnd, MONITOR_DEFAULTTOPRIMARY), &info);
-
-            int dest_width_change = int(moveNormalRect.width() * (1 - change_factor));
-            moveNormalRect = QRect{moveNormalRect.translated(dest_width_change/2,0).topLeft(), moveNormalRect.size() * change_factor};
-            wp.rcNormalPosition.left = info.rcMonitor.left + moveNormalRect.left();
-            wp.rcNormalPosition.top = info.rcMonitor.top + moveNormalRect.top();
-            wp.rcNormalPosition.right = wp.rcNormalPosition.left + moveNormalRect.width();
-            wp.rcNormalPosition.bottom = wp.rcNormalPosition.top + moveNormalRect.height();
-            SetWindowPlacement(hwnd, &wp);
-        } else {
-            QRect source_rect = QRect{QPoint(wp.rcNormalPosition.left, wp.rcNormalPosition.top),QPoint(wp.rcNormalPosition.right,wp.rcNormalPosition.bottom)};
-            int dest_width_change = int(source_rect.width() * (1 - change_factor));
-            QRect dest_rect = QRect{source_rect.translated(dest_width_change/2,0).topLeft(), source_rect.size() * change_factor};
-            SetWindowPos(hwnd, NULL, dest_rect.left(), dest_rect.top(), dest_rect.width(), dest_rect.height(), SWP_NOZORDER);
-        }
-    }
-}*/
 
 CWindowPlatform::CWindowPlatform(const QRect &rect) :
-    //m_winType(winType),
     m_previousState(Qt::WindowNoState),
     m_margins(QMargins()),
     m_frame(QMargins()),
@@ -217,45 +164,6 @@ void CWindowPlatform::updateScaling()
 
 /** Protected **/
 
-/*void CWindowPlatform::captureMouse()
-{
-    if (m_winType != WindowType::SINGLE) return;
-    POINT cursor{0,0};
-    if (GetCursorPos(&cursor)) {
-        QRect _g{geometry()};
-        int _window_offset_x;
-        if (cursor.x - _g.x() < dpiCorrectValue(CAPTURED_WINDOW_CURSOR_OFFSET_X)) _window_offset_x = dpiCorrectValue(CAPTURED_WINDOW_CURSOR_OFFSET_X);
-        else if ( cursor.x > _g.right() - dpiCorrectValue(150) ) _window_offset_x = _g.right() - dpiCorrectValue(150);
-        else _window_offset_x = cursor.x - _g.x();
-        move(cursor.x - _window_offset_x, cursor.y - dpiCorrectValue(CAPTURED_WINDOW_CURSOR_OFFSET_Y));
-        ReleaseCapture();
-        PostMessage(m_hWnd, WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(cursor.x, cursor.y));
-    }
-}*/
-
-/*void CWindowPlatform::captureMouse(int tabindex)
-{
-    if (m_winType != WindowType::MAIN) return;
-    ReleaseCapture();
-    if (tabindex >= 0 && tabindex < m_pMainPanel->tabWidget()->count()) {
-        QPoint spt = m_pMainPanel->tabWidget()->tabBar()->tabRect(tabindex).topLeft() + QPoint(30, 10);
-        QPoint gpt = m_pMainPanel->tabWidget()->tabBar()->mapToGlobal(spt);
-#if (QT_VERSION < QT_VERSION_CHECK(5, 10, 0))
-        gpt = m_pWinPanel->mapToGlobal(gpt);
-#endif
-        SetCursorPos(gpt.x(), gpt.y());
-        QWidget * _widget = m_pMainPanel->tabWidget()->tabBar();
-        QTimer::singleShot(0,[_widget,spt] {
-            INPUT _input{INPUT_MOUSE};
-            _input.mi.dwFlags = MOUSEEVENTF_ABSOLUTE|MOUSEEVENTF_LEFTDOWN;
-            SendInput(1, &_input, sizeof(INPUT));
-            QMouseEvent event(QEvent::MouseButtonPress, spt, Qt::LeftButton, Qt::MouseButton::NoButton, Qt::NoModifier);
-            QCoreApplication::sendEvent(_widget, &event);
-            _widget->grabMouse();
-        });
-    }
-}*/
-
 void CWindowPlatform::setMinimumSize( const int width, const int height )
 {
     m_minSize.required = true;
@@ -269,80 +177,6 @@ void CWindowPlatform::setMaximumSize( const int width, const int height )
     m_maxSize.width = width;
     m_maxSize.height = height;
 }
-
-/*void CWindowPlatform::setScreenScalingFactor(double factor)
-{
-    auto normalizeTitleSize = [=](double _factor){
-        QSize small_btn_size(int(TOOLBTN_WIDTH * _factor), int(TOOLBTN_HEIGHT*_factor));
-        if (m_pTopButtons[BtnType::Btn_Minimize]) {
-            foreach (auto btn, m_pTopButtons)
-                btn->setFixedSize(small_btn_size);
-        }
-        m_boxTitleBtns->setFixedHeight(int(TOOLBTN_HEIGHT * _factor));
-        m_boxTitleBtns->layout()->setSpacing(int(1 * _factor));
-    };
-    if (m_winType == WindowType::MAIN) {
-        m_skipSizing = true;
-        QString css(AscAppManager::getWindowStylesheets(factor));
-        if ( !css.isEmpty() ) {
-            double change_factor = factor / m_dpiRatio;
-            m_dpiRatio = factor;
-            m_pMainPanel->setStyleSheet(css);
-            //m_pMainPanel->setScreenScalingFactor(factor);
-            setPlacement(m_hWnd, m_moveNormalRect, change_factor);
-        }
-        m_skipSizing = false;
-    } else
-    if (m_winType == WindowType::SINGLE) {
-        double change_factor = factor / m_dpiRatio;
-        if (m_dpiRatio != factor) {
-            if (isCustomWindowStyle()) {
-                normalizeTitleSize(factor);
-            }
-            m_dpiRatio = factor;
-        }
-        if ( !WindowHelper::isWindowSystemDocked(m_hWnd) ) {
-            m_skipSizing = true;
-            setPlacement(m_hWnd, m_moveNormalRect, change_factor);
-            m_skipSizing = false;
-        }
-    } else
-    if (m_winType == WindowType::REPORTER) {
-        QString css(AscAppManager::getWindowStylesheets(factor));
-        if ( !css.isEmpty() ) {
-            bool increase = factor > m_dpiRatio;
-            m_dpiRatio = factor;
-            m_pMainPanel->setStyleSheet(css);
-            normalizeTitleSize(m_dpiRatio);
-            setMinimumSize(WINDOW_MIN_WIDTH * factor, WINDOW_MIN_HEIGHT * factor);
-            RECT lpWindowRect;
-            GetWindowRect(m_hWnd, &lpWindowRect);
-            unsigned _new_width = lpWindowRect.right - lpWindowRect.left,
-                     _new_height = lpWindowRect.bottom - lpWindowRect.top;
-            if ( increase )
-                _new_width *= 2, _new_height *= 2;  else
-                _new_width /= 2, _new_height /= 2;
-
-            SetWindowPos(m_hWnd, NULL, 0, 0, _new_width, _new_height, SWP_NOMOVE | SWP_NOZORDER);
-        }
-    }
-}
-*/
-
-/*void CWindowPlatform::slot_modalDialog(bool status,  WId h)
-{
-    Q_UNUSED(h)
-    if (m_winType == WindowType::MAIN) {
-        //static WindowHelper::CParentDisable * const _disabler = new WindowHelper::CParentDisable;
-        std::unique_ptr<WindowHelper::CParentDisable> _disabler(new WindowHelper::CParentDisable);
-        if ( status ) {
-            _disabler->disable(this);
-        } else _disabler->enable();
-    } else
-    if (m_winType == WindowType::SINGLE) {
-        status ? pimpl->lockParentUI() : pimpl->unlockParentUI();
-    }
-}*/
 
 /** Private **/
 
@@ -406,45 +240,6 @@ bool CWindowPlatform::nativeEvent(const QByteArray &eventType, void *message, lo
 
     switch (msg->message)
     {
-    /*case WM_ACTIVATE: {
-        if (m_winType == WindowType::MAIN) {
-            if (LOWORD(msg->wParam) != WA_INACTIVE) {
-                WindowHelper::correctModalOrder(m_hWnd, m_modalHwnd);
-                return false;
-            }
-        } else
-        if (m_winType == WindowType::SINGLE) {
-            //static bool is_mainwindow_prev;
-            //is_mainwindow_prev = false;
-            if (!IsWindowEnabled(m_hWnd) && m_modalHwnd && m_modalHwnd != m_hWnd) {
-                if (LOWORD(msg->wParam) != WA_INACTIVE ) {
-                    WindowHelper::correctModalOrder(m_hWnd, m_modalHwnd);
-                    return false;
-                }
-            } else {
-                if ( LOWORD(msg->wParam) != WA_INACTIVE ) {
-                    static HWND top_window;
-                    top_window = NULL;
-                    EnumWindows([](HWND hw, LPARAM lp) {
-                        if (!IsWindowVisible(hw) || GetWindowTextLength(hw) == 0) {
-                            return TRUE;
-                        }
-                        if (hw == (HWND)lp) {
-                            top_window = hw;
-                        } else
-                        if (top_window) {
-                            top_window = NULL;
-                            //if (AscAppManager::mainWindow() && hw == AscAppManager::mainWindow()->handle())
-                                //is_mainwindow_prev = true;
-                        }
-                        return TRUE;
-                    }, (LPARAM)m_hWnd);
-                }
-            }
-        }
-        break;
-    }*/
-
     case WM_DPICHANGED: {
         double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
         onSystemDpiChanged(dpi_ratio);
@@ -596,33 +391,9 @@ bool CWindowPlatform::nativeEvent(const QByteArray &eventType, void *message, lo
         break;
     }
 
-    /*case WM_CLOSE: {
-        if (m_winType == WindowType::MAIN) {
-            AscAppManager::getInstance().closeQueue().enter(sWinTag{1, size_t(this)});
-        } else
-        if (m_winType == WindowType::SINGLE) {
-            if (m_pMainPanel) {
-                QTimer::singleShot(0, m_pMainPanel, [=]() {
-                    AscAppManager::getInstance().closeQueue().enter(sWinTag{2, size_t(this)});
-                });
-            } else return true;
-        } else
-        if (m_winType == WindowType::REPORTER) {
-            QTimer::singleShot(0, m_pMainPanel, [=] {
-                onCloseEvent();
-            });
-        }
-        return false;
-    }*/
-
     case WM_TIMER:
         AscAppManager::getInstance().CheckKeyboard();
         break;
-
-    /*case WM_ENDSESSION:
-        if (m_winType == WindowType::MAIN)
-            CAscApplicationManagerWrapper::getInstance().CloseApplication();
-        break;*/
 
     case UM_INSTALL_UPDATE:
         //if (m_winType == WindowType::MAIN)
@@ -630,58 +401,7 @@ bool CWindowPlatform::nativeEvent(const QByteArray &eventType, void *message, lo
                 onCloseEvent();
             });
         break;
-
-    /*case WM_ENTERSIZEMOVE: {
-        if (m_winType != WindowType::REPORTER) {
-            WINDOWPLACEMENT wp{sizeof(WINDOWPLACEMENT)};
-            if (GetWindowPlacement(m_hWnd, &wp)) {
-                MONITORINFO info{sizeof(MONITORINFO)};
-                GetMonitorInfo(MonitorFromWindow(m_hWnd, MONITOR_DEFAULTTOPRIMARY), &info);
-                m_moveNormalRect = QRect{QPoint{wp.rcNormalPosition.left - info.rcMonitor.left, wp.rcNormalPosition.top - info.rcMonitor.top},
-                                         QSize{wp.rcNormalPosition.right - wp.rcNormalPosition.left, wp.rcNormalPosition.bottom - wp.rcNormalPosition.top}};
-            }
-        }
         break;
-    }*/
-
-    /*case WM_EXITSIZEMOVE: {
-        if (m_winType == WindowType::MAIN) {
-            setMinimumSize(0, 0);
-            if (!AscAppManager::IsUseSystemScaling())
-                updateScaling();
-        } else
-        if (m_winType == WindowType::REPORTER) {
-            double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
-            if (dpi_ratio != m_dpiRatio)
-                setScreenScalingFactor(dpi_ratio);
-        }
-        break;
-    }*/
-
-    /*case WM_COPYDATA: {
-        if (m_winType != WindowType::REPORTER) {
-            COPYDATASTRUCT* pcds = (COPYDATASTRUCT*)msg->lParam;
-            if (pcds->dwData == 1) {
-                int nArgs;
-                LPWSTR * szArglist = CommandLineToArgvW((WCHAR *)(pcds->lpData), &nArgs);
-                if (szArglist != nullptr) {
-                    std::vector<std::wstring> _v_inargs;
-                    for(int i(1); i < nArgs; i++) {
-                        _v_inargs.push_back(szArglist[i]);
-                    }
-                    if ( !_v_inargs.empty() ) {
-                        AscAppManager::handleInputCmd(_v_inargs);
-                    }
-                }
-                LocalFree(szArglist);
-                if (m_winType == WindowType::MAIN) {
-                    ::SetFocus(m_hWnd);
-                    bringToTop();
-                }
-            }
-        }
-        break;
-    }*/
 
     default:
         break;
