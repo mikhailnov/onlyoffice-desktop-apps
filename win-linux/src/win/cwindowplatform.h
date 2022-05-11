@@ -72,7 +72,6 @@ protected:
 
 private:
     void setResizeableAreaWidth(int);
-    void setContentsMargins(int, int, int, int);
     virtual void showEvent(QShowEvent*) final;
     virtual void changeEvent(QEvent*) final;
     virtual bool nativeEvent(const QByteArray&, void*, long*) final;
@@ -82,8 +81,7 @@ private:
     Qt::WindowStates m_previousState;
 
     QRect    m_window_rect;
-    QMargins m_margins,
-             m_frame;
+    QMargins m_margins;
 
     HWND m_hWnd,
          m_modalHwnd;

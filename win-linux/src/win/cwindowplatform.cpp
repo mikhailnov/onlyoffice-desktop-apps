@@ -43,7 +43,6 @@
 CWindowPlatform::CWindowPlatform(const QRect &rect) :
     m_previousState(Qt::WindowNoState),
     m_margins(QMargins()),
-    m_frame(QMargins()),
     m_hWnd(nullptr),
     m_modalHwnd(nullptr),
     m_resAreaWidth(MAIN_WINDOW_BORDER_WIDTH),
@@ -109,7 +108,8 @@ void CWindowPlatform::adjustGeometry()
 {
     if (!isMaximized()) {
         const int border = int(MAIN_WINDOW_BORDER_WIDTH * m_dpiRatio);
-        setContentsMargins(border, border + 1, border, border);
+        m_margins = QMargins(border, border+1, border, border);
+        setContentsMargins(m_margins);
         setResizeableAreaWidth(border);
     }
 }
@@ -183,13 +183,6 @@ void CWindowPlatform::setMaximumSize( const int width, const int height )
 void CWindowPlatform::setResizeableAreaWidth(int width)
 {
     m_resAreaWidth = (width < 0) ? 0 : width;
-}
-
-void CWindowPlatform::setContentsMargins(int left, int top, int right, int bottom)
-{
-    m_margins = QMargins(left, top, right, bottom);
-    CWindowBase::setContentsMargins(left + m_frame.left(), top + m_frame.top(),
-                                    right + m_frame.right(), bottom + m_frame.bottom());
 }
 
 int CWindowPlatform::dpiCorrectValue(int v) const
@@ -355,31 +348,12 @@ bool CWindowPlatform::nativeEvent(const QByteArray &eventType, void *message, lo
 
     case WM_GETMINMAXINFO: {
         if (::IsZoomed(msg->hwnd)) {
-            RECT frame = {0, 0, 0, 0};
-            AdjustWindowRectEx(&frame, WS_OVERLAPPEDWINDOW, FALSE, 0);
-            double dpr = devicePixelRatioF();
-            frame = {abs(frame.left), abs(frame.top), abs(frame.right), abs(frame.bottom)};
-            m_frame = QMargins(int(double(frame.left)/dpr + 0.5),
-                               int(double(frame.bottom)/dpr + 0.5),
-                               int(double(frame.right)/dpr + 0.5),
-                               int(double(frame.bottom)/dpr + 0.5));
-            CWindowBase::setContentsMargins(m_frame + m_margins);
+            CWindowBase::setContentsMargins(8, 9, 8, 8);
             m_isMaximized = true;
-        } else {
-            if (m_isMaximized) {
-                CWindowBase::setContentsMargins(m_margins);
-                m_frame = QMargins();
-                m_isMaximized = false;
-            }
-        }
-        MINMAXINFO* minMaxInfo = ( MINMAXINFO* )msg->lParam;
-        if (m_minSize.required) {
-            minMaxInfo->ptMinTrackSize.x = m_minSize.width;
-            minMaxInfo->ptMinTrackSize.y = m_minSize.height;
-        }
-        if (m_maxSize.required) {
-            minMaxInfo->ptMaxTrackSize.x = m_maxSize.width;
-            minMaxInfo->ptMaxTrackSize.y = m_maxSize.height;
+        } else
+        if (m_isMaximized) {
+            CWindowBase::setContentsMargins(m_margins);
+            m_isMaximized = false;
         }
         return true;
     }
