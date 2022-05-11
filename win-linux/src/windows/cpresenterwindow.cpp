@@ -133,7 +133,7 @@ QWidget * CPresenterWindow::createMainPanel(QWidget * parent, const QString& tit
     if (custom) {
 #ifdef __linux__
         m_labelTitle->setMouseTracking(true);
-        mainGridLayout->setMargin(CX11Decoration::customWindowBorderWith() * m_dpiRatio);
+        //mainGridLayout->setMargin(CX11Decoration::customWindowBorderWith() * m_dpiRatio);
         /*QPalette _palette(palette());
         _palette.setColor(QPalette::Background, QColor("#f1f1f1"));
         setAutoFillBackground(true);

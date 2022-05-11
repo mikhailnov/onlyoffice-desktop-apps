@@ -231,12 +231,12 @@ QWidget * CEditorWindow::createMainPanel(QWidget * parent, const QString& title)
 
     QGridLayout * mainGridLayout = new QGridLayout(mainPanel);
     mainGridLayout->setSpacing(0);
-#ifdef Q_OS_WIN
+//#ifdef Q_OS_WIN
     mainGridLayout->setMargin(0);
-#else
+/*#else
     int b = !isCustom ? 0 : CX11Decoration::customWindowBorderWith() * m_dpiRatio;
     mainGridLayout->setContentsMargins(QMargins(b,b,b,b));
-#endif
+#endif*/
     mainPanel->setLayout(mainGridLayout);
 
     if (isCustom) {

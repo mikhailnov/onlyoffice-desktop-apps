@@ -363,7 +363,7 @@ public:
                 btn->setIconOpacity(AscAppManager::themes().current().color(CTheme::ColorRole::ecrButtonNormalOpacity));
             }
 
-#ifdef Q_OS_WIN
+//#ifdef Q_OS_WIN
             std::wstring background, border;
             switch (panel()->data()->contentType()) {
             case etDocument:
@@ -384,7 +384,7 @@ public:
             }
 
             window->setWindowColors(QColor(QString::fromStdWString(background)), QColor(QString::fromStdWString(border)));
-#endif
+//#endif
         }
 
         AscAppManager::sendCommandTo(panel()->cef(), L"uitheme:changed", theme);

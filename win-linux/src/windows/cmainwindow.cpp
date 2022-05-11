@@ -547,10 +547,10 @@ QWidget* CMainWindow::createMainPanel(QWidget *parent, bool isCustomWindow, doub
 
     QPalette palette;
     if (isCustomWindow) {
-#ifdef __linux__
+/*#ifdef __linux__
         _pMainGridLayout->setMargin( CX11Decoration::customWindowBorderWith() * dpi_ratio );
         //connect(m_boxTitleBtns, SIGNAL(mouseDoubleClicked()), SLOT(onMaximizeEvent()));
-#endif
+#endif*/
     } else {
 //        m_pButtonMain->setProperty("theme", "light");
         QLinearGradient gradient(mainPanel->rect().topLeft(), QPoint(mainPanel->rect().left(), 29));
