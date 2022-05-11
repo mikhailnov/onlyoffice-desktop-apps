@@ -370,11 +370,9 @@ bool CWindowPlatform::nativeEvent(const QByteArray &eventType, void *message, lo
         break;
 
     case UM_INSTALL_UPDATE:
-        //if (m_winType == WindowType::MAIN)
-            QTimer::singleShot(500, this, [=](){
-                onCloseEvent();
-            });
-        break;
+        QTimer::singleShot(500, this, [=](){
+            onCloseEvent();
+        });
         break;
 
     default:
