@@ -143,6 +143,7 @@ bool CWindowPlatform::event(QEvent * event)
     if (event->type() == QEvent::WindowStateChange && this->isVisible()) {
         QWindowStateChangeEvent * _e_statechange = static_cast< QWindowStateChangeEvent* >( event );
         CX11Decoration::setMaximized(this->windowState() == Qt::WindowMaximized ? true : false);
+        layout()->setMargin(windowState() == Qt::WindowMaximized ? 0 : CX11Decoration::customWindowBorderWith() * m_dpiRatio);
         if( _e_statechange->oldState() == Qt::WindowNoState && windowState() == Qt::WindowMaximized ) {
             applyWindowState(Qt::WindowMaximized);
         } else
@@ -177,6 +178,7 @@ void CWindowPlatform::showEvent(QShowEvent * e)
     if (!m_windowActivated) {
         m_windowActivated = true;
         setGeometry(m_window_rect);
+        layout()->setMargin(windowState() == Qt::WindowMaximized ? 0 : CX11Decoration::customWindowBorderWith() * m_dpiRatio);
         applyTheme(AscAppManager::themes().current().id());
     }
 }

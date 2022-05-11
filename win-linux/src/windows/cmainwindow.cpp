@@ -323,9 +323,6 @@ void CMainWindow::applyWindowState(Qt::WindowState s)
 {
     m_mainWindowState = s;
     if (m_isCustomWindow) {
-#ifdef __linux__
-        layout()->setMargin(s == Qt::WindowMaximized ? 0 : CX11Decoration::customWindowBorderWith() * scaling());
-#endif
         CWindowBase::applyWindowState(s);
     }
 }
