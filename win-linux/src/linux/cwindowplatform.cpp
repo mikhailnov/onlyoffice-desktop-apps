@@ -74,7 +74,6 @@ CWindowPlatform::CWindowPlatform(const QRect &rect) :
 {
     m_dpiRatio = Utils::getScreenDpiRatio(QApplication::desktop()->screenNumber(rect.topLeft()));
     m_window_rect = rect;
-    m_window_rect = rect;
     if (m_window_rect.isEmpty())
         m_window_rect = QRect(QPoint(100, 100)*m_dpiRatio, MAIN_WINDOW_DEFAULT_SIZE * m_dpiRatio);
     QRect _screen_size = Utils::getScreenGeometry(m_window_rect.topLeft());
