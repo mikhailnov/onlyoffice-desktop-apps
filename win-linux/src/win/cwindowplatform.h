@@ -72,7 +72,6 @@ protected:
 
 private:
     //friend auto refresh_window_scaling_factor(CWindowPlatform * window)->void;
-    void setResizeable(bool);
     void setResizeableAreaWidth(int);
     void setContentsMargins(int, int, int, int);
     virtual void showEvent(QShowEvent*) final;

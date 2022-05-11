@@ -108,9 +108,13 @@ CWindowPlatform::CWindowPlatform(const QRect &rect) :
     m_taskBarClicked(false),
     m_windowActivated(false)
 {
-    setWindowFlags(windowFlags() | Qt::Window | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint);
+    setWindowFlags(windowFlags() | Qt::Window | Qt::FramelessWindowHint
+                   | Qt::WindowSystemMenuHint | Qt::WindowMaximizeButtonHint);
     m_hWnd = (HWND)winId();
-    setResizeable(m_isResizeable);
+    DWORD style = ::GetWindowLong(m_hWnd, GWL_STYLE);
+    ::SetWindowLong(m_hWnd, GWL_STYLE, style | WS_MAXIMIZEBOX | WS_THICKFRAME | WS_CAPTION);
+    const MARGINS shadow = {1, 1, 1, 1};
+    DwmExtendFrameIntoClientArea(m_hWnd, &shadow);
 
     m_dpiRatio = CSplash::startupDpiRatio();
     m_window_rect = rect;
@@ -159,6 +163,7 @@ void CWindowPlatform::adjustGeometry()
     if (!isMaximized()) {
         const int border = int(MAIN_WINDOW_BORDER_WIDTH * m_dpiRatio);
         setContentsMargins(border, border + 1, border, border);
+        setResizeableAreaWidth(border);
     }
 }
 
@@ -341,23 +346,6 @@ void CWindowPlatform::setMaximumSize( const int width, const int height )
 
 /** Private **/
 
-void CWindowPlatform::setResizeable(bool isResizeable)
-{
-    bool visible = isVisible();
-    m_isResizeable = isResizeable;
-    DWORD style = ::GetWindowLong(m_hWnd, GWL_STYLE);
-    if (m_isResizeable) {
-        setWindowFlags(windowFlags() | Qt::WindowMaximizeButtonHint);
-        ::SetWindowLong(m_hWnd, GWL_STYLE, style | WS_MAXIMIZEBOX | WS_THICKFRAME | WS_CAPTION);
-    } else {
-        setWindowFlags(windowFlags() & ~Qt::WindowMaximizeButtonHint);
-        ::SetWindowLong(m_hWnd, GWL_STYLE, style & ~WS_MAXIMIZEBOX & ~WS_CAPTION);
-    }
-    const MARGINS shadow = {1, 1, 1, 1};
-    DwmExtendFrameIntoClientArea(m_hWnd, &shadow);
-    setVisible(visible);
-}
-
 void CWindowPlatform::setResizeableAreaWidth(int width)
 {
     m_resAreaWidth = (width < 0) ? 0 : width;
@@ -381,8 +369,7 @@ void CWindowPlatform::showEvent(QShowEvent *event)
     if (!m_windowActivated) {
         m_windowActivated = true;
         setGeometry(m_window_rect);
-        int border = int(MAIN_WINDOW_BORDER_WIDTH * m_dpiRatio);
-        setContentsMargins(border, border + 1, border, border);
+        adjustGeometry();
         applyTheme(AscAppManager::themes().current().id());
     }
 }
