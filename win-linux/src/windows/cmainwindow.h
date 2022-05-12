@@ -102,7 +102,6 @@ public:
     CAscTabWidget * tabWidget();
     CTabBar *tabBar();
     void goStart();
-    void focusToMainPanel();
     void doOpenLocalFiles(const std::vector<std::wstring> *);
     void doOpenLocalFiles(const QStringList&);
     void doOpenLocalFiles();

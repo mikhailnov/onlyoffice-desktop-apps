@@ -167,3 +167,8 @@ void CWindowBase::onCloseEvent()
 {
     close();
 }
+
+void CWindowBase::focus()
+{
+
+}
