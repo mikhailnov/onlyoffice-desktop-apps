@@ -354,7 +354,7 @@ void CMainWindow::onSystemDpiChanged(double dpi_ratio)
 
 void CMainWindow::slot_mainPageReady()
 {
-    CSplash::hideSplash();
+    //CSplash::hideSplash();
 
 #ifdef _UPDMODULE
     GET_REGISTRY_SYSTEM(reg_system)

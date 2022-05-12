@@ -90,7 +90,7 @@ HEADERS += \
     $$PWD/src/utils.h \
     $$PWD/src/cstyletweaks.h \
     $$PWD/src/chelp.h \
-    $$PWD/src/csplash.h \
+    #$$PWD/src/csplash.h \
     $$PWD/src/cfilechecker.h \
     $$PWD/src/clogger.h \
     $$PWD/src/clangater.h \
@@ -124,7 +124,7 @@ SOURCES += \
     $$PWD/src/components/ctabpanel.cpp \
     $$PWD/src/components/csvgpushbutton.cpp \
     $$PWD/src/components/celipsislabel.cpp \
-    $$PWD/src/csplash.cpp \    
+    #$$PWD/src/csplash.cpp \
     $$PWD/src/main.cpp \
     $$PWD/src/ccefeventstransformer.cpp \
     $$PWD/src/cascapplicationmanagerwrapper.cpp \
