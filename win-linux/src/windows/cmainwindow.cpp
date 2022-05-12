@@ -104,7 +104,6 @@ CMainWindow::CMainWindow(const QRect &rect) :
     m_pButtonProfile(nullptr),
     m_pWidgetDownload(nullptr),
     m_printData(new printdata),
-    m_inFiles(nullptr),
     m_savePortal(QString()),
     m_mainWindowState(Qt::WindowNoState),
     m_isMaximized(false),
@@ -994,16 +993,6 @@ void CMainWindow::doOpenLocalFiles(const QStringList& list)
     }
 }
 
-void CMainWindow::doOpenLocalFiles()
-{
-    if ( m_inFiles ) {
-        if ( m_inFiles->size() )
-            doOpenLocalFiles( *m_inFiles );
-
-        RELEASEOBJECT(m_inFiles)
-    }
-}
-
 void CMainWindow::onDocumentType(int id, int type)
 {
     m_pTabs->applyDocumentChanging(id, type);
@@ -1427,12 +1416,6 @@ void CMainWindow::onOutsideAuth(QString json)
             toggleButtonMain(false, true);
         }
     }
-}
-
-void CMainWindow::setInputFiles(QStringList * list)
-{
-    RELEASEOBJECT(m_inFiles)
-    m_inFiles = list;
 }
 
 /*QString CMainWindow::getSaveMessage() const
