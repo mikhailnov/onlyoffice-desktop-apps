@@ -586,7 +586,10 @@ void CMainWindow::attachStartPanel(QCefView * const view)
     view->setMouseTracking(m_pButtonMain->hasMouseTracking());
 #endif
     m_pMainWidget->setParent(m_pMainPanel);
-    dynamic_cast<QGridLayout*>(m_pMainPanel->layout())->addWidget(m_pMainWidget, 1, 0, 1, 4);
+    QGridLayout *_pMainGridLayout = dynamic_cast<QGridLayout*>(m_pMainPanel->layout());
+    Q_ASSERT(_pMainGridLayout != nullptr);
+    if (_pMainGridLayout)
+        _pMainGridLayout->addWidget(m_pMainWidget, 1, 0, 1, 4);
     m_pMainWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     if (!m_pTabs->isActiveWidget())
         m_pMainWidget->show();
