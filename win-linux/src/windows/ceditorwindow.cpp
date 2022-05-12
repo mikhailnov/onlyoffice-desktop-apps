@@ -386,30 +386,32 @@ void CEditorWindow::onExitSizeMove()
 
 void CEditorWindow::captureMouse()
 {
-#ifdef _WIN32
-    auto dpiCorrectValue = [=](int val)->int {
+    auto dpiCorr = [=](int val)->int {
         return int(val * m_dpiRatio);
     };
+#ifdef _WIN32
     POINT cursor{0,0};
     if (GetCursorPos(&cursor)) {
         QRect _g{geometry()};
         int _window_offset_x;
-        if (cursor.x - _g.x() < dpiCorrectValue(CAPTURED_WINDOW_OFFSET_X))
-            _window_offset_x = dpiCorrectValue(CAPTURED_WINDOW_OFFSET_X);
+        if (cursor.x - _g.x() < dpiCorr(CAPTURED_WINDOW_OFFSET_X))
+            _window_offset_x = dpiCorr(CAPTURED_WINDOW_OFFSET_X);
         else
-        if ( cursor.x > _g.right() - dpiCorrectValue(150) )
-            _window_offset_x = _g.right() - dpiCorrectValue(150);
+        if ( cursor.x > _g.right() - dpiCorr(150) )
+            _window_offset_x = _g.right() - dpiCorr(150);
         else _window_offset_x = cursor.x - _g.x();
-        move(cursor.x - _window_offset_x, cursor.y - dpiCorrectValue(CAPTURED_WINDOW_OFFSET_Y));
+        move(cursor.x - _window_offset_x, cursor.y - dpiCorr(CAPTURED_WINDOW_OFFSET_Y));
         ReleaseCapture();
         PostMessage((HWND)winId(), WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(cursor.x, cursor.y));
     }
 #else
     QMouseEvent _event(QEvent::MouseButtonRelease, QCursor::pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
     QApplication::sendEvent(AscAppManager::mainWindow(), &_event);
-    setGeometry(QRect(QCursor::pos() - QPoint(CAPTURED_WINDOW_OFFSET_X, CAPTURED_WINDOW_OFFSET_Y), size()));
+    setGeometry(QRect(QCursor::pos() -
+                      QPoint(dpiCorr(CAPTURED_WINDOW_OFFSET_X), dpiCorr(CAPTURED_WINDOW_OFFSET_Y)), size()));
     Q_ASSERT(m_boxTitleBtns != nullptr);
-    QPoint pt_in_title = (m_boxTitleBtns->geometry().topLeft() + QPoint(CAPTURED_WINDOW_OFFSET_X, CAPTURED_WINDOW_OFFSET_Y));
+    QPoint pt_in_title = (m_boxTitleBtns->geometry().topLeft() +
+                          QPoint(dpiCorr(CAPTURED_WINDOW_OFFSET_X), dpiCorr(CAPTURED_WINDOW_OFFSET_Y)));
     _event = {QEvent::MouseButtonPress, pt_in_title, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier};
 //    QApplication::sendEvent(this, &_event1);
     CX11Decoration::dispatchMouseDown(&_event);
