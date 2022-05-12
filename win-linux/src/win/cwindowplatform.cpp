@@ -43,11 +43,9 @@
 CWindowPlatform::CWindowPlatform(const QRect &rect) :
     m_previousState(Qt::WindowNoState),
     m_hWnd(nullptr),
-    m_modalHwnd(nullptr),
     m_resAreaWidth(MAIN_WINDOW_BORDER_WIDTH),
     m_borderless(true),
     m_closed(false),
-    m_skipSizing(false),
     m_isResizeable(true),
     m_taskBarClicked(false),
     m_windowActivated(false)

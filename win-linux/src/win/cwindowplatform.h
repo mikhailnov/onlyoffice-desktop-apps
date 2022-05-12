@@ -62,16 +62,12 @@ private:
     virtual bool nativeEvent(const QByteArray&, void*, long*) final;
 
     Qt::WindowStates m_previousState;
-
-    QRect    m_window_rect;
-
-    HWND m_hWnd,
-         m_modalHwnd;
+    QRect m_window_rect;
+    HWND  m_hWnd;
 
     int  m_resAreaWidth;
     bool m_borderless,
          m_closed,
-         m_skipSizing,
          m_isResizeable,
          m_taskBarClicked,
          m_windowActivated;
