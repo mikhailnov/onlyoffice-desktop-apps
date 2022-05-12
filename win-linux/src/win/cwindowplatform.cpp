@@ -41,14 +41,14 @@
 
 
 CWindowPlatform::CWindowPlatform(const QRect &rect) :
+    CWindowBase(rect),
     m_previousState(Qt::WindowNoState),
     m_hWnd(nullptr),
     m_resAreaWidth(MAIN_WINDOW_BORDER_WIDTH),
     m_borderless(true),
     m_closed(false),
     m_isResizeable(true),
-    m_taskBarClicked(false),
-    m_windowActivated(false)
+    m_taskBarClicked(false)
 {
     setWindowFlags(windowFlags() | Qt::Window | Qt::FramelessWindowHint
                    | Qt::WindowSystemMenuHint | Qt::WindowMaximizeButtonHint);
@@ -57,22 +57,6 @@ CWindowPlatform::CWindowPlatform(const QRect &rect) :
     ::SetWindowLong(m_hWnd, GWL_STYLE, style | WS_MAXIMIZEBOX | WS_THICKFRAME | WS_CAPTION);
     const MARGINS shadow = {1, 1, 1, 1};
     DwmExtendFrameIntoClientArea(m_hWnd, &shadow);
-
-    m_dpiRatio = CSplash::startupDpiRatio();
-    m_window_rect = rect;
-    if (m_window_rect.isEmpty())
-        m_window_rect = QRect(QPoint(100, 100)*m_dpiRatio, MAIN_WINDOW_DEFAULT_SIZE * m_dpiRatio);
-    QRect _screen_size = Utils::getScreenGeometry(m_window_rect.topLeft());
-    if (_screen_size.intersects(m_window_rect)) {
-        if (_screen_size.width() < m_window_rect.width() || _screen_size.height() < m_window_rect.height()) {
-            m_window_rect.setLeft(_screen_size.left()),
-            m_window_rect.setTop(_screen_size.top());
-            if (_screen_size.width() < m_window_rect.width()) m_window_rect.setWidth(_screen_size.width());
-            if (_screen_size.height() < m_window_rect.height()) m_window_rect.setHeight(_screen_size.height());
-        }
-    } else {
-        m_window_rect = QRect(QPoint(100, 100)*m_dpiRatio, QSize(MAIN_WINDOW_MIN_WIDTH, MAIN_WINDOW_MIN_HEIGHT)*m_dpiRatio);
-    }
 }
 
 CWindowPlatform::~CWindowPlatform()
@@ -126,17 +110,6 @@ void CWindowPlatform::show(bool maximized)
 void CWindowPlatform::setResizeableAreaWidth(int width)
 {
     m_resAreaWidth = (width < 0) ? 0 : width;
-}
-
-void CWindowPlatform::showEvent(QShowEvent *event)
-{
-    CWindowBase::showEvent(event);
-    if (!m_windowActivated) {
-        m_windowActivated = true;
-        setGeometry(m_window_rect);
-        adjustGeometry();
-        applyTheme(AscAppManager::themes().current().id());
-    }
 }
 
 void CWindowPlatform::changeEvent(QEvent *event)

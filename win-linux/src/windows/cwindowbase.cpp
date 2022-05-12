@@ -40,6 +40,7 @@
 #else
 # include "win/caption.h"
 #endif
+#include <QDesktopWidget>
 #include <QVariant>
 #include <QSettings>
 #include <QHBoxLayout>
@@ -70,7 +71,7 @@ public:
 };
 
 
-CWindowBase::CWindowBase()
+CWindowBase::CWindowBase(const QRect& rect)
     : QMainWindow(nullptr)
     , m_pTopButtons(3, nullptr)
     , m_labelTitle(nullptr)
@@ -79,8 +80,24 @@ CWindowBase::CWindowBase()
     , m_pMainView(nullptr)
     , m_dpiRatio(1.0)
     , pimpl{new CWindowBasePrivate}
+    , m_windowActivated(false)
 {
     setWindowIcon(Utils::appIcon());
+    m_dpiRatio = Utils::getScreenDpiRatio(QApplication::desktop()->screenNumber(rect.topLeft()));
+    m_window_rect = rect;
+    if (m_window_rect.isEmpty())
+        m_window_rect = QRect(QPoint(100, 100)*m_dpiRatio, MAIN_WINDOW_DEFAULT_SIZE * m_dpiRatio);
+    QRect _screen_size = Utils::getScreenGeometry(m_window_rect.topLeft());
+    if (_screen_size.intersects(m_window_rect)) {
+        if (_screen_size.width() < m_window_rect.width() || _screen_size.height() < m_window_rect.height()) {
+            m_window_rect.setLeft(_screen_size.left()),
+            m_window_rect.setTop(_screen_size.top());
+            if (_screen_size.width() < m_window_rect.width()) m_window_rect.setWidth(_screen_size.width());
+            if (_screen_size.height() < m_window_rect.height()) m_window_rect.setHeight(_screen_size.height());
+        }
+    } else {
+        m_window_rect = QRect(QPoint(100, 100)*m_dpiRatio, QSize(MAIN_WINDOW_MIN_WIDTH, MAIN_WINDOW_MIN_HEIGHT)*m_dpiRatio);
+    }
 }
 
 CWindowBase::~CWindowBase()
@@ -202,4 +219,17 @@ void CWindowBase::onMaximizeEvent()
 void CWindowBase::onCloseEvent()
 {
     close();
+}
+
+/** Private **/
+
+void CWindowBase::showEvent(QShowEvent *event)
+{
+    QMainWindow::showEvent(event);
+    if (!m_windowActivated) {
+        m_windowActivated = true;
+        setGeometry(m_window_rect);
+        adjustGeometry();
+        applyTheme(AscAppManager::themes().current().id());
+    }
 }

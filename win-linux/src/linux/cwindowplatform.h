@@ -54,14 +54,10 @@ protected:
     virtual bool event(QEvent *event) override;
 
 private:
-    virtual void showEvent(QShowEvent *) final;
     virtual void mouseMoveEvent(QMouseEvent *) final;
     virtual void mousePressEvent(QMouseEvent *) final;
     virtual void mouseReleaseEvent(QMouseEvent *) final;
-    virtual void mouseDoubleClickEvent(QMouseEvent *) final;
-
-    QRect    m_window_rect;
-    bool m_windowActivated;
+    virtual void mouseDoubleClickEvent(QMouseEvent *) final;    
 };
 
 #endif // CWINDOWPLATFORM_H

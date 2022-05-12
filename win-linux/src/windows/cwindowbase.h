@@ -63,7 +63,7 @@
 class CWindowBase : public QMainWindow
 {
 public:
-    explicit CWindowBase();
+    explicit CWindowBase(const QRect&);
     virtual ~CWindowBase();   
 
     QWidget * handle() const;
@@ -97,8 +97,11 @@ protected:
     double         m_dpiRatio;
 
 private:
+    virtual void showEvent(QShowEvent *) final;
     class CWindowBasePrivate;
     std::unique_ptr<CWindowBasePrivate> pimpl;
+    QRect m_window_rect;
+    bool  m_windowActivated;
 };
 
 #endif // CWINDOWBASE_H

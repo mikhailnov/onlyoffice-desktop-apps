@@ -57,20 +57,16 @@ protected:
 
 private:
     void setResizeableAreaWidth(int);
-    virtual void showEvent(QShowEvent*) final;
     virtual void changeEvent(QEvent*) final;
     virtual bool nativeEvent(const QByteArray&, void*, long*) final;
 
     Qt::WindowStates m_previousState;
-    QRect m_window_rect;
-    HWND  m_hWnd;
-
+    HWND m_hWnd;
     int  m_resAreaWidth;
     bool m_borderless,
          m_closed,
          m_isResizeable,
-         m_taskBarClicked,
-         m_windowActivated;
+         m_taskBarClicked;
 };
 
 #endif // CWINDOWPLATFORM_H
