@@ -49,7 +49,6 @@ CWindowPlatform::CWindowPlatform(const QRect &rect) :
     m_borderless(true),
     m_closed(false),
     m_skipSizing(false),
-    m_isMaximized(false),
     m_isResizeable(true),
     m_taskBarClicked(false),
     m_windowActivated(false)
@@ -111,6 +110,8 @@ void CWindowPlatform::adjustGeometry()
         m_margins = QMargins(border, border+1, border, border);
         setContentsMargins(m_margins);
         setResizeableAreaWidth(border);
+    } else {
+        setContentsMargins(8,9,8,8);
     }
 }
 
@@ -188,11 +189,6 @@ void CWindowPlatform::changeEvent(QEvent *event)
             applyWindowState(Qt::WindowMinimized);
         } else {
             if (isVisible()) {
-                /*if (WindowHelper::isLeftButtonPressed() && m_winType == WindowType::MAIN) {
-                    double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
-                    if (dpi_ratio != m_dpiRatio)
-                        setScreenScalingFactor(dpi_ratio);
-                }*/
                 if (isMaximized()) {
                     applyWindowState(Qt::WindowMaximized);
                 } else applyWindowState(Qt::WindowNoState);
@@ -323,18 +319,6 @@ bool CWindowPlatform::nativeEvent(const QByteArray &eventType, void *message, lo
             return false;
         }
         break;
-    }
-
-    case WM_GETMINMAXINFO: {
-        if (::IsZoomed(msg->hwnd)) {
-            CWindowBase::setContentsMargins(8, 9, 8, 8);
-            m_isMaximized = true;
-        } else
-        if (m_isMaximized) {
-            CWindowBase::setContentsMargins(m_margins);
-            m_isMaximized = false;
-        }
-        return true;
     }
 
     case WM_SETFOCUS: {

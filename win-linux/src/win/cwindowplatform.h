@@ -78,7 +78,6 @@ private:
     bool m_borderless,
          m_closed,
          m_skipSizing,
-         m_isMaximized,
          m_isResizeable,
          m_taskBarClicked,
          m_windowActivated;
