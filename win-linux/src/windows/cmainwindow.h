@@ -81,17 +81,15 @@ private:
     static void updateError();
 #endif    
     virtual void applyWindowState(Qt::WindowState) final;
-#ifdef _WIN32
     virtual void focus() final;
+
+#ifdef _WIN32
 #else
     virtual void dragEnterEvent(QDragEnterEvent *event) final;
     virtual void dropEvent(QDropEvent *event) final;
 #endif
 
 private slots:
-#ifdef _WIN32
-    virtual void slot_mainPageReady() final;
-#endif
     virtual void onCloseEvent() final;
 
 /** MainPanel **/

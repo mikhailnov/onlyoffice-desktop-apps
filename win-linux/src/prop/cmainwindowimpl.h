@@ -54,9 +54,6 @@ protected:
     void doOpenLocalFile(COpenOptions&);
     void onLocalFileSaveAs(void *);
     void onDocumentReady(int);
-#ifdef Q_OS_WIN
-    virtual void slot_mainPageReady() = 0;
-#endif
 };
 
 #endif // CMAINWINDOWIMPL_H
