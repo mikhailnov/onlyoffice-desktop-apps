@@ -169,11 +169,6 @@ void CWindowPlatform::setResizeableAreaWidth(int width)
     m_resAreaWidth = (width < 0) ? 0 : width;
 }
 
-int CWindowPlatform::dpiCorrectValue(int v) const
-{
-    return int(v * m_dpiRatio);
-}
-
 void CWindowPlatform::showEvent(QShowEvent *event)
 {
     CWindowBase::showEvent(event);

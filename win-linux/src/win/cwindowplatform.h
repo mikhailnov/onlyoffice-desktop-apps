@@ -57,7 +57,6 @@ public:
     virtual void applyTheme(const std::wstring&);
 
 protected:
-    int dpiCorrectValue(int v) const;
     virtual void setScreenScalingFactor(double) = 0;
     virtual void onSystemDpiChanged(double) = 0;
 
