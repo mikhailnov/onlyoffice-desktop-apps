@@ -47,39 +47,6 @@
 
 //using namespace std::placeholders;
 
-//Q_GUI_EXPORT HICON qt_pixmapToWinHICON(const QPixmap &);
-
-/*auto adjustRect(QRect& window_rect, const QRect& screen_size)->void
-{
-    window_rect.setLeft(screen_size.left()),
-    window_rect.setTop(screen_size.top());
-    if (screen_size.width() < window_rect.width()) window_rect.setWidth(screen_size.width());
-    if (screen_size.height() < window_rect.height()) window_rect.setHeight(screen_size.height());
-}*/
-
-/*auto setPlacement(HWND& hwnd, QRect& moveNormalRect, double change_factor)->void
-{
-    WINDOWPLACEMENT wp{sizeof(WINDOWPLACEMENT)};
-    if ( GetWindowPlacement(hwnd, &wp) ) {
-        if ( wp.showCmd == SW_MAXIMIZE ) {
-            MONITORINFO info{sizeof(MONITORINFO)};
-            GetMonitorInfo(MonitorFromWindow(hwnd, MONITOR_DEFAULTTOPRIMARY), &info);
-
-            int dest_width_change = int(moveNormalRect.width() * (1 - change_factor));
-            moveNormalRect = QRect{moveNormalRect.translated(dest_width_change/2,0).topLeft(), moveNormalRect.size() * change_factor};
-            wp.rcNormalPosition.left = info.rcMonitor.left + moveNormalRect.left();
-            wp.rcNormalPosition.top = info.rcMonitor.top + moveNormalRect.top();
-            wp.rcNormalPosition.right = wp.rcNormalPosition.left + moveNormalRect.width();
-            wp.rcNormalPosition.bottom = wp.rcNormalPosition.top + moveNormalRect.height();
-            SetWindowPlacement(hwnd, &wp);
-        } else {
-            QRect source_rect = QRect{QPoint(wp.rcNormalPosition.left, wp.rcNormalPosition.top),QPoint(wp.rcNormalPosition.right,wp.rcNormalPosition.bottom)};
-            int dest_width_change = int(source_rect.width() * (1 - change_factor));
-            QRect dest_rect = QRect{source_rect.translated(dest_width_change/2,0).topLeft(), source_rect.size() * change_factor};
-            SetWindowPos(hwnd, NULL, dest_rect.left(), dest_rect.top(), dest_rect.width(), dest_rect.height(), SWP_NOZORDER);
-        }
-    }
-}*/
 
 CMainWindowPlatform::CMainWindowPlatform(const QRect &rect) :
     m_hWnd(nullptr),

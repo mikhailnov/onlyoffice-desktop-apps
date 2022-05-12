@@ -37,21 +37,6 @@
 #include <QDesktopWidget>
 
 
-/*auto adjustRect(QRect& window_rect, const double dpiRatio)->void
-{
-    if (window_rect.isEmpty())
-        window_rect = QRect(100, 100, 1324 * dpiRatio, 800 * dpiRatio);
-    QRect _screen_size = Utils::getScreenGeometry(window_rect.topLeft());
-    if (_screen_size.width() < window_rect.width() + 120 ||
-            _screen_size.height() < window_rect.height() + 120 )
-    {
-        window_rect.setLeft(_screen_size.left()),
-        window_rect.setTop(_screen_size.top());
-        if (_screen_size.width() < window_rect.width()) window_rect.setWidth(_screen_size.width());
-        if (_screen_size.height() < window_rect.height()) window_rect.setHeight(_screen_size.height());
-    }
-}*/
-
 CMainWindowPlatform::CMainWindowPlatform(const QRect &rect)
 {
     setAcceptDrops(true);

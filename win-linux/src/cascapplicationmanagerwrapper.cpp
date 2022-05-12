@@ -968,7 +968,6 @@ void CAscApplicationManagerWrapper::initializeApp()
     _app.m_private->initializeApp();
 
 #ifdef _WIN32
-//    CSplash::showSplash();
     QApplication::processEvents();
 #else //defined(Q_OS_LINUX)
     if ( !InputArgs::contains(L"--single-window-app") ) {
