@@ -89,10 +89,10 @@ protected:
     virtual void onCloseEvent();
 
     QVector<QPushButton*> m_pTopButtons;
-    CElipsisLabel *m_labelTitle;
-    QWidget       *m_pMainPanel,
-                  *m_boxTitleBtns,
-                  *m_pMainView;
+    CElipsisLabel *m_labelTitle = nullptr;
+    QWidget       *m_pMainPanel = nullptr,
+                  *m_boxTitleBtns = nullptr,
+                  *m_pMainView = nullptr;
     double         m_dpiRatio;
 
 private:

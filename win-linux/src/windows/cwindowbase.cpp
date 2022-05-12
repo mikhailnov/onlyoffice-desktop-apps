@@ -74,9 +74,6 @@ public:
 CWindowBase::CWindowBase(const QRect& r)
     : QMainWindow(nullptr)
     , m_pTopButtons(3, nullptr)
-    , m_pMainPanel(nullptr)
-    , m_boxTitleBtns(nullptr)
-    , m_pMainView(nullptr)
     , pimpl{new CWindowBasePrivate}
 {
     if ( !r.isEmpty() )
