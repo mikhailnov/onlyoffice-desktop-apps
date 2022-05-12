@@ -30,7 +30,7 @@
  *
 */
 
-#include "./gtk_addon.h"
+/*#include "./gtk_addon.h"
 #include <gtk/gtk.h>
 
 namespace gtk_addon
@@ -72,4 +72,4 @@ namespace gtk_addon
         }
         return 1;
     }
-}
+}*/

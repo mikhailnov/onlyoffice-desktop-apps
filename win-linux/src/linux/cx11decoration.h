@@ -91,7 +91,7 @@ private:
     void sendButtonRelease();
 };
 
-class CX11Caption : public QWidget
+/*class CX11Caption : public QWidget
 {
 public:
     Q_OBJECT
@@ -105,6 +105,6 @@ public:
 
     virtual void paintEvent(QPaintEvent *event);
     virtual void mouseDoubleClickEvent(QMouseEvent *event);
-};
+};*/
 
 #endif // CX11DECORATION_H

@@ -182,13 +182,13 @@ core_linux {
     QMAKE_LFLAGS += -static-libstdc++ -static-libgcc
 
     HEADERS +=  $$PWD/src/linux/cx11decoration.h \
-                $$PWD/src/linux/gtk_addon.h \
+                #$$PWD/src/linux/gtk_addon.h \
                 $$PWD/src/linux/cwindowplatform.h \
                 $$PWD/src/linux/singleapplication.h
 
     SOURCES +=  $$PWD/src/linux/cx11decoration.cpp \
-                $$PWD/src/linux/gtk_addon.cpp \
-                $$PWD/src/linux/cx11caption.cpp \
+                #$$PWD/src/linux/gtk_addon.cpp \
+                #$$PWD/src/linux/cx11caption.cpp \
                 $$PWD/src/linux/cwindowplatform.cpp \
                 $$PWD/src/linux/singleapplication.cpp
 

@@ -32,10 +32,10 @@
 
 #ifndef GTK_ADDON_H
 #define GTK_ADDON_H
-
+/*
 namespace gtk_addon
 {
     int devicePixelRatio();
 }
-
+*/
 #endif // GTK_ADDON_H

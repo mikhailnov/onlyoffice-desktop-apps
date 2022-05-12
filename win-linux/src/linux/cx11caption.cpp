@@ -30,7 +30,7 @@
  *
 */
 
-#include "cx11decoration.h"
+/*#include "cx11decoration.h"
 
 #include <QStyleOption>
 #include <QPainter>
@@ -57,3 +57,4 @@ void CX11Caption::mouseDoubleClickEvent(QMouseEvent *event)
     if (event->buttons() == Qt::LeftButton)
         emit mouseDoubleClicked();
 }
+*/
