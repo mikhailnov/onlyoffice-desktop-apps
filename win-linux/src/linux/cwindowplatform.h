@@ -49,6 +49,7 @@ public:
     void bringToTop();
     void show(bool);
     void updateScaling();
+    void adjustGeometry();
     void setWindowColors(const QColor&, const QColor& border = QColor());
     virtual void applyTheme(const std::wstring&);
 

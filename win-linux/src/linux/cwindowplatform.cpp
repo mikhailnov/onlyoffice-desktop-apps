@@ -109,8 +109,10 @@ void CWindowPlatform::show(bool maximized)
 void CWindowPlatform::updateScaling()
 {
     double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
-    if ( dpi_ratio != m_dpiRatio )
+    if ( dpi_ratio != m_dpiRatio ) {
         setScreenScalingFactor(dpi_ratio);
+        adjustGeometry();
+    }
 }
 
 void CWindowPlatform::applyTheme(const std::wstring& theme)
@@ -119,6 +121,16 @@ void CWindowPlatform::applyTheme(const std::wstring& theme)
     QColor background = AscAppManager::themes().current().color(CTheme::ColorRole::ecrWindowBackground);
     QColor border = AscAppManager::themes().current().color(CTheme::ColorRole::ecrWindowBorder);
     setWindowColors(background, border);
+}
+
+void CWindowPlatform::adjustGeometry()
+{
+    if (!isMaximized()) {
+        const int border = int(CX11Decoration::customWindowBorderWith() * m_dpiRatio);
+        setContentsMargins(border, border, border, border);
+    } else {
+        setContentsMargins(0, 0, 0, 0);
+    }
 }
 
 void CWindowPlatform::setWindowColors(const QColor& background, const QColor& border)
@@ -144,17 +156,15 @@ bool CWindowPlatform::event(QEvent * event)
         QWindowStateChangeEvent * _e_statechange = static_cast< QWindowStateChangeEvent* >( event );
         CX11Decoration::setMaximized(this->windowState() == Qt::WindowMaximized ? true : false);
         if( _e_statechange->oldState() == Qt::WindowNoState && windowState() == Qt::WindowMaximized ) {
-            setContentsMargins(0,0,0,0);
             applyWindowState(Qt::WindowMaximized);
         } else
         if (this->windowState() == Qt::WindowNoState) {
-            const int border = CX11Decoration::customWindowBorderWith() * m_dpiRatio;
-            setContentsMargins(border,border,border,border);
             applyWindowState(Qt::WindowNoState);
         } else
         if (this->windowState() == Qt::WindowMinimized) {
             applyWindowState(Qt::WindowMinimized);
         }
+        adjustGeometry();
     } else
     if ( event->type() == QEvent::MouseButtonPress ) {
         _flg_left_button = static_cast<QMouseEvent *>(event)->buttons().testFlag(Qt::LeftButton);
@@ -180,9 +190,7 @@ void CWindowPlatform::showEvent(QShowEvent * e)
     if (!m_windowActivated) {
         m_windowActivated = true;
         setGeometry(m_window_rect);
-        const int border = (windowState() == Qt::WindowMaximized) ? 0 :
-                             CX11Decoration::customWindowBorderWith() * m_dpiRatio;
-        setContentsMargins(border,border,border,border);
+        adjustGeometry();
         applyTheme(AscAppManager::themes().current().id());
     }
 }

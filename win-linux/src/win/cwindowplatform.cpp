@@ -42,7 +42,6 @@
 
 CWindowPlatform::CWindowPlatform(const QRect &rect) :
     m_previousState(Qt::WindowNoState),
-    m_margins(QMargins()),
     m_hWnd(nullptr),
     m_modalHwnd(nullptr),
     m_resAreaWidth(MAIN_WINDOW_BORDER_WIDTH),
@@ -107,8 +106,7 @@ void CWindowPlatform::adjustGeometry()
 {
     if (!isMaximized()) {
         const int border = int(MAIN_WINDOW_BORDER_WIDTH * m_dpiRatio);
-        m_margins = QMargins(border, border+1, border, border);
-        setContentsMargins(m_margins);
+        setContentsMargins(border, border+1, border, border);
         setResizeableAreaWidth(border);
     } else {
         setContentsMargins(8,9,8,8);
@@ -153,12 +151,7 @@ void CWindowPlatform::updateScaling()
 {
     double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
     if ( dpi_ratio != m_dpiRatio ) {
-        //if ( !WindowHelper::isWindowSystemDocked(m_hWnd) ) {
-            setScreenScalingFactor(dpi_ratio);
-        /*} else {
-            m_dpiRatio = dpi_ratio;
-            refresh_window_scaling_factor(this);
-        }*/
+        setScreenScalingFactor(dpi_ratio);
         adjustGeometry();
     }
 }

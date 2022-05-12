@@ -69,7 +69,6 @@ private:
     Qt::WindowStates m_previousState;
 
     QRect    m_window_rect;
-    QMargins m_margins;
 
     HWND m_hWnd,
          m_modalHwnd;
