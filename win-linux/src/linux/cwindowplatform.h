@@ -48,14 +48,11 @@ public:
     void sendSertificate(int viewid);
     void bringToTop();
     void show(bool);
-    void updateScaling();
-    void adjustGeometry();
-    void setWindowColors(const QColor&, const QColor& border = QColor());
-    virtual void applyTheme(const std::wstring&);
+    virtual void setWindowColors(const QColor&, const QColor& border = QColor()) final;
+    virtual void adjustGeometry() final;
 
 protected:
     virtual bool event(QEvent *event) override;
-    virtual void setScreenScalingFactor(double) = 0;
 
 private:
     virtual void showEvent(QShowEvent *) final;

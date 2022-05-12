@@ -106,21 +106,12 @@ void CWindowPlatform::show(bool maximized)
     }
 }
 
-void CWindowPlatform::updateScaling()
+void CWindowPlatform::setWindowColors(const QColor& background, const QColor& border)
 {
-    double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
-    if ( dpi_ratio != m_dpiRatio ) {
-        setScreenScalingFactor(dpi_ratio);
-        adjustGeometry();
+    Q_UNUSED(border)
+    if (!CX11Decoration::isDecorated()) {
+        CWindowBase::setWindowColors(background, border);
     }
-}
-
-void CWindowPlatform::applyTheme(const std::wstring& theme)
-{
-    Q_UNUSED(theme)
-    QColor background = AscAppManager::themes().current().color(CTheme::ColorRole::ecrWindowBackground);
-    QColor border = AscAppManager::themes().current().color(CTheme::ColorRole::ecrWindowBorder);
-    setWindowColors(background, border);
 }
 
 void CWindowPlatform::adjustGeometry()
@@ -130,19 +121,6 @@ void CWindowPlatform::adjustGeometry()
         setContentsMargins(border, border, border, border);
     } else {
         setContentsMargins(0, 0, 0, 0);
-    }
-}
-
-void CWindowPlatform::setWindowColors(const QColor& background, const QColor& border)
-{
-    Q_UNUSED(border)
-    if (!CX11Decoration::isDecorated()) {
-        QPalette pal = palette();
-        pal.setColor(QPalette::Window, background);
-        setStyleSheet(QString("QMainWindow{border:1px solid %1;}").
-                      arg(border.name()));
-        setAutoFillBackground(true);
-        setPalette(pal);
     }
 }
 

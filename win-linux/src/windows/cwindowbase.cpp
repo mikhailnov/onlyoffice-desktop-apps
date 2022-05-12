@@ -31,6 +31,7 @@
 */
 
 #include "windows/cwindowbase.h"
+#include "cascapplicationmanagerwrapper.h"
 #include "utils.h"
 #include "ccefeventsgate.h"
 #include "clangater.h"
@@ -87,6 +88,41 @@ CWindowBase::~CWindowBase()
 
 }
 
+/** Public **/
+
+bool CWindowBase::isCustomWindowStyle()
+{
+    return pimpl->is_custom_window();
+}
+
+void CWindowBase::updateScaling()
+{
+    double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
+    if ( dpi_ratio != m_dpiRatio ) {
+        setScreenScalingFactor(dpi_ratio);
+        adjustGeometry();
+    }
+}
+
+void CWindowBase::setWindowColors(const QColor& background, const QColor& border)
+{
+    Q_UNUSED(border)
+    QPalette pal = palette();
+    pal.setColor(QPalette::Window, background);
+    /*setStyleSheet(QString("QMainWindow{border:1px solid %1; border-top:2px solid %1;}").
+                  arg(border.name()));*/
+    setAutoFillBackground(true);
+    setPalette(pal);
+}
+
+void CWindowBase::applyTheme(const std::wstring& theme)
+{
+    Q_UNUSED(theme)
+    QColor background = AscAppManager::themes().current().color(CTheme::ColorRole::ecrWindowBackground);
+    QColor border = AscAppManager::themes().current().color(CTheme::ColorRole::ecrWindowBorder);
+    setWindowColors(background, border);
+}
+
 /** Protected **/
 
 QPushButton* CWindowBase::createToolButton(QWidget * parent, const QString& name)
@@ -131,11 +167,6 @@ QWidget* CWindowBase::createTopPanel(QWidget *parent, bool isCustom)
     }
 
     return _boxTitleBtns;
-}
-
-bool CWindowBase::isCustomWindowStyle()
-{
-    return pimpl->is_custom_window();
 }
 
 void CWindowBase::applyWindowState(Qt::WindowState s)

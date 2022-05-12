@@ -66,6 +66,10 @@ public:
     explicit CWindowBase();
     virtual ~CWindowBase();   
     bool isCustomWindowStyle();
+    void updateScaling();
+    virtual void adjustGeometry() = 0;
+    virtual void setWindowColors(const QColor&, const QColor& border = QColor());
+    virtual void applyTheme(const std::wstring&);
 
 protected:
     enum BtnType {
@@ -74,7 +78,7 @@ protected:
 
     QPushButton* createToolButton(QWidget * parent, const QString& name);
     QWidget* createTopPanel(QWidget *parent, bool isCustom);
-
+    virtual void setScreenScalingFactor(double) = 0;
     virtual void applyWindowState(Qt::WindowState);
     virtual void setWindowTitle(const QString&);
     virtual void onMinimizeEvent();

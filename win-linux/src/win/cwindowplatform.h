@@ -49,15 +49,11 @@ public:
     QWidget * handle() const;
     void toggleBorderless(bool);
     void toggleResizeable();
-    void adjustGeometry();
     void bringToTop();
-    void setWindowColors(const QColor&, const QColor& border = QColor());
     void show(bool);
-    void updateScaling();
-    virtual void applyTheme(const std::wstring&);
+    virtual void adjustGeometry() final;
 
 protected:
-    virtual void setScreenScalingFactor(double) = 0;
     virtual void onSystemDpiChanged(double) = 0;
 
 private:
