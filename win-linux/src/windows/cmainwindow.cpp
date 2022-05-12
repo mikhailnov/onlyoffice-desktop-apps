@@ -255,45 +255,8 @@ void CMainWindow::applyTheme(const std::wstring& theme)
     m_pButtonMain->setIconSize(MAIN_ICON_SIZE * m_dpiRatio);
 }
 
-#ifdef _UPDMODULE
-void CMainWindow::checkUpdates()
-{
-    win_sparkle_check_update_with_ui();
-}
-
-void CMainWindow::setAutocheckUpdatesInterval(const QString& s)
-{
-    if ( s == "never" )
-        win_sparkle_set_automatic_check_for_updates(0);
-    else {
-        win_sparkle_set_automatic_check_for_updates(1);
-
-        s == "week" ?
-            win_sparkle_set_update_check_interval(RATE_MS_WEEK):
-                win_sparkle_set_update_check_interval(RATE_MS_DAY);
-
-    }
-}
-#endif
 
 /** Private **/
-
-#ifdef _UPDMODULE
-void CMainWindow::updateFound()
-{
-    CLogger::log("updates found");
-}
-
-void CMainWindow::updateNotFound()
-{
-    CLogger::log("updates isn't found");
-}
-
-void CMainWindow::updateError()
-{
-    CLogger::log("updates error");
-}
-#endif
 
 void CMainWindow::applyWindowState(Qt::WindowState s)
 {
@@ -463,7 +426,6 @@ QWidget* CMainWindow::createMainPanel(QWidget *parent, bool isCustomWindow, doub
     connect(tabBar(), SIGNAL(currentChanged(int)), this, SLOT(onTabChanged(int)));
     connect(tabBar(), SIGNAL(tabBarClicked(int)), this, SLOT(onTabClicked(int)));
     connect(tabBar(), SIGNAL(tabCloseRequested(int)), this, SLOT(onTabCloseRequest(int)));
-    connect(m_pTabs, &CAscTabWidget::closeAppRequest, this, &CMainWindow::onAppCloseRequest);
     connect(m_pTabs, &CAscTabWidget::editorInserted, bind(&CMainWindow::onTabsCountChanged, this, _2, _1, 1));
     connect(m_pTabs, &CAscTabWidget::editorRemoved, bind(&CMainWindow::onTabsCountChanged, this, _2, _1, -1));
     m_pTabs->setPalette(palette);
@@ -502,12 +464,6 @@ void CMainWindow::setMouseTracking(bool enable)
         m_pMainWidget->setMouseTracking(enable);
 }
 #endif
-
-void CMainWindow::onAppCloseRequest()
-{
-    onFullScreen(-1, false);
-    onCloseEvent();
-}
 
 void CMainWindow::pushButtonMainClicked()
 {
@@ -1211,10 +1167,6 @@ void CMainWindow::onDocumentPrint(void * opts)
     RELEASEINTERFACE(pData)
 }
 
-/*void CMainWindow::onLocalFileSaveAs(void * d)
-{
-    CMainWindowImpl::onLocalFileSaveAs(d);
-}*/
 
 void CMainWindow::onFullScreen(int id, bool apply)
 {
@@ -1345,11 +1297,6 @@ void CMainWindow::onOutsideAuth(QString json)
     }
 }
 
-/*QString CMainWindow::getSaveMessage() const
-{
-    return tr("%1 is modified.<br>Do you want to keep changes?");
-}*/
-
 void CMainWindow::updateScalingFactor(double dpiratio)
 {
     CScalingWrapper::updateScalingFactor(dpiratio);
@@ -1424,76 +1371,3 @@ CTabBar *CMainWindow::tabBar()
 {
     return m_pTabBarWrapper->tabBar();
 }
-
-/** MainPanelImpl **/
-
-/*void CMainWindow::refreshAboutVersion()
-{
-    QString _license = tr("Licensed under") + " &lt;a class=\"link\" onclick=\"window.open('" URL_AGPL "')\" draggable=\"false\" href=\"#\"&gt;GNU AGPL v3&lt;/a&gt;";
-
-    QJsonObject _json_obj;
-    _json_obj["version"]    = VER_FILEVERSION_STR;
-#ifdef Q_OS_WIN
-# ifdef Q_OS_WIN64
-    _json_obj["arch"]       = "x64";
-# else
-    _json_obj["arch"]       = "x86";
-# endif
-#endif
-    _json_obj["edition"]    = _license;
-    _json_obj["appname"]    = WINDOW_NAME;
-    _json_obj["rights"]     = "© " ABOUT_COPYRIGHT_STR;
-    _json_obj["link"]       = URL_SITE;
-    _json_obj["changelog"]  = "https://github.com/ONLYOFFICE/DesktopEditors/blob/master/CHANGELOG.md";
-
-    AscAppManager::sendCommandTo(SEND_TO_ALL_START_PAGE, "app:version", Utils::stringifyJson(_json_obj));
-
-    _json_obj.empty();
-    _json_obj.insert("locale",
-        QJsonObject({
-            {"current", CLangater::getCurrentLangCode()},
-            {"langs", CLangater::availableLangsToJson()}
-        })
-    );
-
-    std::wstring _force_value = AscAppManager::userSettings(L"force-scale");
-    if ( _force_value == L"1" )
-        _json_obj["uiscaling"] = 100;
-    else
-    if ( _force_value == L"1.25" )
-        _json_obj["uiscaling"] = 125;
-    else
-    if ( _force_value == L"1.5" )
-        _json_obj["uiscaling"] = 150;
-    else
-    if ( _force_value == L"1.75" )
-        _json_obj["uiscaling"] = 175;
-    else
-    if ( _force_value == L"2" )
-        _json_obj["uiscaling"] = 200;
-    else _json_obj["uiscaling"] = 0;
-
-#ifndef __OS_WIN_XP
-    _json_obj["uitheme"] = QString::fromStdWString(AscAppManager::themes().current().id());
-#endif
-
-    GET_REGISTRY_USER(reg_user);
-    _json_obj["editorwindowmode"] = reg_user.value("editorWindowMode",false).toBool();
-
-    AscAppManager::sendCommandTo(SEND_TO_ALL_START_PAGE, "settings:init", Utils::stringifyJson(_json_obj));
-    if ( InputArgs::contains(L"--ascdesktop-reveal-app-config") )
-            AscAppManager::sendCommandTo( nullptr, "retrive:localoptions", "" );
-}*/
-
-/*void CMainWindow::onLocalOptions(const QString& json)
-{
-    QJsonParseError jerror;
-    QJsonDocument jdoc = QJsonDocument::fromJson(json.toLatin1(), &jerror);
-
-    if( jerror.error == QJsonParseError::NoError ) {
-        QFile file(Utils::getAppCommonPath() + "/app.conf");
-        file.open(QFile::WriteOnly);
-        file.write(jdoc.toJson());
-        file.close();
-    }
-}*/

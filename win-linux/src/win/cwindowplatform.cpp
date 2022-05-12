@@ -161,44 +161,6 @@ void CWindowPlatform::applyTheme(const std::wstring& theme)
     setWindowColors(color);
 }
 
-/*void CWindowPlatform::updateScaling()
-{
-    double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
-    if ( dpi_ratio != m_dpiRatio ) {
-        if ( !WindowHelper::isWindowSystemDocked(m_hWnd) ) {
-            setScreenScalingFactor(dpi_ratio);
-        } else {
-            m_dpiRatio = dpi_ratio;
-            refresh_window_scaling_factor(this);
-        }
-        adjustGeometry();
-    }
-}*/
-
-/** Protected **/
-
-/*void CWindowPlatform::captureMouse(int tabindex)
-{
-    if (m_winType != WindowType::MAIN) return;
-    ReleaseCapture();
-    if (tabindex >= 0 && tabindex < m_pMainPanel->tabWidget()->count()) {
-        QPoint spt = m_pMainPanel->tabWidget()->tabBar()->tabRect(tabindex).topLeft() + QPoint(30, 10);
-        QPoint gpt = m_pMainPanel->tabWidget()->tabBar()->mapToGlobal(spt);
-#if (QT_VERSION < QT_VERSION_CHECK(5, 10, 0))
-        gpt = m_pWinPanel->mapToGlobal(gpt);
-#endif
-        SetCursorPos(gpt.x(), gpt.y());
-        QWidget * _widget = m_pMainPanel->tabWidget()->tabBar();
-        QTimer::singleShot(0,[_widget,spt] {
-            INPUT _input{INPUT_MOUSE};
-            _input.mi.dwFlags = MOUSEEVENTF_ABSOLUTE|MOUSEEVENTF_LEFTDOWN;
-            SendInput(1, &_input, sizeof(INPUT));
-            QMouseEvent event(QEvent::MouseButtonPress, spt, Qt::LeftButton, Qt::MouseButton::NoButton, Qt::NoModifier);
-            QCoreApplication::sendEvent(_widget, &event);
-            _widget->grabMouse();
-        });
-    }
-}*/
 
 void CWindowPlatform::setMinimumSize( const int width, const int height )
 {

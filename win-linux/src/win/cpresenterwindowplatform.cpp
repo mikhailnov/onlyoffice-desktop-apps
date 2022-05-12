@@ -47,16 +47,6 @@
 
 //using namespace std::placeholders;
 
-//Q_GUI_EXPORT HICON qt_pixmapToWinHICON(const QPixmap &);
-
-/*auto adjustRect(QRect& window_rect, const QRect& screen_size)->void
-{
-    window_rect.setLeft(screen_size.left()),
-    window_rect.setTop(screen_size.top());
-    if (screen_size.width() < window_rect.width()) window_rect.setWidth(screen_size.width());
-    if (screen_size.height() < window_rect.height()) window_rect.setHeight(screen_size.height());
-}*/
-
 CPresenterWindowPlatform::CPresenterWindowPlatform(const QRect &rect) :
     m_hWnd(nullptr),
     m_windowActivated(false)

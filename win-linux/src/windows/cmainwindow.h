@@ -75,11 +75,6 @@ public:
 
 private:
     void captureMouse(int);
-#ifdef _UPDMODULE
-    static void updateFound();
-    static void updateNotFound();
-    static void updateError();
-#endif    
     virtual void applyWindowState(Qt::WindowState) final;
     virtual void focus() final;
 
@@ -120,7 +115,6 @@ public slots:
     void onTabClicked(int);
     void onTabChanged(int);
     void onTabCloseRequest(int);
-    void onAppCloseRequest();
     void onEditorActionRequest(int, const QString&);
     void onTabsCountChanged(int, int, int);
     void onWebAppsFeatures(int id, std::wstring);
