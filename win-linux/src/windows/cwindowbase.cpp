@@ -43,6 +43,8 @@
 #include <QSettings>
 #include <QHBoxLayout>
 #include <functional>
+#include <QApplication>
+#include <QScreen>
 
 
 class CWindowBase::CWindowBasePrivate {
@@ -69,17 +71,27 @@ public:
 };
 
 
-CWindowBase::CWindowBase()
+CWindowBase::CWindowBase(const QRect& r)
     : QMainWindow(nullptr)
     , m_pTopButtons(3, nullptr)
-    , m_labelTitle(nullptr)
     , m_pMainPanel(nullptr)
     , m_boxTitleBtns(nullptr)
     , m_pMainView(nullptr)
-    , m_dpiRatio(1.0)
     , pimpl{new CWindowBasePrivate}
 {
+    if ( !r.isEmpty() )
+        m_dpiRatio = Utils::getScreenDpiRatio(r.topLeft());
+    else {
+        QScreen * _screen = QApplication::primaryScreen();
+        m_dpiRatio = Utils::getScreenDpiRatio(_screen->geometry().topLeft());
+    }
+
     setWindowIcon(Utils::appIcon());
+}
+
+CWindowBase::CWindowBase()
+    : CWindowBase(QRect())
+{
 }
 
 CWindowBase::~CWindowBase()

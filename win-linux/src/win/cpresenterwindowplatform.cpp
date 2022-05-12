@@ -47,14 +47,14 @@
 
 //using namespace std::placeholders;
 
-CPresenterWindowPlatform::CPresenterWindowPlatform(const QRect &rect) :
+CPresenterWindowPlatform::CPresenterWindowPlatform(const QRect &rect)
+    : CWindowPlatform(rect),
     m_hWnd(nullptr),
     m_windowActivated(false)
 {
     m_hWnd = (HWND)winId();
     m_window_rect = rect;
 
-    m_dpiRatio = Utils::getScreenDpiRatio(m_window_rect.topLeft());
     if (m_window_rect.isEmpty())
         m_window_rect = QRect(QPoint(100, 100)*m_dpiRatio, MAIN_WINDOW_DEFAULT_SIZE * m_dpiRatio);
     QRect _screen_size = Utils::getScreenGeometry(m_window_rect.topLeft());

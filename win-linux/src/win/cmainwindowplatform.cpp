@@ -48,7 +48,8 @@
 //using namespace std::placeholders;
 
 
-CMainWindowPlatform::CMainWindowPlatform(const QRect &rect) :
+CMainWindowPlatform::CMainWindowPlatform(const QRect &rect)
+    : CWindowPlatform(rect),
     m_hWnd(nullptr),
     m_modalHwnd(nullptr),
     m_skipSizing(false),
@@ -56,7 +57,7 @@ CMainWindowPlatform::CMainWindowPlatform(const QRect &rect) :
 {
     m_hWnd = (HWND)winId();
     m_window_rect = rect;
-    m_dpiRatio = CSplash::startupDpiRatio();
+
     if (m_window_rect.isEmpty())
         m_window_rect = QRect(QPoint(100, 100)*m_dpiRatio, MAIN_WINDOW_DEFAULT_SIZE * m_dpiRatio);
     QRect _screen_size = Utils::getScreenGeometry(m_window_rect.topLeft());

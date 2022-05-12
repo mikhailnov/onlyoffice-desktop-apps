@@ -50,7 +50,7 @@ struct CWindowGeometry
 class CWindowPlatform : public CWindowBase
 {
 public:
-    explicit CWindowPlatform();
+    explicit CWindowPlatform(const QRect&);
     virtual ~CWindowPlatform();
 
     QWidget * handle() const;

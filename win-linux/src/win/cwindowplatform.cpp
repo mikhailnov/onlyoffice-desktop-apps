@@ -73,7 +73,8 @@ void CWindowPlatform::setPlacement(HWND& hwnd, QRect& moveNormalRect, double cha
     }
 }
 
-CWindowPlatform::CWindowPlatform() :
+CWindowPlatform::CWindowPlatform(const QRect& r)
+    : CWindowBase(r),
     m_previousState(Qt::WindowNoState),
     m_margins(QMargins()),
     m_frame(QMargins()),

@@ -53,6 +53,7 @@
 
 
 CEditorWindowPlatform::CEditorWindowPlatform(const QRect &rect) :
+    CWindowPlatform(rect),
     m_hWnd(nullptr),
     m_modalHwnd(nullptr),
     m_skipSizing(false),
@@ -60,7 +61,6 @@ CEditorWindowPlatform::CEditorWindowPlatform(const QRect &rect) :
 {
     m_hWnd = (HWND)winId();
     m_window_rect = rect;
-    m_dpiRatio = CSplash::startupDpiRatio();
 }
 
 CEditorWindowPlatform::~CEditorWindowPlatform()

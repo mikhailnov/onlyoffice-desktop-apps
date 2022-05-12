@@ -64,6 +64,7 @@ class CWindowBase : public QMainWindow
 {
 public:
     explicit CWindowBase();
+    explicit CWindowBase(const QRect&);
     virtual ~CWindowBase();   
 
     bool isCustomWindowStyle();
