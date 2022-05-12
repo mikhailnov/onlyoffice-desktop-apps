@@ -90,6 +90,11 @@ CWindowBase::~CWindowBase()
 
 /** Public **/
 
+QWidget * CWindowBase::handle() const
+{
+    return qobject_cast<QWidget *>(const_cast<CWindowBase*>(this));
+}
+
 bool CWindowBase::isCustomWindowStyle()
 {
     return pimpl->is_custom_window();

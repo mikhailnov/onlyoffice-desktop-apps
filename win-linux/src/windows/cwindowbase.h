@@ -65,6 +65,8 @@ class CWindowBase : public QMainWindow
 public:
     explicit CWindowBase();
     virtual ~CWindowBase();   
+
+    QWidget * handle() const;
     bool isCustomWindowStyle();
     void updateScaling();
     virtual void adjustGeometry() = 0;

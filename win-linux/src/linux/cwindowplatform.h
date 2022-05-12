@@ -44,7 +44,6 @@ public:
     explicit CWindowPlatform(const QRect&);
     virtual ~CWindowPlatform();
 
-    QWidget * handle() const;
     void sendSertificate(int viewid);
     void bringToTop();
     void show(bool);

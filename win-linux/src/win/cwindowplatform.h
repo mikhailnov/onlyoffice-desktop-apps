@@ -46,7 +46,6 @@ public:
     explicit CWindowPlatform(const QRect&);
     virtual ~CWindowPlatform();
 
-    QWidget * handle() const;
     void toggleBorderless(bool);
     void toggleResizeable();
     void bringToTop();

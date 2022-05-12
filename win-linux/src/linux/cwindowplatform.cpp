@@ -71,11 +71,6 @@ CWindowPlatform::~CWindowPlatform()
 
 /** Public **/
 
-QWidget * CWindowPlatform::handle() const
-{
-    return qobject_cast<QWidget *>(const_cast<CWindowPlatform *>(this));
-}
-
 void CWindowPlatform::sendSertificate(int viewid)
 {
 #ifdef DOCUMENTSCORE_OPENSSL_SUPPORT
