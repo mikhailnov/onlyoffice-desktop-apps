@@ -108,14 +108,11 @@ CMainWindow::CMainWindow(const QRect &rect) :
     m_savePortal(QString()),
     m_mainWindowState(Qt::WindowNoState),
     m_isMaximized(false),
-    m_isCustomWindow(true),
     m_saveAction(0)
 {
-#ifdef __linux__
-    m_isCustomWindow = !CX11Decoration::isDecorated();
-#endif
-    m_pMainPanel = createMainPanel(this, m_isCustomWindow, m_dpiRatio);
+    m_pMainPanel = createMainPanel(this, isCustomWindowStyle(), m_dpiRatio);
     setCentralWidget(m_pMainPanel);
+
 #ifdef __linux__
     if (m_isCustomWindow) {
         CX11Decoration::setTitleWidget(m_boxTitleBtns);
@@ -302,7 +299,7 @@ void CMainWindow::updateError()
 void CMainWindow::applyWindowState(Qt::WindowState s)
 {
     m_mainWindowState = s;
-    if (m_isCustomWindow) {
+    if ( isCustomWindowStyle() ) {
 #ifdef __linux__
         layout()->setMargin(s == Qt::WindowMaximized ? 0 : CX11Decoration::customWindowBorderWith() * scaling());
 #endif
@@ -1448,7 +1445,7 @@ void CMainWindow::updateScalingFactor(double dpiratio)
     CScalingWrapper::updateScalingFactor(dpiratio);
     QLayout * layoutBtns = m_boxTitleBtns->layout();
     layoutBtns->setSpacing(int(1 * dpiratio));
-    if (m_isCustomWindow) {
+    if (isCustomWindowStyle()) {
         layoutBtns->setContentsMargins(0,0,0,0);
         QSize small_btn_size(int(TOOLBTN_WIDTH*dpiratio), int(TOOLBTN_HEIGHT*dpiratio));
         foreach (auto btn, m_pTopButtons)
@@ -1459,7 +1456,7 @@ void CMainWindow::updateScalingFactor(double dpiratio)
                                     dpiratio > 1.5 ? ":/sep-styles/tabbar@1.75x" :
                                     dpiratio > 1.25 ? ":/sep-styles/tabbar@1.5x" :
                                     dpiratio > 1 ? ":/sep-styles/tabbar@1.25x" : ":/sep-styles/tabbar";
-    if (m_isCustomWindow) {
+    if (isCustomWindowStyle()) {
         _tabs_stylesheets += ".qss";
     } else {
 #ifdef __linux__

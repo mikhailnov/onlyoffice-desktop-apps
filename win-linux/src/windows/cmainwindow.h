@@ -173,8 +173,7 @@ private:
     QStringList*     m_inFiles;
     QString          m_savePortal;
     Qt::WindowState  m_mainWindowState;
-    bool             m_isMaximized,
-                     m_isCustomWindow;
+    bool             m_isMaximized;
     int              m_saveAction;
 };
 

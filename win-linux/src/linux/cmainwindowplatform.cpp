@@ -57,25 +57,6 @@ CMainWindowPlatform::CMainWindowPlatform(const QRect &rect)
     setAcceptDrops(true);
     setObjectName("MainWindow");
 
-    GET_REGISTRY_USER(reg_user)
-    if ( InputArgs::contains(L"--system-title-bar") )
-        reg_user.setValue("titlebar", "system");
-    else
-    if ( InputArgs::contains(L"--custom-title-bar") )
-        reg_user.setValue("titlebar", "custom");
-
-    if ( !reg_user.contains("titlebar") )
-        reg_user.setValue("titlebar", "custom");
-
-    QString _title_style = reg_user.value("titlebar").toString();
-    if ( _title_style.isEmpty() ) {
-        GET_REGISTRY_SYSTEM(reg_system);
-        _title_style = reg_system.value("titlebar").toString();
-    }
-
-    if ( _title_style == "custom" )
-        CX11Decoration::turnOff();
-
     // adjust window size
     QRect _window_rect = rect;
     m_dpiRatio = Utils::getScreenDpiRatio( QApplication::desktop()->screenNumber(_window_rect.topLeft()) );
