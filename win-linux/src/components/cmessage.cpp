@@ -174,7 +174,7 @@ CMessage::CMessage(QWidget * p)
 
     m_priv->addButton(btn_ok);
 
-    QObject::connect(btn_ok, &QPushButton::clicked,
+    QObject::connect(btn_ok, &QPushButton::clicked, this,
         [=] {
             m_modalresult = MODAL_RESULT_YES;
             close();
@@ -244,7 +244,7 @@ void CMessage::setButtons(std::initializer_list<QString> btns)
 
     QPushButton * _btn;
     int _btn_num(0);
-    for (auto btn: btns) {
+    for (auto &btn: btns) {
         reFocus.indexIn(btn);
 
         _btn = new QPushButton(reFocus.cap(1));
