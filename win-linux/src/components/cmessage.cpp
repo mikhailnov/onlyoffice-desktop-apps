@@ -218,7 +218,9 @@ CMessage::CMessage(QWidget * p)
     _styles.append(QString("QPushButton{min-width:%1px;}").arg(int(40*m_priv->dpiRatio)));
     m_centralWidget->setStyleSheet( _styles );
 
-    if ( m_priv->dpiRatio > 1.75 ) {
+    QString zoom = QString::number(m_priv->dpiRatio) + "x";
+    m_centralWidget->setProperty("scaling", zoom);
+    /*if ( m_priv->dpiRatio > 1.75 ) {
         m_centralWidget->setProperty("scaling", "2x");
     } else
     if ( m_priv->dpiRatio > 1.55 ) {
@@ -229,7 +231,7 @@ CMessage::CMessage(QWidget * p)
     } else
     if ( m_priv->dpiRatio > 1 ) {
         m_centralWidget->setProperty("scaling", "1.25x");
-    }
+    }*/
 
     m_priv->focusConnection = QObject::connect(qApp, &QApplication::focusChanged, [&] (QWidget * from, QWidget *to){
         if ( m_priv->isWindowActive ) {

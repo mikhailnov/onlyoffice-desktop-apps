@@ -502,12 +502,13 @@ void CEditorWindow::setScreenScalingFactor(double newfactor)
         }
         m_dpiRatio = newfactor;
     }
-
-    if ( newfactor > 1.75 ) m_pMainPanel->setProperty("zoom", "2x"); else
+    QString zoom = QString::number(newfactor) + "x";
+    m_pMainPanel->setProperty("zoom", zoom);
+    /*if ( newfactor > 1.75 ) m_pMainPanel->setProperty("zoom", "2x"); else
     if ( newfactor > 1.5 ) m_pMainPanel->setProperty("zoom", "1.75x"); else
     if ( newfactor > 1.25 ) m_pMainPanel->setProperty("zoom", "1.5x"); else
     if ( newfactor > 1 ) m_pMainPanel->setProperty("zoom", "1.25x");
-    else m_pMainPanel->setProperty("zoom", "1");
+    else m_pMainPanel->setProperty("zoom", "1");*/
 
     QString css(AscAppManager::getWindowStylesheets(newfactor));
     css.append(m_css);
