@@ -181,3 +181,9 @@ void CWindowBase::focus()
 {
 
 }
+
+void CWindowBase::applyTheme(const std::wstring&)
+{
+    if ( m_boxTitleBtns )
+        m_boxTitleBtns->style()->polish(m_boxTitleBtns);
+}

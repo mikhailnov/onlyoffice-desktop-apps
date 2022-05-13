@@ -69,6 +69,7 @@ public:
 
     bool isCustomWindowStyle();
     virtual void focus();
+    virtual void applyTheme(const std::wstring&);
 
 protected:
     enum BtnType {

@@ -232,15 +232,17 @@ bool CMainWindow::holdView(int id) const
 
 void CMainWindow::applyTheme(const std::wstring& theme)
 {
-    CWindowPlatform::applyTheme(theme);
     m_pMainPanel->setProperty("uitheme", QString::fromStdWString(theme));
+
+    CWindowPlatform::applyTheme(theme);
+
     for (int i(m_pTabs->count()); !(--i < 0);) {
         CAscTabData& _doc = *m_pTabs->panel(i)->data();
         if ( _doc.isViewType(cvwtEditor) && !_doc.closed() ) {
             AscAppManager::sendCommandTo(m_pTabs->panel(i)->cef(), L"uitheme:changed", theme);
         }
     }
-    m_boxTitleBtns->style()->polish(m_boxTitleBtns);
+
     m_pTabBarWrapper->style()->polish(m_pTabBarWrapper);
     m_pButtonMain->style()->polish(m_pButtonMain);
     if (m_pTopButtons[BtnType::Btn_Minimize]) {
@@ -265,8 +267,6 @@ void CMainWindow::applyWindowState(Qt::WindowState s)
 #ifdef __linux__
         layout()->setMargin(s == Qt::WindowMaximized ? 0 : CX11Decoration::customWindowBorderWith() * scaling());
 #endif
-        m_pTopButtons[BtnType::Btn_Maximize]->setProperty("class", s == Qt::WindowMaximized ? "min" : "normal");
-        m_pTopButtons[BtnType::Btn_Maximize]->style()->polish(m_pTopButtons[BtnType::Btn_Maximize]);
     }
 }
 

@@ -157,8 +157,9 @@ void CWindowPlatform::show(bool maximized)
 
 void CWindowPlatform::applyTheme(const std::wstring& theme)
 {
-    QColor color = AscAppManager::themes().current().
-            color(CTheme::ColorRole::ecrWindowBackground);
+    CWindowBase::applyTheme(theme);
+
+    QColor color = AscAppManager::themes().current().color(CTheme::ColorRole::ecrWindowBackground);
     setWindowColors(color);
 }
 
