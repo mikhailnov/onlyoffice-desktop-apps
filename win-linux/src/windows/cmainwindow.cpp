@@ -336,15 +336,14 @@ void CMainWindow::focus()
 void CMainWindow::onSystemDpiChanged(double dpi_ratio)
 {
     if (!WindowHelper::isLeftButtonPressed()) {
-        //double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
         if (dpi_ratio != m_dpiRatio) {
             m_dpiRatio = dpi_ratio;
             QString css{AscAppManager::getWindowStylesheets(m_dpiRatio)};
             if ( !css.isEmpty() ) {
                 m_pMainPanel->setStyleSheet(css);
                 setScreenScalingFactor(m_dpiRatio);
+                adjustGeometry();
             }
-            adjustGeometry();
         }
     } else
     if (AscAppManager::IsUseSystemScaling()) {

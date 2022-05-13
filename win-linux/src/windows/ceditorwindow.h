@@ -81,7 +81,6 @@ private:
     virtual void onMinimizeEvent() final;
     virtual void onMaximizeEvent() final;
     virtual bool event(QEvent *) final;
-    virtual void onDpiChanged(double,double) final;
     virtual void setScreenScalingFactor(double) final;
 #ifdef _WIN32
     virtual void onSystemDpiChanged(double) final;

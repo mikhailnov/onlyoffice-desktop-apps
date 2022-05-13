@@ -481,15 +481,6 @@ bool CEditorWindow::event(QEvent * event)
     return CWindowPlatform::event(event);
 }
 
-void CEditorWindow::onDpiChanged(double newfactor, double prevfactor)
-{
-    Q_UNUSED(prevfactor)
-#ifdef Q_OS_LINUX
-    CX11Decoration::onDpiChanged(newfactor);
-#endif
-    setScreenScalingFactor(newfactor);
-}
-
 void CEditorWindow::setScreenScalingFactor(double newfactor)
 {
     if (m_dpiRatio != newfactor) {
@@ -514,11 +505,7 @@ void CEditorWindow::setScreenScalingFactor(double newfactor)
     css.append(m_css);
     m_pMainPanel->setStyleSheet(css);
 
-
     d_ptr.get()->onScreenScalingFactor(newfactor);
-#ifndef __linux__
-    CWindowPlatform::adjustGeometry();
-#endif
     recalculatePlaces();
     updateTitleCaption();
 }
@@ -529,6 +516,7 @@ void CEditorWindow::onSystemDpiChanged(double dpi_ratio)
     if (!WindowHelper::isLeftButtonPressed() || AscAppManager::IsUseSystemScaling()) {
         if (dpi_ratio != m_dpiRatio) {
             setScreenScalingFactor(dpi_ratio);
+            adjustGeometry();
         }
     }
 }
