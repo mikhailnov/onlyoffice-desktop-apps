@@ -336,15 +336,14 @@ void CMainWindow::focus()
 void CMainWindow::onSystemDpiChanged(double dpi_ratio)
 {
     if (!WindowHelper::isLeftButtonPressed()) {
-        if (dpi_ratio != m_dpiRatio) {
-            m_dpiRatio = dpi_ratio;
-            QString css{AscAppManager::getWindowStylesheets(m_dpiRatio)};
+        //if (dpi_ratio != m_dpiRatio) {
+            //m_dpiRatio = dpi_ratio;
+            QString css{AscAppManager::getWindowStylesheets(dpi_ratio)};
             if ( !css.isEmpty() ) {
                 m_pMainPanel->setStyleSheet(css);
-                setScreenScalingFactor(m_dpiRatio);
-                adjustGeometry();
+                updateScaling();
             }
-        }
+        //}
     } else
     if (AscAppManager::IsUseSystemScaling()) {
         updateScaling();
@@ -1524,24 +1523,26 @@ void CMainWindow::updateScalingFactor(double dpiratio)
 
 void CMainWindow::setScreenScalingFactor(double factor)
 {
+    setMinimumSize(0,0);
 #ifdef Q_OS_LINUX
     CX11Decoration::onDpiChanged(factor);
+    if (!isMaximized()) {
+        double change_factor = factor / m_dpiRatio;
+        QRect _src_rect = geometry();
+        int dest_width_change = int(_src_rect.width() * (1 - change_factor));
+        QRect _dest_rect = QRect{_src_rect.translated(dest_width_change/2,0).topLeft(), _src_rect.size() * change_factor};
+        setGeometry(_dest_rect);
+    }
 #endif
+    m_dpiRatio = factor;
     QString css(AscAppManager::getWindowStylesheets(factor));
     if (!css.isEmpty()) {
-        setMinimumSize(0,0);
-        double change_factor = factor / m_dpiRatio;
-        m_dpiRatio = factor;
-        if (!isMaximized()) {
-            QRect _src_rect = geometry();
-            int dest_width_change = int(_src_rect.width() * (1 - change_factor));
-            QRect _dest_rect = QRect{_src_rect.translated(dest_width_change/2,0).topLeft(), _src_rect.size() * change_factor};
-            setGeometry(_dest_rect);
-        }
         m_pMainPanel->setStyleSheet(css);
     }
     updateScalingFactor(factor);
     CScalingWrapper::updateChildScaling(m_pMainPanel, factor);
+    //adjustGeometry();
+    CWindowPlatform::applyTheme(L""); // Fix bug with window colors on scaling
 }
 
 bool CMainWindow::holdUid(int uid) const

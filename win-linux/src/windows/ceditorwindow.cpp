@@ -375,9 +375,10 @@ void CEditorWindow::onMoveEvent(const QRect&)
 
 void CEditorWindow::onExitSizeMove()
 {
-    double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
+    updateScaling();
+    /*double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
     if ( dpi_ratio != m_dpiRatio )
-        setScreenScalingFactor(dpi_ratio);
+        setScreenScalingFactor(dpi_ratio);*/
     if ( m_restoreMaximized ) {
         m_restoreMaximized = false;
         CWindowPlatform::show(true);
@@ -483,25 +484,24 @@ bool CEditorWindow::event(QEvent * event)
 
 void CEditorWindow::setScreenScalingFactor(double newfactor)
 {
+    setMinimumSize(0,0);
 #ifdef Q_OS_LINUX
     CX11Decoration::onDpiChanged(newfactor);
-#endif
-    if (m_dpiRatio != newfactor) {
-        if (isCustomWindowStyle()) {
-            QSize small_btn_size(int(TOOLBTN_WIDTH * newfactor), int(TOOLBTN_HEIGHT*newfactor));
-            foreach (auto btn, m_pTopButtons)
-                btn->setFixedSize(small_btn_size);
-            m_boxTitleBtns->setFixedHeight(int(TOOLBTN_HEIGHT * newfactor));
-            m_boxTitleBtns->layout()->setSpacing(int(1 * newfactor));
-        }
+    if (!isMaximized()) {
         double change_factor = newfactor / m_dpiRatio;
-        m_dpiRatio = newfactor;
-        if (!isMaximized()) {
-            QRect _src_rect = geometry();
-            int dest_width_change = int(_src_rect.width() * (1 - change_factor));
-            QRect _dest_rect = QRect{_src_rect.translated(dest_width_change/2,0).topLeft(), _src_rect.size() * change_factor};
-            setGeometry(_dest_rect);
-        }
+        QRect _src_rect = geometry();
+        int dest_width_change = int(_src_rect.width() * (1 - change_factor));
+        QRect _dest_rect = QRect{_src_rect.translated(dest_width_change/2,0).topLeft(), _src_rect.size() * change_factor};
+        setGeometry(_dest_rect);
+    }
+#endif
+    m_dpiRatio = newfactor;
+    if (isCustomWindowStyle()) {
+        QSize small_btn_size(int(TOOLBTN_WIDTH * newfactor), int(TOOLBTN_HEIGHT*newfactor));
+        foreach (auto btn, m_pTopButtons)
+            btn->setFixedSize(small_btn_size);
+        m_boxTitleBtns->setFixedHeight(int(TOOLBTN_HEIGHT * newfactor));
+        m_boxTitleBtns->layout()->setSpacing(int(1 * newfactor));
     }
     QString zoom = QString::number(newfactor) + "x";
     m_pMainPanel->setProperty("zoom", zoom);
@@ -518,16 +518,38 @@ void CEditorWindow::setScreenScalingFactor(double newfactor)
     d_ptr.get()->onScreenScalingFactor(newfactor);
     recalculatePlaces();
     updateTitleCaption();
+    //adjustGeometry();
+    QTimer::singleShot(50, this, [=](){
+        std::wstring background, border;
+        switch (d_ptr->panel()->data()->contentType()) {
+        case etDocument:
+            background = AscAppManager::themes().current().value(CTheme::ColorRole::ecrTabWordActive);
+            border = background;
+            break;
+        case etPresentation:
+            background = AscAppManager::themes().current().value(CTheme::ColorRole::ecrTabSlideActive);
+            border = background;
+            break;
+        case etSpreadsheet:
+            background = AscAppManager::themes().current().value(CTheme::ColorRole::ecrTabCellActive);
+            border = background;
+            break;
+        default:
+            background = AscAppManager::themes().current().value(CTheme::ColorRole::ecrWindowBackground);
+            border = AscAppManager::themes().current().value(CTheme::ColorRole::ecrWindowBorder);
+        }
+        setWindowColors(QColor(QString::fromStdWString(background)), QColor(QString::fromStdWString(border)));
+    });
 }
 
 #ifdef _WIN32
 void CEditorWindow::onSystemDpiChanged(double dpi_ratio)
 {
     if (!WindowHelper::isLeftButtonPressed() || AscAppManager::IsUseSystemScaling()) {
-        if (dpi_ratio != m_dpiRatio) {
+        updateScaling();
+        /*if (dpi_ratio != m_dpiRatio) {
             setScreenScalingFactor(dpi_ratio);
-            adjustGeometry();
-        }
+        }*/
     }
 }
 #endif
