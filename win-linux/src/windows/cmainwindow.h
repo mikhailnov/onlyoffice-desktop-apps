@@ -98,7 +98,7 @@ private slots:
 /** MainPanel **/
 
 public:
-    QWidget * createMainPanel(QWidget *parent, bool isCustomWindow, double scale);
+    QWidget * createMainPanel(QWidget *parent, bool isCustomWindow);
     CAscTabWidget * tabWidget();
     CTabBar *tabBar();
     void goStart();

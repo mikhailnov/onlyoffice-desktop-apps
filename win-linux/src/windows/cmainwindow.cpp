@@ -134,7 +134,7 @@ CMainWindow::CMainWindow(const QRect &rect) :
     m_isCustomWindow = !CX11Decoration::isDecorated();
 #endif
 
-    m_pMainPanel = createMainPanel(this, m_isCustomWindow, m_dpiRatio);
+    m_pMainPanel = createMainPanel(this, m_isCustomWindow);
     setCentralWidget(m_pMainPanel);
 #ifdef __linux__
     if (m_isCustomWindow) {
@@ -506,7 +506,7 @@ void CMainWindow::dropEvent(QDropEvent *event)
 /** MainPanel **/
 
 
-QWidget* CMainWindow::createMainPanel(QWidget *parent, bool isCustomWindow, double dpi_ratio)
+QWidget* CMainWindow::createMainPanel(QWidget *parent, bool isCustomWindow)
 {
     QWidget *mainPanel = new QWidget(parent);
     mainPanel->setObjectName("mainPanel");
