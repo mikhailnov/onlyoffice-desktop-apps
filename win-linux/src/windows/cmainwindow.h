@@ -161,7 +161,6 @@ private:
     CDownloadWidget* m_pWidgetDownload;
     printdata*       m_printData;
     QString          m_savePortal;
-    Qt::WindowState  m_mainWindowState;
     bool             m_isMaximized;
     int              m_saveAction;
 };
