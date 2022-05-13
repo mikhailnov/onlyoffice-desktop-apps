@@ -483,6 +483,9 @@ bool CEditorWindow::event(QEvent * event)
 
 void CEditorWindow::setScreenScalingFactor(double newfactor)
 {
+#ifdef Q_OS_LINUX
+    CX11Decoration::onDpiChanged(newfactor);
+#endif
     if (m_dpiRatio != newfactor) {
         if (isCustomWindowStyle()) {
             QSize small_btn_size(int(TOOLBTN_WIDTH * newfactor), int(TOOLBTN_HEIGHT*newfactor));
@@ -491,7 +494,14 @@ void CEditorWindow::setScreenScalingFactor(double newfactor)
             m_boxTitleBtns->setFixedHeight(int(TOOLBTN_HEIGHT * newfactor));
             m_boxTitleBtns->layout()->setSpacing(int(1 * newfactor));
         }
+        double change_factor = newfactor / m_dpiRatio;
         m_dpiRatio = newfactor;
+        if (!isMaximized()) {
+            QRect _src_rect = geometry();
+            int dest_width_change = int(_src_rect.width() * (1 - change_factor));
+            QRect _dest_rect = QRect{_src_rect.translated(dest_width_change/2,0).topLeft(), _src_rect.size() * change_factor};
+            setGeometry(_dest_rect);
+        }
     }
     QString zoom = QString::number(newfactor) + "x";
     m_pMainPanel->setProperty("zoom", zoom);
