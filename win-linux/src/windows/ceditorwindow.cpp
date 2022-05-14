@@ -228,7 +228,6 @@ void CEditorWindow::applyTheme(const std::wstring& theme)
 QWidget * CEditorWindow::createMainPanel(QWidget * parent, const QString& title)
 {
     // create min/max/close buttons
-    bool isCustom = isCustomWindowStyle();
     QWidget * mainPanel = new QWidget(parent);
     mainPanel->setObjectName("mainPanel");
 
@@ -242,8 +241,8 @@ QWidget * CEditorWindow::createMainPanel(QWidget * parent, const QString& title)
 #endif
     mainPanel->setLayout(mainGridLayout);
 
-    if (isCustom) {
-        m_boxTitleBtns = createTopPanel(mainPanel, isCustom);
+    if ( isCustomWindowStyle() ) {
+        m_boxTitleBtns = createTopPanel(mainPanel);
         m_boxTitleBtns->setObjectName("box-title-tools");
 
         m_labelTitle = new CElipsisLabel(title, m_boxTitleBtns);
@@ -271,7 +270,7 @@ QWidget * CEditorWindow::createMainPanel(QWidget * parent, const QString& title)
     mainPanel->setStyleSheet(AscAppManager::getWindowStylesheets(m_dpiRatio) + m_css);
 
     bool _canExtendTitle = false;
-    if (isCustom) {
+    if ( isCustomWindowStyle() ) {
         if ( !d_ptr->canExtendTitle() ) {
             //mainGridLayout->addWidget(m_boxTitleBtns);
             mainGridLayout->addWidget(m_boxTitleBtns, 0, 0);

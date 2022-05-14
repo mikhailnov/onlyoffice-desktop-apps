@@ -60,7 +60,7 @@ CPresenterWindow::CPresenterWindow(const QRect &rect, const QString &title, QCef
 #ifdef __linux__
     isDecorated = !CX11Decoration::isDecorated();
 #endif
-    m_pMainPanel = createMainPanel(this, title, isDecorated, static_cast<QWidget*>(view));
+    m_pMainPanel = createMainPanel(this, title, static_cast<QWidget*>(view));
     setCentralWidget(m_pMainPanel);
 #ifdef __linux__
     if ( !CX11Decoration::isDecorated() ) {
@@ -102,7 +102,7 @@ bool CPresenterWindow::holdView(int id) const
 
 /** Private **/
 
-QWidget * CPresenterWindow::createMainPanel(QWidget * parent, const QString& title, bool custom, QWidget * view)
+QWidget * CPresenterWindow::createMainPanel(QWidget * parent, const QString& title, QWidget * view)
 {
     QWidget * mainPanel = new QWidget(parent);
     mainPanel->setObjectName("mainPanel");
@@ -114,7 +114,7 @@ QWidget * CPresenterWindow::createMainPanel(QWidget * parent, const QString& tit
     mainGridLayout->setMargin(0);
     mainPanel->setLayout(mainGridLayout);
 
-    m_boxTitleBtns = createTopPanel(mainPanel, custom);
+    m_boxTitleBtns = createTopPanel(mainPanel);
     m_boxTitleBtns->setObjectName("box-title-tools");
 
     m_labelTitle = new CElipsisLabel(title, m_boxTitleBtns);
@@ -124,7 +124,7 @@ QWidget * CPresenterWindow::createMainPanel(QWidget * parent, const QString& tit
     static_cast<QHBoxLayout*>(m_boxTitleBtns->layout())->insertWidget(0, m_labelTitle);
     static_cast<QHBoxLayout*>(m_boxTitleBtns->layout())->insertStretch(0);
 
-    if (custom) {
+    if ( isCustomWindowStyle() ) {
 #ifdef __linux__
         m_labelTitle->setMouseTracking(true);
         mainGridLayout->setMargin(CX11Decoration::customWindowBorderWith() * m_dpiRatio);

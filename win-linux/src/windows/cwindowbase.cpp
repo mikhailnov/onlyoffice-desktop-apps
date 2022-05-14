@@ -111,7 +111,7 @@ QPushButton* CWindowBase::createToolButton(QWidget * parent, const QString& name
     return btn;
 }
 
-QWidget* CWindowBase::createTopPanel(QWidget *parent, bool isCustom)
+QWidget* CWindowBase::createTopPanel(QWidget *parent)
 {
     QWidget *_boxTitleBtns;
 #ifdef __linux__
@@ -126,7 +126,7 @@ QWidget* CWindowBase::createTopPanel(QWidget *parent, bool isCustom)
     layoutBtns->setSpacing(int(1*m_dpiRatio));
     layoutBtns->addStretch();
     _boxTitleBtns->setLayout(layoutBtns);
-    if (isCustom) {
+    if ( isCustomWindowStyle() ) {
         const QString names[3] = {"toolButtonMinimize", "toolButtonMaximize", "toolButtonClose"};
         std::function<void(void)> btn_methods[3] = {
             [=]{onMinimizeEvent();}, [=]{onMaximizeEvent();}, [=]{onCloseEvent();}};

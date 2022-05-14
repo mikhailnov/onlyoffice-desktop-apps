@@ -77,6 +77,7 @@ private:
     void captureMouse(int);
     virtual void applyWindowState(Qt::WindowState) final;
     virtual void focus() final;
+    QWidget * createMainPanel(QWidget *parent);
 
 #ifdef _WIN32
 #else
@@ -91,7 +92,6 @@ private slots:
 
 public:
     //WId GetHwndForKeyboard() {return ((QWidget*)m_pTabs->parent())->winId();}
-    QWidget * createMainPanel(QWidget *parent, bool isCustomWindow, double scale);
     CAscTabWidget * tabWidget();
     CTabBar *tabBar();
     void goStart();

@@ -108,7 +108,7 @@ CMainWindow::CMainWindow(const QRect &rect) :
     m_isMaximized(false),
     m_saveAction(0)
 {
-    m_pMainPanel = createMainPanel(this, isCustomWindowStyle(), m_dpiRatio);
+    m_pMainPanel = createMainPanel(this);
     setCentralWidget(m_pMainPanel);
 
 #ifdef __linux__
@@ -361,8 +361,7 @@ void CMainWindow::dropEvent(QDropEvent *event)
 
 /** MainPanel **/
 
-
-QWidget* CMainWindow::createMainPanel(QWidget *parent, bool isCustomWindow, double dpi_ratio)
+QWidget* CMainWindow::createMainPanel(QWidget *parent)
 {
     QWidget *mainPanel = new QWidget(parent);
     mainPanel->setObjectName("mainPanel");
@@ -379,7 +378,7 @@ QWidget* CMainWindow::createMainPanel(QWidget *parent, bool isCustomWindow, doub
     _pMainGridLayout->addWidget(m_pTabBarWrapper, 0, 1, 1, 1);
 
 //    QSize wide_btn_size(29*g_dpi_ratio, TOOLBTN_HEIGHT*g_dpi_ratio);
-    m_boxTitleBtns = createTopPanel(mainPanel, isCustomWindow);
+    m_boxTitleBtns = createTopPanel(mainPanel);
     m_boxTitleBtns->setObjectName("CX11Caption");
     _pMainGridLayout->addWidget(m_boxTitleBtns, 0, 2, 1, 1);
 
@@ -401,7 +400,7 @@ QWidget* CMainWindow::createMainPanel(QWidget *parent, bool isCustomWindow, doub
     QObject::connect(m_pButtonMain, SIGNAL(clicked()), this, SLOT(pushButtonMainClicked()));
 
     QPalette palette;
-    if (isCustomWindow) {
+    if ( isCustomWindowStyle() ) {
 #ifdef __linux__
         _pMainGridLayout->setMargin( CX11Decoration::customWindowBorderWith() * dpi_ratio );
         //connect(m_boxTitleBtns, SIGNAL(mouseDoubleClicked()), SLOT(onMaximizeEvent()));
@@ -429,7 +428,7 @@ QWidget* CMainWindow::createMainPanel(QWidget *parent, bool isCustomWindow, doub
     connect(m_pTabs, &CAscTabWidget::editorInserted, bind(&CMainWindow::onTabsCountChanged, this, _2, _1, 1));
     connect(m_pTabs, &CAscTabWidget::editorRemoved, bind(&CMainWindow::onTabsCountChanged, this, _2, _1, -1));
     m_pTabs->setPalette(palette);
-    m_pTabs->setCustomWindowParams(isCustomWindow);
+    m_pTabs->setCustomWindowParams(isCustomWindowStyle());
     return mainPanel;
 }
 
