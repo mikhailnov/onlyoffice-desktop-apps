@@ -76,7 +76,7 @@ public:
 private:
     void captureMouse(int);
     virtual void applyWindowState(Qt::WindowState) final;
-    virtual void focus() final;
+    void focus() final;
     QWidget * createMainPanel(QWidget *parent);
 
 #ifdef _WIN32
@@ -93,7 +93,6 @@ private slots:
 public:
     //WId GetHwndForKeyboard() {return ((QWidget*)m_pTabs->parent())->winId();}
     CAscTabWidget * tabWidget();
-    CTabBar *tabBar();
     void goStart();
     void doOpenLocalFiles(const std::vector<std::wstring> *);
     void doOpenLocalFiles(const QStringList&);
@@ -150,8 +149,7 @@ public slots:
 
 private:
     int  trySaveDocument(int);
-    //virtual void refreshAboutVersion();
-    //QString getSaveMessage() const;
+    inline CTabBar * tabBar();
 
     CTabBarWrapper*  m_pTabBarWrapper;
     CAscTabWidget *  m_pTabs;
