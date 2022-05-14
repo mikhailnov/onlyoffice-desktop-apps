@@ -104,7 +104,9 @@ void CMainWindowPlatform::setScreenScalingFactor(double factor)
     QString css(AscAppManager::getWindowStylesheets(factor));
     if ( !css.isEmpty() ) {
         double change_factor = factor / m_dpiRatio;
-        m_dpiRatio = factor;
+
+        CWindowPlatform::setScreenScalingFactor(factor);
+
         m_pMainPanel->setStyleSheet(css);
         //m_pMainPanel->setScreenScalingFactor(factor);
         setPlacement(m_hWnd, m_moveNormalRect, change_factor);

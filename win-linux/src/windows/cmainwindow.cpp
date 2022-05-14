@@ -1298,14 +1298,7 @@ void CMainWindow::onOutsideAuth(QString json)
 void CMainWindow::updateScalingFactor(double dpiratio)
 {
     CScalingWrapper::updateScalingFactor(dpiratio);
-    QLayout * layoutBtns = m_boxTitleBtns->layout();
-    layoutBtns->setSpacing(int(1 * dpiratio));
-    if (isCustomWindowStyle()) {
-        layoutBtns->setContentsMargins(0,0,0,0);
-        QSize small_btn_size(int(TOOLBTN_WIDTH*dpiratio), int(TOOLBTN_HEIGHT*dpiratio));
-        foreach (auto btn, m_pTopButtons)
-            btn->setFixedSize(small_btn_size);
-    }
+
     m_pButtonMain->setFixedSize(int(BUTTON_MAIN_WIDTH * dpiratio), int(TITLE_HEIGHT * dpiratio));
     QString _tabs_stylesheets = dpiratio > 1.75 ? ":/sep-styles/tabbar@2x" :
                                     dpiratio > 1.5 ? ":/sep-styles/tabbar@1.75x" :

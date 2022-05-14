@@ -70,6 +70,7 @@ public:
     bool isCustomWindowStyle();
     virtual void focus();
     virtual void applyTheme(const std::wstring&);
+    virtual void setScreenScalingFactor(double);
 
 protected:
     enum BtnType {

@@ -142,6 +142,20 @@ QWidget* CWindowBase::createTopPanel(QWidget *parent, bool isCustom)
     return _boxTitleBtns;
 }
 
+void CWindowBase::setScreenScalingFactor(double f)
+{
+    m_dpiRatio = f;
+
+    QLayout * layoutBtns = m_boxTitleBtns->layout();
+    layoutBtns->setSpacing(int(1 * m_dpiRatio));
+    if ( isCustomWindowStyle() ) {
+        layoutBtns->setContentsMargins(0,0,0,0);
+        QSize small_btn_size(int(TOOLBTN_WIDTH*m_dpiRatio), int(TOOLBTN_HEIGHT*m_dpiRatio));
+        foreach (auto btn, m_pTopButtons)
+            btn->setFixedSize(small_btn_size);
+    }
+}
+
 bool CWindowBase::isCustomWindowStyle()
 {
     return pimpl->is_custom_window();
