@@ -259,17 +259,6 @@ void CMainWindow::applyTheme(const std::wstring& theme)
 
 /** Private **/
 
-void CMainWindow::applyWindowState(Qt::WindowState s)
-{
-    CMainWindowPlatform::applyWindowState(s);
-
-    if ( isCustomWindowStyle() ) {
-#ifdef __linux__
-        layout()->setMargin(s == Qt::WindowMaximized ? 0 : CX11Decoration::customWindowBorderWith() * scaling());
-#endif
-    }
-}
-
 void CMainWindow::focus()
 {
     if ( m_pTabs->isActiveWidget() ) {

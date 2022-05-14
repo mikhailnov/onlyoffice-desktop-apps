@@ -75,7 +75,6 @@ public:
 
 private:
     void captureMouse(int);
-    virtual void applyWindowState(Qt::WindowState) final;
     void focus() final;
     QWidget * createMainPanel(QWidget *parent);
 
