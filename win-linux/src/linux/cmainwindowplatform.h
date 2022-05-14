@@ -46,6 +46,8 @@ protected:
     virtual bool event(QEvent*) override;
     virtual void setScreenScalingFactor(double) override;
 
+    virtual void applyWindowState(Qt::WindowState) override;
+
 protected slots:
     void slot_modalDialog(bool,  WId);
 

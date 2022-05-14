@@ -70,6 +70,16 @@ CMainWindowPlatform::~CMainWindowPlatform()
 
 /** Protected **/
 
+void CMainWindowPlatform::applyWindowState(Qt::WindowState s)
+{
+    CWindowPlatform::applyWindowState(s);
+
+    if ( isCustomWindowStyle() ) {
+        layout()->setMargin(s == Qt::WindowMaximized ? 0 : CX11Decoration::customWindowBorderWith() * m_dpiRatio);
+    }
+}
+
+
 bool CMainWindowPlatform::event(QEvent * event)
 {
     static bool _flg_motion = false;
