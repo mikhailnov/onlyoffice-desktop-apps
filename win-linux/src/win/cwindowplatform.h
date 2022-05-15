@@ -52,9 +52,6 @@ public:
     void show(bool);
     virtual void adjustGeometry() final;
 
-protected:
-    virtual void onSystemDpiChanged(double) = 0;
-
 private:
     void setResizeableAreaWidth(int);
     virtual void changeEvent(QEvent*) final;

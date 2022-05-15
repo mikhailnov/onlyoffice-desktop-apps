@@ -81,9 +81,6 @@ private:
     virtual void onMaximizeEvent() final;
     virtual bool event(QEvent *) final;
     virtual void setScreenScalingFactor(double) final;
-#ifdef _WIN32
-    virtual void onSystemDpiChanged(double) final;
-#endif
 
     QMetaObject::Connection m_modalSlotConnection;
     QString m_css;

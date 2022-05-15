@@ -333,13 +333,6 @@ void CMainWindow::focus()
     focusToMainPanel();
 }
 
-void CMainWindow::onSystemDpiChanged(double dpi_ratio)
-{
-    if (!WindowHelper::isLeftButtonPressed() || AscAppManager::IsUseSystemScaling()) {
-        updateScaling();
-    }
-}
-
 void CMainWindow::slot_mainPageReady()
 {
     //CSplash::hideSplash();

@@ -515,15 +515,6 @@ void CEditorWindow::setScreenScalingFactor(double newfactor)
 #endif
 }
 
-#ifdef _WIN32
-void CEditorWindow::onSystemDpiChanged(double dpi_ratio)
-{
-    if (!WindowHelper::isLeftButtonPressed() || AscAppManager::IsUseSystemScaling()) {
-        updateScaling();
-    }
-}
-#endif
-
 void CEditorWindow::onClickButtonHome()
 {
     AscAppManager::gotoMainWindow(size_t(this));

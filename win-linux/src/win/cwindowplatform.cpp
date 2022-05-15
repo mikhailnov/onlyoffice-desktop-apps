@@ -140,8 +140,9 @@ bool CWindowPlatform::nativeEvent(const QByteArray &eventType, void *message, lo
     switch (msg->message)
     {
     case WM_DPICHANGED: {
-        double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
-        onSystemDpiChanged(dpi_ratio);
+        if (!WindowHelper::isLeftButtonPressed() || AscAppManager::IsUseSystemScaling()) {
+            updateScaling();
+        }
         qDebug() << "WM_DPICHANGED: " << LOWORD(msg->wParam);
         break;
     }

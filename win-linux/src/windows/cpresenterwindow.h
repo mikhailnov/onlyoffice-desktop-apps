@@ -57,7 +57,6 @@ private:
     virtual void onCloseEvent() final;
 #if defined (_WIN32)
     virtual void focus() final;
-    virtual void onSystemDpiChanged(double) final {};
 #endif
 };
 
