@@ -388,28 +388,6 @@ public:
             }
 
             setWindowColors();
-//#ifdef Q_OS_WIN
-            /*std::wstring background, border;
-            switch (panel()->data()->contentType()) {
-            case etDocument:
-                background = AscAppManager::themes().current().value(CTheme::ColorRole::ecrTabWordActive);
-                border = background;
-                break;
-            case etPresentation:
-                background = AscAppManager::themes().current().value(CTheme::ColorRole::ecrTabSlideActive);
-                border = background;
-                break;
-            case etSpreadsheet:
-                background = AscAppManager::themes().current().value(CTheme::ColorRole::ecrTabCellActive);
-                border = background;
-                break;
-            default:
-                background = AscAppManager::themes().current().value(CTheme::ColorRole::ecrWindowBackground);
-                border = AscAppManager::themes().current().value(CTheme::ColorRole::ecrWindowBorder);
-            }
-
-            window->setWindowColors(QColor(QString::fromStdWString(background)), QColor(QString::fromStdWString(border)));*/
-//#endif
         }
 
         AscAppManager::sendCommandTo(panel()->cef(), L"uitheme:changed", theme);
