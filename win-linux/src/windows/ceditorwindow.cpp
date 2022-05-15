@@ -134,7 +134,7 @@ int CEditorWindow::closeWindow()
     int _reply = MODAL_RESULT_YES;
     if ( panel->data()->hasChanges() && !panel->data()->closed() ) {
         if (windowState() == Qt::WindowMinimized)
-            setWindowState(Qt::WindowNoState);
+            showNormal();
 
         bringToTop();
 
@@ -184,16 +184,6 @@ void CEditorWindow::setReporterMode(bool apply)
     }
 
     d_ptr->isReporterMode = apply;
-}
-
-void CEditorWindow::setWindowState(Qt::WindowState state)
-{
-    switch (state) {
-    case Qt::WindowMaximized:  showMaximized(); break;
-    case Qt::WindowMinimized:  showMinimized(); break;
-    case Qt::WindowFullScreen: hide(); break;
-    case Qt::WindowNoState:
-    default: showNormal(); break;}
 }
 
 void CEditorWindow::undock(bool maximized)
