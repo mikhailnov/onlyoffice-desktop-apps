@@ -492,25 +492,7 @@ void CEditorWindow::setScreenScalingFactor(double newfactor)
     updateTitleCaption();
 #ifdef _WIN32
     QTimer::singleShot(50, this, [=]() { // Fix bug with window colors on autoscaling
-        std::wstring background, border;
-        switch (d_ptr->panel()->data()->contentType()) {
-        case etDocument:
-            background = AscAppManager::themes().current().value(CTheme::ColorRole::ecrTabWordActive);
-            border = background;
-            break;
-        case etPresentation:
-            background = AscAppManager::themes().current().value(CTheme::ColorRole::ecrTabSlideActive);
-            border = background;
-            break;
-        case etSpreadsheet:
-            background = AscAppManager::themes().current().value(CTheme::ColorRole::ecrTabCellActive);
-            border = background;
-            break;
-        default:
-            background = AscAppManager::themes().current().value(CTheme::ColorRole::ecrWindowBackground);
-            border = AscAppManager::themes().current().value(CTheme::ColorRole::ecrWindowBorder);
-        }
-        setWindowColors(QColor(QString::fromStdWString(background)), QColor(QString::fromStdWString(border)));
+        d_ptr->setWindowColors();
     });
 #endif
 }

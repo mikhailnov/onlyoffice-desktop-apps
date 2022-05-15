@@ -345,6 +345,30 @@ public:
         }
     }
 
+    void setWindowColors()
+    {
+        std::wstring background, border;
+        switch (panel()->data()->contentType()) {
+        case etDocument:
+            background = AscAppManager::themes().current().value(CTheme::ColorRole::ecrTabWordActive);
+            border = background;
+            break;
+        case etPresentation:
+            background = AscAppManager::themes().current().value(CTheme::ColorRole::ecrTabSlideActive);
+            border = background;
+            break;
+        case etSpreadsheet:
+            background = AscAppManager::themes().current().value(CTheme::ColorRole::ecrTabCellActive);
+            border = background;
+            break;
+        default:
+            background = AscAppManager::themes().current().value(CTheme::ColorRole::ecrWindowBackground);
+            border = AscAppManager::themes().current().value(CTheme::ColorRole::ecrWindowBorder);
+        }
+
+        window->setWindowColors(QColor(QString::fromStdWString(background)), QColor(QString::fromStdWString(border)));
+    }
+
     void changeTheme(const std::wstring& theme)
     {
         if ( canExtendTitle() && window->isCustomWindowStyle() ) {
@@ -363,8 +387,9 @@ public:
                 btn->setIconOpacity(AscAppManager::themes().current().color(CTheme::ColorRole::ecrButtonNormalOpacity));
             }
 
+            setWindowColors();
 //#ifdef Q_OS_WIN
-            std::wstring background, border;
+            /*std::wstring background, border;
             switch (panel()->data()->contentType()) {
             case etDocument:
                 background = AscAppManager::themes().current().value(CTheme::ColorRole::ecrTabWordActive);
@@ -383,7 +408,7 @@ public:
                 border = AscAppManager::themes().current().value(CTheme::ColorRole::ecrWindowBorder);
             }
 
-            window->setWindowColors(QColor(QString::fromStdWString(background)), QColor(QString::fromStdWString(border)));
+            window->setWindowColors(QColor(QString::fromStdWString(background)), QColor(QString::fromStdWString(border)));*/
 //#endif
         }
 
