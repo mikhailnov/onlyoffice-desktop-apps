@@ -48,9 +48,9 @@
 
 
 class CWindowBase::CWindowBasePrivate {
+public:
     bool is_custom_window_ = false;
 
-public:
     CWindowBasePrivate() {
 #ifdef Q_OS_LINUX
         GET_REGISTRY_SYSTEM(reg_system)
@@ -159,6 +159,11 @@ void CWindowBase::setScreenScalingFactor(double f)
 bool CWindowBase::isCustomWindowStyle()
 {
     return pimpl->is_custom_window();
+}
+
+void CWindowBase::setIsCustomWindowStyle(bool v)
+{
+    pimpl->is_custom_window_ = v;
 }
 
 void CWindowBase::applyWindowState(Qt::WindowState s)

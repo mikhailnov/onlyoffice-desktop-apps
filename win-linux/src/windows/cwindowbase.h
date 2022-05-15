@@ -90,6 +90,8 @@ protected:
     virtual void onMaximizeEvent();
     virtual void onCloseEvent();
 
+    void setIsCustomWindowStyle(bool);
+
     QVector<QPushButton*> m_pTopButtons;
     CElipsisLabel *m_labelTitle = nullptr;
     QWidget       *m_pMainPanel = nullptr,
