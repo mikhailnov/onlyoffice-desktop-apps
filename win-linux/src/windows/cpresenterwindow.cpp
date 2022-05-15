@@ -172,6 +172,9 @@ QWidget * CPresenterWindow::createMainPanel(QWidget * parent, const QString& tit
 
 void CPresenterWindow::setScreenScalingFactor(double factor)
 {
+#ifdef __linux__
+    CX11Decoration::onDpiChanged(factor);
+#endif
     CWindowBase::setScreenScalingFactor(factor);
     QString css(AscAppManager::getWindowStylesheets(factor));
     if (!css.isEmpty()) {                

@@ -206,7 +206,6 @@ void CWindowBase::setScreenScalingFactor(double factor)
         }
     };
 #ifdef __linux__
-    CX11Decoration::onDpiChanged(factor);
     adjustRect();
 #else
     auto current = QOperatingSystemVersion::current();
