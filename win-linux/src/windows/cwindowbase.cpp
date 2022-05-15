@@ -200,8 +200,8 @@ void CWindowBase::setScreenScalingFactor(double factor)
         if (!isMaximized()) {
             double change_factor = factor / m_dpiRatio;
             QRect _src_rect = geometry();
-            int dest_width_change = int(_src_rect.width() * (1 - change_factor));
-            QRect _dest_rect = QRect{_src_rect.translated(dest_width_change/2,0).topLeft(), _src_rect.size() * change_factor};
+            double dest_width_change = _src_rect.width() * (1 - change_factor);
+            QRect _dest_rect = QRect{_src_rect.translated(int(dest_width_change/2), 0).topLeft(), _src_rect.size() * change_factor};
             setGeometry(_dest_rect);
         }
     };
