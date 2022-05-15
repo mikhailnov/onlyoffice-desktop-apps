@@ -484,18 +484,7 @@ bool CEditorWindow::event(QEvent * event)
 
 void CEditorWindow::setScreenScalingFactor(double newfactor)
 {
-    setMinimumSize(0,0);
-#ifdef Q_OS_LINUX
-    CX11Decoration::onDpiChanged(newfactor);
-    if (!isMaximized()) {
-        double change_factor = newfactor / m_dpiRatio;
-        QRect _src_rect = geometry();
-        int dest_width_change = int(_src_rect.width() * (1 - change_factor));
-        QRect _dest_rect = QRect{_src_rect.translated(dest_width_change/2,0).topLeft(), _src_rect.size() * change_factor};
-        setGeometry(_dest_rect);
-    }
-#endif
-    m_dpiRatio = newfactor;
+    CWindowBase::setScreenScalingFactor(newfactor);
     if (isCustomWindowStyle()) {
         QSize small_btn_size(int(TOOLBTN_WIDTH * newfactor), int(TOOLBTN_HEIGHT*newfactor));
         foreach (auto btn, m_pTopButtons)
@@ -518,8 +507,8 @@ void CEditorWindow::setScreenScalingFactor(double newfactor)
     d_ptr.get()->onScreenScalingFactor(newfactor);
     recalculatePlaces();
     updateTitleCaption();
-    //adjustGeometry();
-    QTimer::singleShot(50, this, [=](){
+#ifdef _WIN32
+    QTimer::singleShot(50, this, [=]() { // Fix bug with window colors on autoscaling
         std::wstring background, border;
         switch (d_ptr->panel()->data()->contentType()) {
         case etDocument:
@@ -540,6 +529,7 @@ void CEditorWindow::setScreenScalingFactor(double newfactor)
         }
         setWindowColors(QColor(QString::fromStdWString(background)), QColor(QString::fromStdWString(border)));
     });
+#endif
 }
 
 #ifdef _WIN32
@@ -547,9 +537,6 @@ void CEditorWindow::onSystemDpiChanged(double dpi_ratio)
 {
     if (!WindowHelper::isLeftButtonPressed() || AscAppManager::IsUseSystemScaling()) {
         updateScaling();
-        /*if (dpi_ratio != m_dpiRatio) {
-            setScreenScalingFactor(dpi_ratio);
-        }*/
     }
 }
 #endif

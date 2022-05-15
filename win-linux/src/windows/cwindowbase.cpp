@@ -40,6 +40,7 @@
 #else
 # include "win/caption.h"
 #endif
+#include <QOperatingSystemVersion>
 #include <QDesktopWidget>
 #include <QVariant>
 #include <QSettings>
@@ -190,6 +191,30 @@ QWidget* CWindowBase::createTopPanel(QWidget *parent, bool isCustom)
     }
 
     return _boxTitleBtns;
+}
+
+void CWindowBase::setScreenScalingFactor(double factor)
+{
+    setMinimumSize(0,0);
+    auto adjustRect = [=]() {
+        if (!isMaximized()) {
+            double change_factor = factor / m_dpiRatio;
+            QRect _src_rect = geometry();
+            int dest_width_change = int(_src_rect.width() * (1 - change_factor));
+            QRect _dest_rect = QRect{_src_rect.translated(dest_width_change/2,0).topLeft(), _src_rect.size() * change_factor};
+            setGeometry(_dest_rect);
+        }
+    };
+#ifdef __linux__
+    CX11Decoration::onDpiChanged(factor);
+    adjustRect();
+#else
+    auto current = QOperatingSystemVersion::current();
+    if (current < QOperatingSystemVersion::Windows8) {
+        adjustRect();
+    }
+#endif
+    m_dpiRatio = factor;
 }
 
 void CWindowBase::applyWindowState(Qt::WindowState s)

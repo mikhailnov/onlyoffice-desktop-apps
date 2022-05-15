@@ -172,24 +172,12 @@ QWidget * CPresenterWindow::createMainPanel(QWidget * parent, const QString& tit
 
 void CPresenterWindow::setScreenScalingFactor(double factor)
 {
-    setMinimumSize(0,0);
-#ifdef Q_OS_LINUX
-    CX11Decoration::onDpiChanged(factor);
-    if (!isMaximized()) {
-        double change_factor = factor / m_dpiRatio;
-        QRect _src_rect = geometry();
-        int dest_width_change = int(_src_rect.width() * (1 - change_factor));
-        QRect _dest_rect = QRect{_src_rect.translated(dest_width_change/2,0).topLeft(), _src_rect.size() * change_factor};
-        setGeometry(_dest_rect);
-    }
-#endif
-    m_dpiRatio = factor;
+    CWindowBase::setScreenScalingFactor(factor);
     QString css(AscAppManager::getWindowStylesheets(factor));
     if (!css.isEmpty()) {                
         m_pMainPanel->setStyleSheet(css);
     }
-    //adjustGeometry();
-    CWindowPlatform::applyTheme(L"");  // Fix bug with window colors on scaling
+    CWindowBase::applyTheme(L"");  // Fix bug with window colors on autoscaling
 }
 
 void CPresenterWindow::onMaximizeEvent()
