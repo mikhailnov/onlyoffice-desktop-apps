@@ -376,9 +376,6 @@ void CEditorWindow::onMoveEvent(const QRect&)
 void CEditorWindow::onExitSizeMove()
 {
     updateScaling();
-    /*double dpi_ratio = Utils::getScreenDpiRatioByWidget(this);
-    if ( dpi_ratio != m_dpiRatio )
-        setScreenScalingFactor(dpi_ratio);*/
     if ( m_restoreMaximized ) {
         m_restoreMaximized = false;
         CWindowPlatform::show(true);
@@ -414,10 +411,8 @@ void CEditorWindow::captureMouse()
     QPoint pt_in_title = (m_boxTitleBtns->geometry().topLeft() +
                           QPoint(dpiCorr(CAPTURED_WINDOW_OFFSET_X), dpiCorr(CAPTURED_WINDOW_OFFSET_Y)));
     _event = {QEvent::MouseButtonPress, pt_in_title, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier};
-//    QApplication::sendEvent(this, &_event1);
     CX11Decoration::dispatchMouseDown(&_event);
     _event = {QEvent::MouseMove, QCursor::pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier};
-//    QApplication::sendEvent(this, &_event);
     CX11Decoration::dispatchMouseMove(&_event);
 #endif
 }
@@ -497,11 +492,6 @@ void CEditorWindow::setScreenScalingFactor(double newfactor)
     }
     QString zoom = QString::number(newfactor) + "x";
     m_pMainPanel->setProperty("zoom", zoom);
-    /*if ( newfactor > 1.75 ) m_pMainPanel->setProperty("zoom", "2x"); else
-    if ( newfactor > 1.5 ) m_pMainPanel->setProperty("zoom", "1.75x"); else
-    if ( newfactor > 1.25 ) m_pMainPanel->setProperty("zoom", "1.5x"); else
-    if ( newfactor > 1 ) m_pMainPanel->setProperty("zoom", "1.25x");
-    else m_pMainPanel->setProperty("zoom", "1");*/
 
     QString css(AscAppManager::getWindowStylesheets(newfactor));
     css.append(m_css);

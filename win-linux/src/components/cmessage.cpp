@@ -192,18 +192,6 @@ CMessage::CMessage(QWidget * p)
 
     QString zoom = QString::number(m_priv->dpiRatio) + "x";
     m_centralWidget->setProperty("scaling", zoom);
-    /*if ( m_priv->dpiRatio > 1.75 ) {
-        m_centralWidget->setProperty("scaling", "2x");
-    } else
-    if ( m_priv->dpiRatio > 1.55 ) {
-        m_centralWidget->setProperty("scaling", "1.75x");
-    } else
-    if ( m_priv->dpiRatio > 1.25 ) {
-        m_centralWidget->setProperty("scaling", "1.5x");
-    } else
-    if ( m_priv->dpiRatio > 1 ) {
-        m_centralWidget->setProperty("scaling", "1.25x");
-    }*/
 
     m_priv->focusConnection = QObject::connect(qApp, &QApplication::focusChanged, [&] (QWidget * from, QWidget *to){
         if ( m_priv->isWindowActive ) {
