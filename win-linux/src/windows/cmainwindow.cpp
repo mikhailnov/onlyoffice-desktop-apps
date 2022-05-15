@@ -112,7 +112,7 @@ CMainWindow::CMainWindow(const QRect &rect) :
     setCentralWidget(m_pMainPanel);
 
 #ifdef __linux__
-    if (m_isCustomWindow) {
+    if ( isCustomWindowStyle() ) {
         CX11Decoration::setTitleWidget(m_boxTitleBtns);
         m_pMainPanel->setMouseTracking(true);
         setMouseTracking(true);

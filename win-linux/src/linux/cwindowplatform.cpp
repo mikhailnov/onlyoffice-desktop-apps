@@ -50,9 +50,7 @@ CWindowPlatform::CWindowPlatform() :
     if ( isCustomWindowStyle() ) {
         CX11Decoration::turnOff();
 
-#ifdef __linux__
-    m_isCustomWindow = !CX11Decoration::isDecorated();
-#endif
+        setIsCustomWindowStyle(!CX11Decoration::isDecorated());
     }
 }
 
