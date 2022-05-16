@@ -86,9 +86,8 @@ protected:
     virtual void onMinimizeEvent();
     virtual void onMaximizeEvent();
     virtual void onCloseEvent();
-#if defined (_WIN32)
-    virtual void focus() = 0;
-#endif    
+    virtual void focus();
+
     QVector<QPushButton*> m_pTopButtons;
     CElipsisLabel *m_labelTitle;
     QWidget       *m_pMainPanel,

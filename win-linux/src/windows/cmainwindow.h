@@ -81,9 +81,8 @@ private:
     static void updateError();
 #endif    
     virtual void applyWindowState(Qt::WindowState) final;
-#ifdef _WIN32
     virtual void focus() final;
-#else
+#ifdef __linux__
     virtual void dragEnterEvent(QDragEnterEvent *event) final;
     virtual void dropEvent(QDropEvent *event) final;
 #endif
@@ -101,7 +100,6 @@ public:
     CAscTabWidget * tabWidget();
     CTabBar *tabBar();
     void goStart();
-    void focusToMainPanel();
     void doOpenLocalFiles(const std::vector<std::wstring> *);
     void doOpenLocalFiles(const QStringList&);
     void doOpenLocalFiles();

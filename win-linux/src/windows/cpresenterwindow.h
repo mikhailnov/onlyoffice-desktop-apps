@@ -55,10 +55,7 @@ private:
     virtual void setScreenScalingFactor(double) final;
     virtual void onMaximizeEvent() final;
     virtual void onCloseEvent() final;
-#if defined (_WIN32)
     virtual void focus() final;
-#endif
 };
-
 
 #endif // CPRESENTERWINDOW_H

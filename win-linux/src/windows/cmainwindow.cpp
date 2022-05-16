@@ -323,12 +323,16 @@ void CMainWindow::applyWindowState(Qt::WindowState s)
     }
 }
 
-#if defined (_WIN32)
 void CMainWindow::focus()
 {
-    focusToMainPanel();
+    if ( m_pTabs->isActiveWidget() ) {
+        m_pTabs->setFocusedView();
+    } else {
+        ((QCefView *)m_pMainWidget)->setFocusToCef();
+    }
 }
 
+#if defined (_WIN32)
 void CMainWindow::slot_mainPageReady()
 {
     //CSplash::hideSplash();
@@ -634,14 +638,6 @@ void CMainWindow::toggleButtonMain(bool toggle, bool delay)
         QTimer::singleShot(200, [=]{ _toggle(toggle); });
     } else {
         _toggle(toggle);
-    }
-}
-
-void CMainWindow::focusToMainPanel() {
-    if (m_pTabs->isActiveWidget()) {
-        m_pTabs->setFocusedView();
-    } else {
-        ((QCefView *)m_pMainWidget)->setFocusToCef();
     }
 }
 
@@ -1073,7 +1069,7 @@ void CMainWindow::onDocumentReady(int uid)
             slot_mainPageReady();
 #endif
             AscAppManager::sendCommandTo(SEND_TO_ALL_START_PAGE, L"app:ready");
-            focusToMainPanel(); // TODO: move to app manager
+            focus(); // TODO: move to app manager
         });
     } else {
         m_pTabs->applyDocumentChanging(uid, DOCUMENT_CHANGED_LOADING_FINISH);

@@ -250,6 +250,11 @@ void CWindowBase::onCloseEvent()
     close();
 }
 
+void CWindowBase::focus()
+{
+    setFocus();
+}
+
 /** Private **/
 
 void CWindowBase::showEvent(QShowEvent *event)

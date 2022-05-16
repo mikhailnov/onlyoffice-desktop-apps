@@ -195,10 +195,8 @@ void CPresenterWindow::onCloseEvent() // Reporter mode
     }
 }
 
-#if defined (_WIN32)
 void CPresenterWindow::focus()
 {
     if (m_pMainView)
         ((QCefView *)m_pMainView)->setFocusToCef();
 }
-#endif
