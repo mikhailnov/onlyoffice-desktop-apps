@@ -30,35 +30,81 @@
  *
 */
 
-#ifndef CPRESENTERWINDOW_H
-#define CPRESENTERWINDOW_H
+#ifndef CX11DECORATION_H
+#define CX11DECORATION_H
 
-#ifdef _WIN32
-# include "platform_win/cwindowplatform.h"
-#else
-# include "platform_linux/cwindowplatform.h"
-#endif
-#include "qcefview.h"
+#include "qtextstream.h"
 
+#include <QWidget>
+#include <QMouseEvent>
+#include <QTimer>
 
-class CPresenterWindow : public CWindowPlatform
+#define FORCE_LINUX_CUSTOMWINDOW_MARGINS
+
+namespace WindowHelper {
+    auto check_button_state(Qt::MouseButton b) -> bool;
+}
+
+class CX11Decoration
 {
 public:
-    explicit CPresenterWindow(const QRect&, const QString&, QCefView*);
-    virtual ~CPresenterWindow();
+    CX11Decoration(QWidget *);
+    ~CX11Decoration();
 
-    virtual void applyTheme(const std::wstring&) final;
-    virtual bool holdView(int id) const final;
+    void setTitleWidget(QWidget *);
+    void dispatchMouseDown(QMouseEvent *);
+    void dispatchMouseMove(QMouseEvent *);
+    void dispatchMouseUp(QMouseEvent *);
+    void setCursorPos(int x, int y);
+
+    void turnOn();
+    void turnOff();
+    bool isDecorated();
+    void setMaximized(bool);
+    void setMinimized();
+    void raiseWindow();
+
+    static int customWindowBorderWith();
+
+    int m_nDirection;
+protected:
+    double dpi_ratio = 1;
+    void onDpiChanged(double);
 
 private:
-    QWidget * createMainPanel(QWidget *, const QString&, bool custom = true, QWidget * view = nullptr);
-    virtual void setScreenScalingFactor(double) final;
-    virtual void onMaximizeEvent() final;
-    virtual void onCloseEvent() final;
-#if defined (_WIN32)
-    virtual void focus() final;
-#endif
+    QWidget * m_window;
+    QWidget * m_title;
+    QTimer * m_motionTimer;
+    ulong m_currentCursor;
+    bool m_decoration;
+    int m_nBorderSize;
+    bool m_bIsMaximized;
+    bool need_to_check_motion = false;
+
+    std::map<int, ulong> m_cursors;
+
+    void createCursors();
+    void freeCursors();
+    int  hitTest(int x, int y) const;
+    void checkCursor(QPoint & p);
+    void switchDecoration(bool);
+    void sendButtonRelease();
 };
 
+/*class CX11Caption : public QWidget
+{
+public:
+    Q_OBJECT
 
-#endif // CPRESENTERWINDOW_H
+signals:
+    void mouseDoubleClicked();
+
+public:
+    explicit CX11Caption(QWidget* parent);
+    virtual ~CX11Caption();
+
+    virtual void paintEvent(QPaintEvent *event);
+    virtual void mouseDoubleClickEvent(QMouseEvent *event);
+};*/
+
+#endif // CX11DECORATION_H

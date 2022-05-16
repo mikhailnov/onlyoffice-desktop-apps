@@ -46,10 +46,6 @@
 #include <QApplication>
 #include <QIcon>
 
-#ifdef _WIN32
-# include "win/caption.h"
-#endif
-
 using namespace std::placeholders;
 
 

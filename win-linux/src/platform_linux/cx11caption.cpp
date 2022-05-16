@@ -30,35 +30,31 @@
  *
 */
 
-#ifndef CPRESENTERWINDOW_H
-#define CPRESENTERWINDOW_H
+/*#include "cx11decoration.h"
 
-#ifdef _WIN32
-# include "platform_win/cwindowplatform.h"
-#else
-# include "platform_linux/cwindowplatform.h"
-#endif
-#include "qcefview.h"
+#include <QStyleOption>
+#include <QPainter>
+#include <QWidget>
 
-
-class CPresenterWindow : public CWindowPlatform
+CX11Caption::CX11Caption(QWidget* parent) : QWidget(parent)
 {
-public:
-    explicit CPresenterWindow(const QRect&, const QString&, QCefView*);
-    virtual ~CPresenterWindow();
+    setMouseTracking(true);
+}
+CX11Caption::~CX11Caption()
+{
+}
 
-    virtual void applyTheme(const std::wstring&) final;
-    virtual bool holdView(int id) const final;
+void CX11Caption::paintEvent(QPaintEvent *event)
+{
+    QStyleOption opt;
+    opt.init(this);
+    QPainter p(this);
+    style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+}
 
-private:
-    QWidget * createMainPanel(QWidget *, const QString&, bool custom = true, QWidget * view = nullptr);
-    virtual void setScreenScalingFactor(double) final;
-    virtual void onMaximizeEvent() final;
-    virtual void onCloseEvent() final;
-#if defined (_WIN32)
-    virtual void focus() final;
-#endif
-};
-
-
-#endif // CPRESENTERWINDOW_H
+void CX11Caption::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    if (event->buttons() == Qt::LeftButton)
+        emit mouseDoubleClicked();
+}
+*/

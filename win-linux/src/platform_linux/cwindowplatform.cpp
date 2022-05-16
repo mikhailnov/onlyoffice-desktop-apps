@@ -30,7 +30,7 @@
  *
 */
 
-#include "linux/cwindowplatform.h"
+#include "platform_linux/cwindowplatform.h"
 #include "cascapplicationmanagerwrapper.h"
 #include "defines.h"
 #include "utils.h"

@@ -34,9 +34,9 @@
 #define CEDITORWINDOW_H
 
 #ifdef __linux__
-# include "linux/cwindowplatform.h"
+# include "platform_linux/cwindowplatform.h"
 #else
-# include "win/cwindowplatform.h"
+# include "platform_win/cwindowplatform.h"
 #endif
 
 #include "components/ctabpanel.h"

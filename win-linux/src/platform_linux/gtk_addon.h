@@ -30,35 +30,12 @@
  *
 */
 
-#ifndef CPRESENTERWINDOW_H
-#define CPRESENTERWINDOW_H
-
-#ifdef _WIN32
-# include "platform_win/cwindowplatform.h"
-#else
-# include "platform_linux/cwindowplatform.h"
-#endif
-#include "qcefview.h"
-
-
-class CPresenterWindow : public CWindowPlatform
+#ifndef GTK_ADDON_H
+#define GTK_ADDON_H
+/*
+namespace gtk_addon
 {
-public:
-    explicit CPresenterWindow(const QRect&, const QString&, QCefView*);
-    virtual ~CPresenterWindow();
-
-    virtual void applyTheme(const std::wstring&) final;
-    virtual bool holdView(int id) const final;
-
-private:
-    QWidget * createMainPanel(QWidget *, const QString&, bool custom = true, QWidget * view = nullptr);
-    virtual void setScreenScalingFactor(double) final;
-    virtual void onMaximizeEvent() final;
-    virtual void onCloseEvent() final;
-#if defined (_WIN32)
-    virtual void focus() final;
-#endif
-};
-
-
-#endif // CPRESENTERWINDOW_H
+    int devicePixelRatio();
+}
+*/
+#endif // GTK_ADDON_H

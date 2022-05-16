@@ -67,11 +67,7 @@
 #include <regex>
 
 #ifdef _WIN32
-#include "shlobj.h"
-#include "win/caption.h"
-#else
-#define gTopWinId this
-#include "linux/cx11decoration.h"
+# include "shlobj.h"
 #endif
 
 

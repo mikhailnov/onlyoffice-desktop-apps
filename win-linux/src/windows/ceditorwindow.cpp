@@ -48,9 +48,6 @@
 #include <QDir>
 
 #include "windows/ceditorwindow_p.h"
-#ifdef _WIN32
-# include "win/caption.h"
-#endif
 
 #define CAPTURED_WINDOW_OFFSET_X  180
 #define CAPTURED_WINDOW_OFFSET_Y  15

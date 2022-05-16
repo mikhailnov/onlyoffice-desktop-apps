@@ -35,9 +35,9 @@
 
 
 #ifdef _WIN32
-# include "win/cwindowplatform.h"
+# include "platform_win/cwindowplatform.h"
 #else
-# include "linux/cwindowplatform.h"
+# include "platform_linux/cwindowplatform.h"
 #endif
 #include "cscalingwrapper.h"
 #include "cmainwindowimpl.h"
