@@ -308,79 +308,6 @@ void CMainWindow::focus()
     }
 }
 
-#if defined (_WIN32)
-void CMainWindow::slot_mainPageReady()
-{
-    //CSplash::hideSplash();
-
-#ifdef _UPDMODULE
-    GET_REGISTRY_SYSTEM(reg_system)
-
-    OSVERSIONINFO osvi;
-
-    ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-
-    GetVersionEx(&osvi);
-
-    // skip updates for XP
-    if ( osvi.dwMajorVersion > 5 && reg_system.value("CheckForUpdates", true).toBool() ) {
-        win_sparkle_set_lang(CLangater::getCurrentLangCode().toLatin1());
-
-        const std::wstring argname{L"--updates-appcast-url"};
-        QString _appcast_url = !InputArgs::contains(argname) ? URL_APPCAST_UPDATES : QString::fromStdWString(InputArgs::argument_value(argname));
-        static bool _init = false;
-        if ( !_init ) {
-            _init = true;
-
-            QString _prod_name = WINDOW_NAME;
-
-            GET_REGISTRY_USER(_user)
-            if (!_user.contains("CheckForUpdates")) {
-                _user.setValue("CheckForUpdates", "1");
-            }
-
-            win_sparkle_set_app_details(QString(VER_COMPANYNAME_STR).toStdWString().c_str(),
-                                            _prod_name.toStdWString().c_str(),
-                                            QString(VER_FILEVERSION_STR).toStdWString().c_str());
-            win_sparkle_set_appcast_url(_appcast_url.toStdString().c_str());
-            win_sparkle_set_registry_path(QString("Software\\%1\\%2").arg(REG_GROUP_KEY).arg(REG_APP_NAME).toLatin1());
-
-            win_sparkle_set_did_find_update_callback(&CMainWindow::updateFound);
-            win_sparkle_set_did_not_find_update_callback(&CMainWindow::updateNotFound);
-            win_sparkle_set_error_callback(&CMainWindow::updateError);
-
-            win_sparkle_init();
-        }
-
-        AscAppManager::sendCommandTo(0, "updates:turn", "on");
-        CLogger::log("updates is on: " + _appcast_url);
-
-#define RATE_MS_DAY 3600*24
-#define RATE_MS_WEEK RATE_MS_DAY*7
-
-        std::wstring _wstr_rate{L"day"};
-        if ( !win_sparkle_get_automatic_check_for_updates() ) {
-            _wstr_rate = L"never";
-        } else {
-            int _rate{win_sparkle_get_update_check_interval()};
-            if ( !(_rate < RATE_MS_WEEK) ) {
-                if ( _rate != RATE_MS_WEEK )
-                    win_sparkle_set_update_check_interval(RATE_MS_WEEK);
-
-                _wstr_rate = L"week";
-            } else {
-                if ( _rate != RATE_MS_DAY )
-                    win_sparkle_set_update_check_interval(RATE_MS_DAY);
-            }
-        }
-
-        AscAppManager::sendCommandTo(0, L"settings:check.updates", _wstr_rate);
-    }
-#endif
-}
-#endif
-
 void CMainWindow::onCloseEvent()
 {
     if (windowState() != Qt::WindowFullScreen && isVisible()) {
@@ -1031,9 +958,6 @@ void CMainWindow::onDocumentReady(int uid)
     if ( uid < 0 ) {
         QTimer::singleShot(20, this, [=]{
             refreshAboutVersion();
-#ifdef _WIN32
-            slot_mainPageReady();
-#endif
             AscAppManager::sendCommandTo(SEND_TO_ALL_START_PAGE, L"app:ready");
             focus(); // TODO: move to app manager
         });

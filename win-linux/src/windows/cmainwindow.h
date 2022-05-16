@@ -88,9 +88,6 @@ private:
 #endif
 
 private slots:
-#ifdef _WIN32
-    virtual void slot_mainPageReady() final;
-#endif
     virtual void onCloseEvent() final;
 
 /** MainPanel **/

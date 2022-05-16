@@ -214,7 +214,7 @@ core_windows {
     HEADERS += $$PWD/src/windows/platform_win/cwindowplatform.h \
                $$PWD/src/windows/platform_win/caption.h
 
-    SOURCES += $$PWD/src/windows/platform_win/cwindowplatform.cpp \
+    SOURCES += $$PWD/src/windows/platform_win/cwindowplatform.cpp
 
 
     LIBS += -lwininet \
