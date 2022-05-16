@@ -132,7 +132,6 @@ private:
 
 signals:
 //    void sendAddEditor();
-    void closeAppRequest();
     void editorInserted(int, int);
     void editorRemoved(int, int);
 

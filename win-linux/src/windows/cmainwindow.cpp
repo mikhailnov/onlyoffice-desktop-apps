@@ -251,45 +251,7 @@ void CMainWindow::applyTheme(const std::wstring& theme)
     m_pButtonMain->setIconSize(MAIN_ICON_SIZE * m_dpiRatio);
 }
 
-#ifdef _UPDMODULE
-void CMainWindow::checkUpdates()
-{
-    win_sparkle_check_update_with_ui();
-}
-
-void CMainWindow::setAutocheckUpdatesInterval(const QString& s)
-{
-    if ( s == "never" )
-        win_sparkle_set_automatic_check_for_updates(0);
-    else {
-        win_sparkle_set_automatic_check_for_updates(1);
-
-        s == "week" ?
-            win_sparkle_set_update_check_interval(RATE_MS_WEEK):
-                win_sparkle_set_update_check_interval(RATE_MS_DAY);
-
-    }
-}
-#endif
-
 /** Private **/
-
-#ifdef _UPDMODULE
-void CMainWindow::updateFound()
-{
-    CLogger::log("updates found");
-}
-
-void CMainWindow::updateNotFound()
-{
-    CLogger::log("updates isn't found");
-}
-
-void CMainWindow::updateError()
-{
-    CLogger::log("updates error");
-}
-#endif
 
 void CMainWindow::applyWindowState(Qt::WindowState s)
 {
@@ -455,7 +417,6 @@ QWidget* CMainWindow::createMainPanel(QWidget *parent)
     connect(tabBar(), SIGNAL(currentChanged(int)), this, SLOT(onTabChanged(int)));
     connect(tabBar(), SIGNAL(tabBarClicked(int)), this, SLOT(onTabClicked(int)));
     connect(tabBar(), SIGNAL(tabCloseRequested(int)), this, SLOT(onTabCloseRequest(int)));
-    connect(m_pTabs, &CAscTabWidget::closeAppRequest, this, &CMainWindow::onAppCloseRequest);
     connect(m_pTabs, &CAscTabWidget::editorInserted, bind(&CMainWindow::onTabsCountChanged, this, _2, _1, 1));
     connect(m_pTabs, &CAscTabWidget::editorRemoved, bind(&CMainWindow::onTabsCountChanged, this, _2, _1, -1));
     m_pTabs->setPalette(palette);
@@ -497,12 +458,6 @@ void CMainWindow::setMouseTracking(bool enable)
         m_pMainWidget->setMouseTracking(enable);
 }
 #endif
-
-void CMainWindow::onAppCloseRequest()
-{
-    onFullScreen(-1, false);
-    onCloseEvent();
-}
 
 void CMainWindow::pushButtonMainClicked()
 {

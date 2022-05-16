@@ -68,18 +68,9 @@ public:
     bool pointInTabs(const QPoint& pt);
     bool holdView(int id) const;
     virtual void applyTheme(const std::wstring&) final;
-#ifdef _UPDMODULE
-    static void checkUpdates();
-    static void setAutocheckUpdatesInterval(const QString&);
-#endif 
 
 private:
-    void captureMouse(int);
-#ifdef _UPDMODULE
-    static void updateFound();
-    static void updateNotFound();
-    static void updateError();
-#endif    
+    void captureMouse(int); 
     virtual void applyWindowState(Qt::WindowState) final;
     virtual void focus() final;
 #ifdef __linux__
@@ -116,7 +107,6 @@ public slots:
     void onTabClicked(int);
     void onTabChanged(int);
     void onTabCloseRequest(int);
-    void onAppCloseRequest();
     void onEditorActionRequest(int, const QString&);
     void onTabsCountChanged(int, int, int);
     void onWebAppsFeatures(int id, std::wstring);
