@@ -46,8 +46,8 @@
 #ifdef _WIN32
 #include "shlobj.h"
 #else
-#include "linux/cwindowplatform.h"
-#include "linux/singleapplication.h"
+# include "platform_linux/cwindowplatform.h"
+# include "platform_linux/singleapplication.h"
 #endif
 
 #include <QDebug>

@@ -40,7 +40,7 @@
 # include <unistd.h>
 
 # ifdef DOCUMENTSCORE_OPENSSL_SUPPORT
-#  include "linux/cdialogcertificateinfo.h"
+#  include "platform_linux/cdialogcertificateinfo.h"
 # endif
 #endif
 

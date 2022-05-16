@@ -47,8 +47,8 @@
 #include "windows/cmainwindow.h"
 #include "windows/cpresenterwindow.h"
 
-#ifndef _WIN32
-#include "linux/singleapplication.h"
+#ifdef __linux__
+# include "platform_linux/singleapplication.h"
 #endif
 
 #include "cthemes.h"
