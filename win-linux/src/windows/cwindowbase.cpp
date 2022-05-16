@@ -45,6 +45,7 @@
 #include <QVariant>
 #include <QSettings>
 #include <QHBoxLayout>
+#include <QScreen>
 #include <functional>
 
 
@@ -84,8 +85,12 @@ CWindowBase::CWindowBase(const QRect& rect)
     , m_windowActivated(false)
 {
     setWindowIcon(Utils::appIcon());
-    //m_dpiRatio = Utils::getScreenDpiRatio(QApplication::desktop()->screenNumber(rect.topLeft()));
-    m_dpiRatio = Utils::getScreenDpiRatioByWidget(this);
+    if ( !rect.isEmpty() )
+        m_dpiRatio = Utils::getScreenDpiRatio(rect.topLeft());
+    else {
+        QScreen * _screen = QApplication::primaryScreen();
+        m_dpiRatio = Utils::getScreenDpiRatio(_screen->geometry().topLeft());
+    }
     m_window_rect = rect;
     if (m_window_rect.isEmpty())
         m_window_rect = QRect(QPoint(100, 100)*m_dpiRatio, MAIN_WINDOW_DEFAULT_SIZE * m_dpiRatio);
