@@ -52,11 +52,6 @@
 #include <QJsonArray>
 #include <QJsonObject>
 
-#ifdef _WIN32
-//#include "win/cprintdialog.h"
-#else
-#endif
-
 
 using namespace NSEditorApi;
 
@@ -129,11 +124,7 @@ auto editor_color(int type) -> QColor {
     case etDocument: return AscAppManager::themes().current().color(CTheme::ColorRole::ecrTabWordActive);
     case etPresentation: return AscAppManager::themes().current().color(CTheme::ColorRole::ecrTabSlideActive);
     case etSpreadsheet: return AscAppManager::themes().current().color(CTheme::ColorRole::ecrTabCellActive);
-//#ifdef Q_OS_WIN
     default: return AscAppManager::themes().current().color(CTheme::ColorRole::ecrWindowBackground);
-//#else
-//    default: return QColor(WINDOW_BACKGROUND_COLOR);
-//#endif
     }
 }
 
