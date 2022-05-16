@@ -96,7 +96,6 @@ private slots:
 /** MainPanel **/
 
 public:
-    QWidget * createMainPanel(QWidget *parent, bool isCustomWindow);
     CAscTabWidget * tabWidget();
     CTabBar *tabBar();
     void goStart();
@@ -155,6 +154,7 @@ public slots:
     void onDocumentReady(int);
 
 private:
+    QWidget * createMainPanel(QWidget *parent);
     int  trySaveDocument(int);
 
     CTabBarWrapper*  m_pTabBarWrapper;
@@ -167,8 +167,7 @@ private:
     QStringList*     m_inFiles;
     QString          m_savePortal;
     Qt::WindowState  m_mainWindowState;
-    bool             m_isMaximized,
-                     m_isCustomWindow;
+    bool             m_isMaximized;
     int              m_saveAction;
 
 private slots:

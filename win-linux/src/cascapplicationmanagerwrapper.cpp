@@ -1001,6 +1001,12 @@ void CAscApplicationManagerWrapper::initializeApp()
     GET_REGISTRY_USER(reg_user)
     reg_user.setFallbacksEnabled(false);
 
+    if ( InputArgs::contains(L"--system-title-bar") )
+        reg_user.setValue("titlebar", "system");
+    else
+    if ( InputArgs::contains(L"--custom-title-bar") || !reg_user.contains("titlebar") )
+        reg_user.setValue("titlebar", "custom");
+
     // read installation time and clean cash folders if expired
     if ( reg_system.contains("timestamp") ) {
         QString user_data_path = Utils::getUserPath() + APP_DATA_PATH;

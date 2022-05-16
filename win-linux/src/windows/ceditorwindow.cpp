@@ -57,25 +57,18 @@ CEditorWindow::CEditorWindow(const QRect& rect, CTabPanel* panel)
     : CWindowPlatform(rect)
     , d_ptr(new CEditorWindowPrivate(this))
 {
-    d_ptr.get()->init(panel);
-
-#ifdef __linux__
     setObjectName("editorWindow");
-    if (isCustomWindowStyle())
-        CX11Decoration::turnOff();
+    d_ptr.get()->init(panel);
     m_pMainPanel = createMainPanel(this, d_ptr->panel()->data()->title());
     setCentralWidget(m_pMainPanel);
-
-    if ( !CX11Decoration::isDecorated() ) {
+#ifdef __linux__   
+    if (isCustomWindowStyle()) {
         CX11Decoration::setTitleWidget(m_boxTitleBtns);
         m_pMainPanel->setMouseTracking(true);
         setMouseTracking(true);
     }
     connect(&AscAppManager::getInstance().commonEvents(), &CEventDriver::onModalDialog, this, &CEditorWindow::slot_modalDialog);
 #else
-    m_pMainPanel = createMainPanel(this, d_ptr->panel()->data()->title());
-    setCentralWidget(m_pMainPanel);
-
     recalculatePlaces();
 #endif
 

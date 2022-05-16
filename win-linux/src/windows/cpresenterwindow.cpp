@@ -52,20 +52,10 @@ using namespace std::placeholders;
 CPresenterWindow::CPresenterWindow(const QRect &rect, const QString &title, QCefView *view) :
     CWindowPlatform(rect)
 {    
-    bool isDecorated = true;
-#ifdef __linux__
-    GET_REGISTRY_SYSTEM(reg_system)
-    GET_REGISTRY_USER(reg_user)
-    if (reg_user.value("titlebar") == "custom" ||
-            reg_system.value("titlebar") == "custom" )
-        CX11Decoration::turnOff();
-    isDecorated = !CX11Decoration::isDecorated();
-#endif
-
-    m_pMainPanel = createMainPanel(this, title, isDecorated, static_cast<QWidget*>(view));
+    m_pMainPanel = createMainPanel(this, title, static_cast<QWidget*>(view));
     setCentralWidget(m_pMainPanel);
 #ifdef __linux__
-    if ( !CX11Decoration::isDecorated() ) {
+    if (isCustomWindowStyle()) {
         CX11Decoration::setTitleWidget(m_boxTitleBtns);
         m_pMainPanel->setMouseTracking(true);
         setMouseTracking(true);
@@ -104,7 +94,7 @@ bool CPresenterWindow::holdView(int id) const
 
 /** Private **/
 
-QWidget * CPresenterWindow::createMainPanel(QWidget * parent, const QString& title, bool custom, QWidget * view)
+QWidget * CPresenterWindow::createMainPanel(QWidget * parent, const QString& title, QWidget * view)
 {
     QWidget * mainPanel = new QWidget(parent);
     mainPanel->setObjectName("mainPanel");
@@ -126,7 +116,7 @@ QWidget * CPresenterWindow::createMainPanel(QWidget * parent, const QString& tit
     static_cast<QHBoxLayout*>(m_boxTitleBtns->layout())->insertWidget(0, m_labelTitle);
     static_cast<QHBoxLayout*>(m_boxTitleBtns->layout())->insertStretch(0);
 
-    if (custom) {
+    if (isCustomWindowStyle()) {
 #ifdef __linux__
         m_labelTitle->setMouseTracking(true);
         //mainGridLayout->setMargin(CX11Decoration::customWindowBorderWith() * m_dpiRatio);

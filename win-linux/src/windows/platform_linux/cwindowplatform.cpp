@@ -46,7 +46,8 @@ CWindowPlatform::CWindowPlatform(const QRect &rect) :
     CWindowBase(rect),
     CX11Decoration(this)
 {
-
+    if (isCustomWindowStyle())
+        CX11Decoration::turnOff();
 }
 
 CWindowPlatform::~CWindowPlatform()

@@ -103,37 +103,14 @@ CMainWindow::CMainWindow(const QRect &rect) :
     m_savePortal(QString()),
     m_mainWindowState(Qt::WindowNoState),
     m_isMaximized(false),
-    m_isCustomWindow(true),
     m_saveAction(0)
 {
     setObjectName("MainWindow");
-#ifdef __linux__
-    setAcceptDrops(true);
-    GET_REGISTRY_USER(reg_user)
-    if ( InputArgs::contains(L"--system-title-bar") )
-        reg_user.setValue("titlebar", "system");
-    else
-    if ( InputArgs::contains(L"--custom-title-bar") )
-        reg_user.setValue("titlebar", "custom");
-
-    if ( !reg_user.contains("titlebar") )
-        reg_user.setValue("titlebar", "custom");
-
-    QString _title_style = reg_user.value("titlebar").toString();
-    if ( _title_style.isEmpty() ) {
-        GET_REGISTRY_SYSTEM(reg_system);
-        _title_style = reg_system.value("titlebar").toString();
-    }
-
-    if ( _title_style == "custom" )
-        CX11Decoration::turnOff();
-    m_isCustomWindow = !CX11Decoration::isDecorated();
-#endif
-
-    m_pMainPanel = createMainPanel(this, m_isCustomWindow);
+    m_pMainPanel = createMainPanel(this);
     setCentralWidget(m_pMainPanel);
 #ifdef __linux__
-    if (m_isCustomWindow) {
+    setAcceptDrops(true);
+    if (isCustomWindowStyle()) {
         CX11Decoration::setTitleWidget(m_boxTitleBtns);
         m_pMainPanel->setMouseTracking(true);
         setMouseTracking(true);
@@ -318,7 +295,7 @@ void CMainWindow::updateError()
 void CMainWindow::applyWindowState(Qt::WindowState s)
 {
     m_mainWindowState = s;
-    if (m_isCustomWindow) {
+    if (isCustomWindowStyle()) {
         CWindowBase::applyWindowState(s);
     }
 }
@@ -488,7 +465,7 @@ void CMainWindow::dropEvent(QDropEvent *event)
 /** MainPanel **/
 
 
-QWidget* CMainWindow::createMainPanel(QWidget *parent, bool isCustomWindow)
+QWidget* CMainWindow::createMainPanel(QWidget *parent)
 {
     QWidget *mainPanel = new QWidget(parent);
     mainPanel->setObjectName("mainPanel");
@@ -527,7 +504,7 @@ QWidget* CMainWindow::createMainPanel(QWidget *parent, bool isCustomWindow)
     QObject::connect(m_pButtonMain, SIGNAL(clicked()), this, SLOT(pushButtonMainClicked()));
 
     QPalette palette;
-    if (isCustomWindow) {
+    if (isCustomWindowStyle()) {
 /*#ifdef __linux__
         _pMainGridLayout->setMargin( CX11Decoration::customWindowBorderWith() * dpi_ratio );
         //connect(m_boxTitleBtns, SIGNAL(mouseDoubleClicked()), SLOT(onMaximizeEvent()));
@@ -556,7 +533,7 @@ QWidget* CMainWindow::createMainPanel(QWidget *parent, bool isCustomWindow)
     connect(m_pTabs, &CAscTabWidget::editorInserted, bind(&CMainWindow::onTabsCountChanged, this, _2, _1, 1));
     connect(m_pTabs, &CAscTabWidget::editorRemoved, bind(&CMainWindow::onTabsCountChanged, this, _2, _1, -1));
     m_pTabs->setPalette(palette);
-    m_pTabs->setCustomWindowParams(isCustomWindow);
+    m_pTabs->setCustomWindowParams(isCustomWindowStyle());
     return mainPanel;
 }
 
@@ -1466,7 +1443,7 @@ void CMainWindow::updateScalingFactor(double dpiratio)
     CScalingWrapper::updateScalingFactor(dpiratio);
     QLayout * layoutBtns = m_boxTitleBtns->layout();
     layoutBtns->setSpacing(int(1 * dpiratio));
-    if (m_isCustomWindow) {
+    if (isCustomWindowStyle()) {
         layoutBtns->setContentsMargins(0,0,0,0);
         QSize small_btn_size(int(TOOLBTN_WIDTH*dpiratio), int(TOOLBTN_HEIGHT*dpiratio));
         foreach (auto btn, m_pTopButtons)
@@ -1477,7 +1454,7 @@ void CMainWindow::updateScalingFactor(double dpiratio)
                                     dpiratio > 1.5 ? ":/sep-styles/tabbar@1.75x" :
                                     dpiratio > 1.25 ? ":/sep-styles/tabbar@1.5x" :
                                     dpiratio > 1 ? ":/sep-styles/tabbar@1.25x" : ":/sep-styles/tabbar";
-    if (m_isCustomWindow) {
+    if (isCustomWindowStyle()) {
         _tabs_stylesheets += ".qss";
     } else {
 #ifdef __linux__
