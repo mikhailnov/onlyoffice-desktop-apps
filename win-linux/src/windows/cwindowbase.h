@@ -80,6 +80,7 @@ protected:
 
     QPushButton* createToolButton(QWidget * parent, const QString& name);
     QWidget* createTopPanel(QWidget *parent);
+    void setIsCustomWindowStyle(bool);
     virtual void setScreenScalingFactor(double);
     virtual void applyWindowState(Qt::WindowState);
     virtual void setWindowTitle(const QString&);

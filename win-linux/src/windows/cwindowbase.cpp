@@ -48,9 +48,8 @@
 #include <functional>
 
 
-class CWindowBase::CWindowBasePrivate {
-    bool is_custom_window_ = false;
-
+class CWindowBase::CWindowBasePrivate
+{
 public:
     CWindowBasePrivate() {
 #ifdef Q_OS_LINUX
@@ -69,6 +68,8 @@ public:
     auto is_custom_window() -> bool {
         return is_custom_window_;
     }
+
+    bool is_custom_window_ = false;
 };
 
 
@@ -194,6 +195,11 @@ QWidget* CWindowBase::createTopPanel(QWidget *parent)
     }
 
     return _boxTitleBtns;
+}
+
+void CWindowBase::setIsCustomWindowStyle(bool custom)
+{
+    pimpl->is_custom_window_ = custom;
 }
 
 void CWindowBase::setScreenScalingFactor(double factor)
