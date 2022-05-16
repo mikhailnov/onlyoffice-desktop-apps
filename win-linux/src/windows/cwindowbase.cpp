@@ -79,7 +79,6 @@ CWindowBase::CWindowBase(const QRect& rect)
     , m_pMainPanel(nullptr)
     , m_boxTitleBtns(nullptr)
     , m_pMainView(nullptr)
-    , m_dpiRatio(1.0)
     , pimpl{new CWindowBasePrivate}
     , m_windowActivated(false)
 {
