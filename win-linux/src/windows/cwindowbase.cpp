@@ -65,10 +65,6 @@ public:
 #endif
     }
 
-    /*auto is_custom_window() -> bool {
-        return is_custom_window_;
-    }*/
-
     bool is_custom_window_ = false;
 };
 
@@ -76,10 +72,6 @@ public:
 CWindowBase::CWindowBase(const QRect& rect)
     : QMainWindow(nullptr)
     , m_pTopButtons(3, nullptr)
-    , m_labelTitle(nullptr)
-    , m_pMainPanel(nullptr)
-    , m_boxTitleBtns(nullptr)
-    , m_pMainView(nullptr)
     , pimpl{new CWindowBasePrivate}
     , m_windowActivated(false)
 {
