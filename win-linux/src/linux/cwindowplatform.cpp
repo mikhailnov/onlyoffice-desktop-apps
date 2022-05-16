@@ -140,6 +140,12 @@ bool CWindowPlatform::event(QEvent * event)
     return CWindowBase::event(event);
 }
 
+void CWindowPlatform::setScreenScalingFactor(double factor)
+{
+    CX11Decoration::onDpiChanged(factor);
+    CWindowBase::setScreenScalingFactor(factor);
+}
+
 /** Private **/
 
 void CWindowPlatform::mouseMoveEvent(QMouseEvent *e)

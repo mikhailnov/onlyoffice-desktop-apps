@@ -52,6 +52,7 @@ public:
 
 protected:
     virtual bool event(QEvent *event) override;
+    virtual void setScreenScalingFactor(double) override;
 
 private:
     virtual void mouseMoveEvent(QMouseEvent *) final;

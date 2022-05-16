@@ -1506,10 +1506,7 @@ void CMainWindow::updateScalingFactor(double dpiratio)
 
 void CMainWindow::setScreenScalingFactor(double factor)
 {
-#ifdef __linux__
-    CX11Decoration::onDpiChanged(factor);
-#endif
-    CWindowBase::setScreenScalingFactor(factor);
+    CWindowPlatform::setScreenScalingFactor(factor);
     QString css(AscAppManager::getWindowStylesheets(factor));
     if (!css.isEmpty()) {
         m_pMainPanel->setStyleSheet(css);

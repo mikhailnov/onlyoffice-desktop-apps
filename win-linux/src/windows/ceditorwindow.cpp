@@ -469,10 +469,7 @@ bool CEditorWindow::event(QEvent * event)
 
 void CEditorWindow::setScreenScalingFactor(double newfactor)
 {
-#ifdef __linux__
-    CX11Decoration::onDpiChanged(newfactor);
-#endif
-    CWindowBase::setScreenScalingFactor(newfactor);
+    CWindowPlatform::setScreenScalingFactor(newfactor);
     if (isCustomWindowStyle()) {
         QSize small_btn_size(int(TOOLBTN_WIDTH * newfactor), int(TOOLBTN_HEIGHT*newfactor));
         foreach (auto btn, m_pTopButtons)
