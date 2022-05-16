@@ -505,7 +505,7 @@ QWidget* CMainWindow::createMainPanel(QWidget *parent, bool isCustomWindow)
     _pMainGridLayout->addWidget(m_pTabBarWrapper, 0, 1, 1, 1);
 
 //    QSize wide_btn_size(29*g_dpi_ratio, TOOLBTN_HEIGHT*g_dpi_ratio);
-    m_boxTitleBtns = createTopPanel(mainPanel, isCustomWindow);
+    m_boxTitleBtns = createTopPanel(mainPanel);
     m_boxTitleBtns->setObjectName("CX11Caption");
     _pMainGridLayout->addWidget(m_boxTitleBtns, 0, 2, 1, 1);
 

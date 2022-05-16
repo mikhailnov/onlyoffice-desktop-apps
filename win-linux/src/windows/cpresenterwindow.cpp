@@ -120,7 +120,7 @@ QWidget * CPresenterWindow::createMainPanel(QWidget * parent, const QString& tit
     mainGridLayout->setMargin(0);
     mainPanel->setLayout(mainGridLayout);
 
-    m_boxTitleBtns = createTopPanel(mainPanel, custom);
+    m_boxTitleBtns = createTopPanel(mainPanel);
     m_boxTitleBtns->setObjectName("box-title-tools");
 
     m_labelTitle = new CElipsisLabel(title, m_boxTitleBtns);
