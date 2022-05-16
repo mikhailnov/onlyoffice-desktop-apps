@@ -51,7 +51,8 @@ CWindowPlatform::CWindowPlatform(const QRect &rect) :
     m_taskBarClicked(false)
 {
     setWindowFlags(windowFlags() | Qt::Window | Qt::FramelessWindowHint
-                   | Qt::WindowSystemMenuHint | Qt::WindowMaximizeButtonHint);
+                   | Qt::WindowSystemMenuHint | Qt::WindowMaximizeButtonHint
+                   | Qt::MSWindowsFixedSizeDialogHint);
     m_hWnd = (HWND)winId();
     DWORD style = ::GetWindowLong(m_hWnd, GWL_STYLE);
     ::SetWindowLong(m_hWnd, GWL_STYLE, style | WS_MAXIMIZEBOX | WS_THICKFRAME | WS_CAPTION);

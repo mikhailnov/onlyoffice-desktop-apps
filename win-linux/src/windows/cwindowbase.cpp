@@ -205,14 +205,14 @@ void CWindowBase::setScreenScalingFactor(double factor)
             setGeometry(_dest_rect);
         }
     };
-#ifdef __linux__
+//#ifdef __linux__
     adjustRect();
-#else
+/*#else
     auto current = QOperatingSystemVersion::current();
     if (current < QOperatingSystemVersion::Windows8) {
         adjustRect();
     }
-#endif
+#endif*/
     m_dpiRatio = factor;
 }
 
