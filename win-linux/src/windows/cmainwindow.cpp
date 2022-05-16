@@ -1364,7 +1364,8 @@ bool CMainWindow::holdUrl(const QString& url, AscEditorType type) const
     return false;
 }
 
-CAscTabWidget * CMainWindow::tabWidget() {
+CAscTabWidget * CMainWindow::tabWidget()
+{
     return m_pTabs;
 }
 

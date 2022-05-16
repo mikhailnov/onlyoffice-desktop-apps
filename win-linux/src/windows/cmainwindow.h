@@ -84,7 +84,6 @@ private slots:
 
 public:
     CAscTabWidget * tabWidget();
-    CTabBar *tabBar();
     void goStart();
     void doOpenLocalFiles(const std::vector<std::wstring> *);
     void doOpenLocalFiles(const QStringList&);
@@ -139,6 +138,7 @@ public slots:
 
 private:
     QWidget * createMainPanel(QWidget *parent);
+    inline CTabBar *tabBar();
     int  trySaveDocument(int);
 
     CTabBarWrapper*  m_pTabBarWrapper;
