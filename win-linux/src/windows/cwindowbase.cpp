@@ -65,9 +65,9 @@ public:
 #endif
     }
 
-    auto is_custom_window() -> bool {
+    /*auto is_custom_window() -> bool {
         return is_custom_window_;
-    }
+    }*/
 
     bool is_custom_window_ = false;
 };
@@ -120,7 +120,7 @@ QWidget * CWindowBase::handle() const
 
 bool CWindowBase::isCustomWindowStyle()
 {
-    return pimpl->is_custom_window();
+    return pimpl->is_custom_window_;
 }
 
 void CWindowBase::updateScaling()
