@@ -483,6 +483,11 @@ void CEditorWindow::setScreenScalingFactor(double factor)
     d_ptr.get()->onScreenScalingFactor(factor);
     recalculatePlaces();
     updateTitleCaption();
+#ifdef _WIN32
+    QTimer::singleShot(50, this, [=]() { // Fix bug with window colors on scaling
+        d_ptr->setWindowColors();
+    });
+#endif
 }
 
 void CEditorWindow::onClickButtonHome()
