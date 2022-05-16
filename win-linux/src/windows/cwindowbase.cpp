@@ -40,7 +40,6 @@
 #else
 # include "win/caption.h"
 #endif
-#include <QOperatingSystemVersion>
 #include <QDesktopWidget>
 #include <QVariant>
 #include <QSettings>
@@ -201,24 +200,24 @@ QWidget* CWindowBase::createTopPanel(QWidget *parent)
 void CWindowBase::setScreenScalingFactor(double factor)
 {
     setMinimumSize(0,0);
-    auto adjustRect = [=]() {
-        if (!isMaximized()) {
-            double change_factor = factor / m_dpiRatio;
-            QRect _src_rect = geometry();
-            double dest_width_change = _src_rect.width() * (1 - change_factor);
-            QRect _dest_rect = QRect{_src_rect.translated(int(dest_width_change/2), 0).topLeft(), _src_rect.size() * change_factor};
-            setGeometry(_dest_rect);
-        }
-    };
-//#ifdef __linux__
-    adjustRect();
-/*#else
-    auto current = QOperatingSystemVersion::current();
-    if (current < QOperatingSystemVersion::Windows8) {
-        adjustRect();
+    if (!isMaximized()) {
+        double change_factor = factor / m_dpiRatio;
+        QRect _src_rect = geometry();
+        double dest_width_change = _src_rect.width() * (1 - change_factor);
+        QRect _dest_rect = QRect{_src_rect.translated(int(dest_width_change/2), 0).topLeft(), _src_rect.size() * change_factor};
+        setGeometry(_dest_rect);
     }
-#endif*/
     m_dpiRatio = factor;
+    if (m_boxTitleBtns) {
+        QLayout *pLayoutBtns = m_boxTitleBtns->layout();
+        pLayoutBtns->setSpacing(int(1 * m_dpiRatio));
+        if (isCustomWindowStyle()) {
+            pLayoutBtns->setContentsMargins(0, 0, 0, 0);
+            QSize small_btn_size(int(TOOLBTN_WIDTH*m_dpiRatio), int(TOOLBTN_HEIGHT*m_dpiRatio));
+            foreach (auto pBtn, m_pTopButtons)
+                pBtn->setFixedSize(small_btn_size);
+        }
+    }
 }
 
 void CWindowBase::applyWindowState(Qt::WindowState s)

@@ -1513,11 +1513,6 @@ void CMainWindow::setScreenScalingFactor(double factor)
     }
     updateScalingFactor(factor);
     CScalingWrapper::updateChildScaling(m_pMainPanel, factor);
-/*#ifdef _WIN32
-    QTimer::singleShot(50, this, [=]() { // Fix bug with window colors on autoscaling
-        CWindowBase::applyTheme(L"");
-    });
-#endif*/
 }
 
 bool CMainWindow::holdUid(int uid) const

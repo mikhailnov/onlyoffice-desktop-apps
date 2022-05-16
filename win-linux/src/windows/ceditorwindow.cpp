@@ -467,31 +467,22 @@ bool CEditorWindow::event(QEvent * event)
     return CWindowPlatform::event(event);
 }
 
-void CEditorWindow::setScreenScalingFactor(double newfactor)
+void CEditorWindow::setScreenScalingFactor(double factor)
 {
-    CWindowPlatform::setScreenScalingFactor(newfactor);
+    CWindowPlatform::setScreenScalingFactor(factor);
     if (isCustomWindowStyle()) {
-        QSize small_btn_size(int(TOOLBTN_WIDTH * newfactor), int(TOOLBTN_HEIGHT*newfactor));
-        foreach (auto btn, m_pTopButtons)
-            btn->setFixedSize(small_btn_size);
-        m_boxTitleBtns->setFixedHeight(int(TOOLBTN_HEIGHT * newfactor));
-        m_boxTitleBtns->layout()->setSpacing(int(1 * newfactor));
+        m_boxTitleBtns->setFixedHeight(int(TOOLBTN_HEIGHT * factor));
     }
-    QString zoom = QString::number(newfactor) + "x";
+    QString zoom = QString::number(factor) + "x";
     m_pMainPanel->setProperty("zoom", zoom);
 
-    QString css(AscAppManager::getWindowStylesheets(newfactor));
+    QString css(AscAppManager::getWindowStylesheets(factor));
     css.append(m_css);
     m_pMainPanel->setStyleSheet(css);
 
-    d_ptr.get()->onScreenScalingFactor(newfactor);
+    d_ptr.get()->onScreenScalingFactor(factor);
     recalculatePlaces();
     updateTitleCaption();
-/*#ifdef _WIN32
-    QTimer::singleShot(50, this, [=]() { // Fix bug with window colors on autoscaling
-        d_ptr->setWindowColors();
-    });
-#endif*/
 }
 
 void CEditorWindow::onClickButtonHome()

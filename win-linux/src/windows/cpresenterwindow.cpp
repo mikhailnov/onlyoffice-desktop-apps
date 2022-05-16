@@ -177,11 +177,6 @@ void CPresenterWindow::setScreenScalingFactor(double factor)
     if (!css.isEmpty()) {                
         m_pMainPanel->setStyleSheet(css);
     }
-/*#ifdef _WIN32
-    QTimer::singleShot(50, this, [=]() { // Fix bug with window colors on autoscaling
-        CWindowBase::applyTheme(L"");
-    });
-#endif*/
 }
 
 void CPresenterWindow::onMaximizeEvent()
