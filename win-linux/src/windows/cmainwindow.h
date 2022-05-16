@@ -101,9 +101,7 @@ public:
     void goStart();
     void doOpenLocalFiles(const std::vector<std::wstring> *);
     void doOpenLocalFiles(const QStringList&);
-    void doOpenLocalFiles();
     void createLocalFile(const QString& name, int format);
-    void setInputFiles(QStringList *);
     void attachStartPanel(QCefView * const);
     void toggleButtonMain(bool, bool delay = false);
     bool holdUid(int) const;
@@ -164,7 +162,6 @@ private:
     QPushButton*     m_pButtonProfile;
     CDownloadWidget* m_pWidgetDownload;
     printdata*       m_printData;
-    QStringList*     m_inFiles;
     QString          m_savePortal;
     Qt::WindowState  m_mainWindowState;
     bool             m_isMaximized;
