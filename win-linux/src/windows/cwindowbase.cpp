@@ -221,7 +221,7 @@ void CWindowBase::setScreenScalingFactor(double factor)
 
 void CWindowBase::applyWindowState(Qt::WindowState s)
 {
-    if (m_pTopButtons[BtnType::Btn_Minimize]) {
+    if (isCustomWindowStyle() && m_pTopButtons[BtnType::Btn_Maximize]) {
         m_pTopButtons[BtnType::Btn_Maximize]->setProperty("class", s == Qt::WindowMaximized ? "min" : "normal") ;
         m_pTopButtons[BtnType::Btn_Maximize]->style()->polish(m_pTopButtons[BtnType::Btn_Maximize]);
     }

@@ -100,7 +100,6 @@ CMainWindow::CMainWindow(const QRect &rect) :
     m_pWidgetDownload(nullptr),
     m_printData(new printdata),
     m_savePortal(QString()),
-    m_mainWindowState(Qt::WindowNoState),
     m_isMaximized(false),
     m_saveAction(0)
 {
@@ -252,14 +251,6 @@ void CMainWindow::applyTheme(const std::wstring& theme)
 }
 
 /** Private **/
-
-void CMainWindow::applyWindowState(Qt::WindowState s)
-{
-    m_mainWindowState = s;
-    if (isCustomWindowStyle()) {
-        CWindowBase::applyWindowState(s);
-    }
-}
 
 void CMainWindow::focus()
 {
@@ -839,7 +830,7 @@ void CMainWindow::onFileLocation(int uid, QString param)
             }
 
             if ( !(_tab_index < 0) ) {
-                if (m_mainWindowState == Qt::WindowMinimized)
+                if (windowState().testFlag(Qt::WindowMinimized))
                     QMainWindow::setWindowState(Qt::WindowNoState);
 
                 toggleButtonMain(false, true);
@@ -1174,9 +1165,8 @@ void CMainWindow::onDocumentPrint(void * opts)
 void CMainWindow::onFullScreen(int id, bool apply)
 {
     if (apply) {
-        if (m_mainWindowState != Qt::WindowFullScreen) {
-            m_isMaximized = (m_mainWindowState == Qt::WindowMaximized);
-            m_mainWindowState = Qt::WindowFullScreen;
+        if (isVisible()) {
+            m_isMaximized = windowState().testFlag(Qt::WindowMaximized);
             m_pTabs->setFullScreen(apply, id);
             QTimer::singleShot(0, this, [=] {
                 CAscMenuEvent * pEvent = new CAscMenuEvent(ASC_MENU_EVENT_TYPE_CEF_ONFULLSCREENENTER);
@@ -1184,8 +1174,7 @@ void CMainWindow::onFullScreen(int id, bool apply)
             });
         }
     } else
-    if (m_mainWindowState == Qt::WindowFullScreen) {
-        m_mainWindowState = m_isMaximized ? Qt::WindowMaximized : Qt::WindowNoState;
+    if (isHidden()) {
         m_pTabs->setFullScreen(apply);
         toggleButtonMain(false);
     }
