@@ -48,6 +48,7 @@ CWindowPlatform::CWindowPlatform(const QRect &rect) :
 {
     if (isCustomWindowStyle())
         CX11Decoration::turnOff();
+    setIsCustomWindowStyle(!CX11Decoration::isDecorated());
 }
 
 CWindowPlatform::~CWindowPlatform()
