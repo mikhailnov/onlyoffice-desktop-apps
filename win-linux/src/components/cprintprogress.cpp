@@ -42,7 +42,7 @@
 //#define WINVER 0x0500
 # include <windows.h>
 #else
-# include "platform_linux/cx11decoration.h"
+# include "windows/platform_linux/cx11decoration.h"
 #endif // Q_WS_WIN32
 
 #include <QDebug>

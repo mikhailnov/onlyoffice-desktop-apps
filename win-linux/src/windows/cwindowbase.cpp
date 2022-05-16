@@ -38,7 +38,7 @@
 #ifdef __linux__
 # include "defines.h"
 #else
-# include "platform_win/caption.h"
+# include "windows/platform_win/caption.h"
 #endif
 #include <QDesktopWidget>
 #include <QVariant>

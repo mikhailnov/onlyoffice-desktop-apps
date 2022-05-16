@@ -30,7 +30,7 @@
  *
 */
 
-#include "platform_linux/cwindowplatform.h"
+#include "windows/platform_linux/cwindowplatform.h"
 #include "cascapplicationmanagerwrapper.h"
 #include "defines.h"
 #include "utils.h"
@@ -38,7 +38,7 @@
 
 
 #ifdef DOCUMENTSCORE_OPENSSL_SUPPORT
-# include "cdialogopenssl.h"
+# include "platform_linux/cdialogopenssl.h"
 #endif
 
 

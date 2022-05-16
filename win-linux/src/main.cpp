@@ -46,7 +46,7 @@
 #ifdef _WIN32
 #include "shlobj.h"
 #else
-# include "platform_linux/cwindowplatform.h"
+# include "windows/platform_linux/cwindowplatform.h"
 # include "platform_linux/singleapplication.h"
 #endif
 

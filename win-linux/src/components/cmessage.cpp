@@ -47,7 +47,7 @@
 #include "cascapplicationmanagerwrapper.h"
 
 #ifdef __linux__
-# include "platform_linux/cx11decoration.h"
+# include "windows/platform_linux/cx11decoration.h"
 #endif
 
 #define MSG_ICON_WIDTH  35

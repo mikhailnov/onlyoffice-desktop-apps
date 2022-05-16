@@ -181,21 +181,20 @@ core_linux {
     QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN/converter\'"
     QMAKE_LFLAGS += -static-libstdc++ -static-libgcc
 
-    HEADERS +=  $$PWD/src/platform_linux/cx11decoration.h \
-                #$$PWD/src/linux/gtk_addon.h \
-                $$PWD/src/platform_linux/cwindowplatform.h \
+    HEADERS +=  $$PWD/src/windows/platform_linux/cx11decoration.h \
+                #$$PWD/src/windows/platform_linux/gtk_addon.h \
+                $$PWD/src/windows/platform_linux/cwindowplatform.h \
+                $$PWD/src/platform_linux/cdialogopenssl.h \
+                $$PWD/src/platform_linux/cdialogcertificateinfo.h \
                 $$PWD/src/platform_linux/singleapplication.h
 
-    SOURCES +=  $$PWD/src/platform_linux/cx11decoration.cpp \
-                #$$PWD/src/linux/gtk_addon.cpp \
-                #$$PWD/src/linux/cx11caption.cpp \
-                $$PWD/src/platform_linux/cwindowplatform.cpp \
+    SOURCES +=  $$PWD/src/windows/platform_linux/cx11decoration.cpp \
+                #$$PWD/src/windows/platform_linux/gtk_addon.cpp \
+                #$$PWD/src/windows/platform_linux/cx11caption.cpp \
+                $$PWD/src/windows/platform_linux/cwindowplatform.cpp \
+                $$PWD/src/platform_linux/cdialogopenssl.cpp \
+                $$PWD/src/platform_linux/cdialogcertificateinfo.cpp \
                 $$PWD/src/platform_linux/singleapplication.cpp
-
-    HEADERS += $$PWD/src/platform_linux/cdialogopenssl.h \
-                $$PWD/src/platform_linux/cdialogcertificateinfo.h
-    SOURCES += $$PWD/src/platform_linux/cdialogopenssl.cpp \
-                $$PWD/src/platform_linux/cdialogcertificateinfo.cpp
 
     CONFIG += link_pkgconfig
     PKGCONFIG += glib-2.0 gtk+-3.0 atk
@@ -212,10 +211,10 @@ core_windows {
 
     RC_ICONS += ./res/icons/desktop_icons.ico
 
-    HEADERS += $$PWD/src/platform_win/cwindowplatform.h \
-               $$PWD/src/platform_win/caption.h
+    HEADERS += $$PWD/src/windows/platform_win/cwindowplatform.h \
+               $$PWD/src/windows/platform_win/caption.h
 
-    SOURCES += $$PWD/src/platform_win/cwindowplatform.cpp \
+    SOURCES += $$PWD/src/windows/platform_win/cwindowplatform.cpp \
 
 
     LIBS += -lwininet \
