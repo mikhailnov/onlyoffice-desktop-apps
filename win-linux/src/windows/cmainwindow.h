@@ -68,10 +68,10 @@ public:
     bool pointInTabs(const QPoint& pt);
     bool holdView(int id) const;
     virtual void applyTheme(const std::wstring&) final;
+    virtual void focus() final;
 
 private:
-    void captureMouse(int); 
-    virtual void focus() final;
+    void captureMouse(int);
 #ifdef __linux__
     virtual void dragEnterEvent(QDragEnterEvent *event) final;
     virtual void dropEvent(QDropEvent *event) final;
