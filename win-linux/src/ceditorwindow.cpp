@@ -47,6 +47,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QDir>
+#include "components/chint.h"
 
 #include "ceditorwindow_p.h"
 
@@ -102,6 +103,13 @@ CEditorWindow::CEditorWindow(const QRect& rect, CTabPanel* panel)
 //    });
 
     QTimer::singleShot(100, [=]{focus();});
+
+    m_pWinPanel->installEventFilter(this);
+    //m_pMainView->installEventFilter(this);
+
+    m_pWinPanel->setFocusPolicy(Qt::StrongFocus);
+    //m_pMainView->setFocusPolicy(Qt::StrongFocus);
+    QTimer::singleShot(2000, [this]{setButtonsHint();});
 }
 
 CEditorWindow::CEditorWindow(const QRect& r, const QString& s, QWidget * w)
@@ -375,6 +383,12 @@ void CEditorWindow::setScreenScalingFactor(double newfactor)
     adjustGeometry();
     recalculatePlaces();
     updateTitleCaption();
+    for (auto &key: d_ptr->getTitleBtns().keys()) {
+        auto btn = d_ptr->getTitleBtns().value(key);
+        CHint* hint = btn->findChild<CHint*>();
+        if (hint)
+            hint->updateScaleFactor(m_dpiRatio);
+    }
 }
 
 void CEditorWindow::recalculatePlaces()
@@ -447,6 +461,29 @@ CTabPanel * CEditorWindow::releaseEditorView() const
 const QObject * CEditorWindow::receiver()
 {
     return d_ptr.get();
+}
+
+void CEditorWindow::setButtonsHint()
+{
+    QMap<QString, QString> hbtns = {
+        {"home", "?"}, {"save", "S"}, {"print", "P"}, {"undo", "Z"}, {"redo", "Y"}
+    };
+    for (auto &key: d_ptr->getTitleBtns().keys()) {
+        auto btn = d_ptr->getTitleBtns().value(key);
+        const QString name = hbtns.contains(key) ? hbtns[key] : "?";
+        CHint *hint = new CHint(btn, name, m_dpiRatio);
+        hint->show();
+    }
+}
+
+bool CEditorWindow::eventFilter(QObject *obj, QEvent *e)
+{
+    if (e->type() == QEvent::KeyPress) {
+        QKeyEvent *k = static_cast<QKeyEvent*>(e);
+        qDebug() << "Key Press..." << k->key();
+    }
+
+    return QObject::eventFilter(obj, e);
 }
 
 QString CEditorWindow::documentName() const

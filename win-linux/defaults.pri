@@ -64,6 +64,7 @@ INCLUDEPATH += \
     $$CORE_ROOT_DIR/Common
 
 HEADERS += \
+    $$PWD/src/components/chint.h \
     $$PWD/src/asctabwidget.h \
     $$PWD/src/ctabbarwrapper.h \
     $$PWD/src/version.h \
@@ -109,6 +110,7 @@ HEADERS += \
 #    src/casclabel.h
 
 SOURCES += \
+    $$PWD/src/components/chint.cpp \
     $$PWD/src/csplash.cpp \
     $$PWD/src/ctabbarwrapper.cpp \
     $$PWD/src/main.cpp \

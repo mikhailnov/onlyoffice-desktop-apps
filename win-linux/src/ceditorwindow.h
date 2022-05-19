@@ -42,9 +42,11 @@
 #include "ctabpanel.h"
 #include <memory>
 #include <QCoreApplication>
+#include <QEvent>
+#include <QObject>
 
 class CEditorWindowPrivate;
-class CEditorWindow : public CSingleWindowPlatform
+class CEditorWindow : public CSingleWindowPlatform, public QObject
 {
     Q_DECLARE_TR_FUNCTIONS(CEditorWindow)
 
@@ -76,6 +78,8 @@ private:
     QWidget * createMainPanel(QWidget * parent, const QString& title) override;
     void recalculatePlaces();
     const QObject * receiver() override;
+    void setButtonsHint();
+    virtual bool eventFilter(QObject*, QEvent*) final;
 
 protected:
     void onCloseEvent() override;
