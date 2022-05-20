@@ -44,6 +44,7 @@
 #include <QCoreApplication>
 #include <QEvent>
 #include <QObject>
+#include <components/chint.h>
 
 class CEditorWindowPrivate;
 class CEditorWindow : public CSingleWindowPlatform, public QObject
@@ -79,6 +80,7 @@ private:
     void recalculatePlaces();
     const QObject * receiver() override;
     void setButtonsHint();
+    void removeButtonsHint();
     virtual bool eventFilter(QObject*, QEvent*) final;
 
 protected:
@@ -99,6 +101,7 @@ private slots:
 private:
     friend class CEditorWindowPrivate;
     std::unique_ptr<CEditorWindowPrivate> d_ptr;
+    QVector<CHint*> m_pHints;
 };
 
 #endif // CEDITORWINDOW_H

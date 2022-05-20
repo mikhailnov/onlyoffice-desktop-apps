@@ -44,12 +44,17 @@ public:
     ~CHint();
     void updateScaleFactor(double);
 
+signals:
+    void hintPressed();
+
 private:
     void updateState();
-    virtual void showEvent(QShowEvent*);
+    virtual void showEvent(QShowEvent*) final;
+    virtual bool eventFilter(QObject*, QEvent*) final;
 
     QWidget *m_pParent;
     double m_dpiRatio;
+    int    m_fontSize;
     bool   m_activated;
 };
 

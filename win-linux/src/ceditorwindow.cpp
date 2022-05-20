@@ -47,7 +47,6 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QDir>
-#include "components/chint.h"
 
 #include "ceditorwindow_p.h"
 
@@ -59,6 +58,7 @@ CEditorWindow::CEditorWindow()
 CEditorWindow::CEditorWindow(const QRect& rect, CTabPanel* panel)
     : CSingleWindowPlatform(rect, panel->data()->title(), panel)
     , d_ptr(new CEditorWindowPrivate(this))
+    , m_pHints(QVector<CHint*>())
 {
     d_ptr.get()->init(panel);
 
@@ -104,11 +104,7 @@ CEditorWindow::CEditorWindow(const QRect& rect, CTabPanel* panel)
 
     QTimer::singleShot(100, [=]{focus();});
 
-    m_pWinPanel->installEventFilter(this);
-    //m_pMainView->installEventFilter(this);
-
-    m_pWinPanel->setFocusPolicy(Qt::StrongFocus);
-    //m_pMainView->setFocusPolicy(Qt::StrongFocus);
+    m_boxTitleBtns->installEventFilter(this);
     QTimer::singleShot(2000, [this]{setButtonsHint();});
 }
 
@@ -383,12 +379,8 @@ void CEditorWindow::setScreenScalingFactor(double newfactor)
     adjustGeometry();
     recalculatePlaces();
     updateTitleCaption();
-    for (auto &key: d_ptr->getTitleBtns().keys()) {
-        auto btn = d_ptr->getTitleBtns().value(key);
-        CHint* hint = btn->findChild<CHint*>();
-        if (hint)
-            hint->updateScaleFactor(m_dpiRatio);
-    }
+    foreach (auto hint, m_pHints)
+        hint->updateScaleFactor(m_dpiRatio);
 }
 
 void CEditorWindow::recalculatePlaces()
@@ -465,24 +457,43 @@ const QObject * CEditorWindow::receiver()
 
 void CEditorWindow::setButtonsHint()
 {
-    QMap<QString, QString> hbtns = {
-        {"home", "?"}, {"save", "S"}, {"print", "P"}, {"undo", "Z"}, {"redo", "Y"}
-    };
-    for (auto &key: d_ptr->getTitleBtns().keys()) {
-        auto btn = d_ptr->getTitleBtns().value(key);
-        const QString name = hbtns.contains(key) ? hbtns[key] : "?";
-        CHint *hint = new CHint(btn, name, m_dpiRatio);
-        hint->show();
+    if (m_pHints.isEmpty()) {
+        QMap<QString, QString> hbtns = {
+            {"home", "?"}, {"save", "S"}, {"print", "P"}, {"undo", "Z"}, {"redo", "Y"}
+        };
+        for (auto &key: d_ptr->getTitleBtns().keys()) {
+            auto btn = d_ptr->getTitleBtns().value(key);
+            const QString name = hbtns.contains(key) ? hbtns[key] : "?";
+            CHint *hint = new CHint(btn, name, m_dpiRatio);
+            connect(hint, &CHint::hintPressed, this, [=]() {
+                foreach (auto hint, m_pHints)
+                    hint->deleteLater();
+                if (!m_pHints.isEmpty())
+                    m_pHints.clear();
+            });
+            m_pHints.push_back(hint);
+        }
     }
+}
+
+void CEditorWindow::removeButtonsHint()
+{
+    foreach (auto hint, m_pHints)
+        delete hint, hint = nullptr;
+    if (!m_pHints.isEmpty())
+        m_pHints.clear();
 }
 
 bool CEditorWindow::eventFilter(QObject *obj, QEvent *e)
 {
-    if (e->type() == QEvent::KeyPress) {
-        QKeyEvent *k = static_cast<QKeyEvent*>(e);
-        qDebug() << "Key Press..." << k->key();
+    switch (e->type()) {
+    case QEvent::MouseButtonPress:
+    case QEvent::Resize:
+        removeButtonsHint();
+        break;
+    default:
+        break;
     }
-
     return QObject::eventFilter(obj, e);
 }
 

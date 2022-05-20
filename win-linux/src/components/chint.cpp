@@ -32,6 +32,7 @@
 
 #include "components/chint.h"
 #include <QTimer>
+#include <QEvent>
 #include <QDebug>
 
 #define HINTPOS  QPoint(30,15)
@@ -45,16 +46,15 @@ CHint::CHint(QWidget *parent, const QString& text, double dpiRatio) :
     m_activated(false)
 {
     QFont font = this->font();
-    const int fsize = int(dpiRatio*font.pointSize());
-    font.setPointSize(fsize);
-    setFont(font);
+    m_fontSize = font.pointSize();
     setText(text);
     setAlignment(Qt::AlignCenter);
 
     QTimer *timer = new QTimer(this);
-    timer->setInterval(25);
+    timer->setInterval(200);
     connect(timer, &QTimer::timeout, this, &CHint::updateState);
     timer->start();
+    installEventFilter(this);
 }
 
 CHint::~CHint()
@@ -66,6 +66,10 @@ void CHint::updateScaleFactor(double dpiRatio)
 {
     m_dpiRatio = dpiRatio;
     resize(HINTSIZE*m_dpiRatio);
+    QFont font = this->font();
+    const int fontSize = int(m_dpiRatio*m_fontSize);
+    font.setPointSize(fontSize);
+    setFont(font);
 }
 
 void CHint::updateState()
@@ -79,8 +83,22 @@ void CHint::showEvent(QShowEvent *e)
     QLabel::showEvent(e);
     if (!m_activated) {
         m_activated = true;
-        setStyleSheet("padding-bottom: 1px; padding-right: 1px; background: #ffd938; \
-                       border-right: 1px solid #505050; border-bottom: 1px solid #505050;");
+        setStyleSheet("padding-bottom: 1px; padding-right: 1px; color: #101010; \
+                       background: #ffd938; border-right: 1px solid #505050; \
+                       border-bottom: 1px solid #505050;");
         updateScaleFactor(m_dpiRatio);
     }
+}
+
+bool CHint::eventFilter(QObject *obj, QEvent *e)
+{
+    switch (e->type()) {
+    case QEvent::MouseButtonPress:
+        qDebug() << "Hint Pressed...";
+        emit hintPressed();
+        break;
+    default:
+        break;
+    }
+    return QLabel::eventFilter(obj, e);
 }
