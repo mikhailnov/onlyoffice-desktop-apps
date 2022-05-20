@@ -47,7 +47,11 @@
 #include <components/chint.h>
 
 class CEditorWindowPrivate;
+#ifdef __linux__
+class CEditorWindow : public CSingleWindowPlatform
+#else
 class CEditorWindow : public CSingleWindowPlatform, public QObject
+#endif
 {
     Q_DECLARE_TR_FUNCTIONS(CEditorWindow)
 
