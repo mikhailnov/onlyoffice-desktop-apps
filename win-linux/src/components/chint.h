@@ -54,7 +54,6 @@ private:
 
     QWidget *m_pParent;
     double m_dpiRatio;
-    int    m_fontSize;
     bool   m_activated;
 };
 

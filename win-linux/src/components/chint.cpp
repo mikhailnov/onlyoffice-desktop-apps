@@ -37,6 +37,7 @@
 
 #define HINTPOS  QPoint(30,15)
 #define HINTSIZE QSize(19,19)
+#define FONTSIZE 9
 
 
 CHint::CHint(QWidget *parent, const QString& text, double dpiRatio) :
@@ -45,8 +46,9 @@ CHint::CHint(QWidget *parent, const QString& text, double dpiRatio) :
     m_dpiRatio(dpiRatio),
     m_activated(false)
 {
-    QFont font = this->font();
-    m_fontSize = font.pointSize();
+    QFont font;
+    font.setFamily("Arial");
+    setFont(font);
     setText(text);
     setAlignment(Qt::AlignCenter);
 
@@ -65,10 +67,9 @@ CHint::~CHint()
 void CHint::updateScaleFactor(double dpiRatio)
 {
     m_dpiRatio = dpiRatio;
-    resize(HINTSIZE*m_dpiRatio);
+    setFixedSize(m_dpiRatio * HINTSIZE);
     QFont font = this->font();
-    const int fontSize = int(m_dpiRatio*m_fontSize);
-    font.setPointSize(fontSize);
+    font.setPointSizeF(m_dpiRatio * FONTSIZE);
     setFont(font);
 }
 
