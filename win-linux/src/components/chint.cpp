@@ -41,7 +41,8 @@
 CHint::CHint(QWidget *parent, const QString& text, double dpiRatio) :
     QLabel(parent, Qt::Tool | Qt::FramelessWindowHint),
     m_pParent(parent),
-    m_dpiRatio(dpiRatio)
+    m_dpiRatio(dpiRatio),
+    m_activated(false)
 {
     QFont font = this->font();
     const int fsize = int(dpiRatio*font.pointSize());
@@ -50,7 +51,6 @@ CHint::CHint(QWidget *parent, const QString& text, double dpiRatio) :
     setText(text);
     setAlignment(Qt::AlignCenter);
 
-    QTimer::singleShot(50, this, &CHint::init);
     QTimer *timer = new QTimer(this);
     timer->setInterval(25);
     connect(timer, &QTimer::timeout, this, &CHint::updateState);
@@ -62,21 +62,25 @@ CHint::~CHint()
 
 }
 
-void CHint::init()
+void CHint::updateScaleFactor(double dpiRatio)
 {
-    setGeometry(QRect(m_pParent->mapToGlobal(HINTPOS*m_dpiRatio), HINTSIZE*m_dpiRatio));
-    setStyleSheet("padding-bottom: 1px; padding-right: 1px; background: #ffd938; \
-                   border-right: 1px solid #505050; border-bottom: 1px solid #505050;");
-    m_pParent->isEnabled() ? show() : hide();
+    m_dpiRatio = dpiRatio;
+    resize(HINTSIZE*m_dpiRatio);
 }
 
 void CHint::updateState()
 {
-    setGeometry(QRect(m_pParent->mapToGlobal(HINTPOS*m_dpiRatio), HINTSIZE*m_dpiRatio));
+    move(m_pParent->mapToGlobal(HINTPOS*m_dpiRatio));
     m_pParent->isEnabled() ? show() : hide();
 }
 
-void CHint::updateScaleFactor(double dpiRatio)
+void CHint::showEvent(QShowEvent *e)
 {
-    m_dpiRatio = dpiRatio;
+    QLabel::showEvent(e);
+    if (!m_activated) {
+        m_activated = true;
+        setStyleSheet("padding-bottom: 1px; padding-right: 1px; background: #ffd938; \
+                       border-right: 1px solid #505050; border-bottom: 1px solid #505050;");
+        updateScaleFactor(m_dpiRatio);
+    }
 }

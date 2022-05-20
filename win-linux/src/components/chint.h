@@ -45,11 +45,12 @@ public:
     void updateScaleFactor(double);
 
 private:
-    void init();
     void updateState();
+    virtual void showEvent(QShowEvent*);
 
     QWidget *m_pParent;
     double m_dpiRatio;
+    bool   m_activated;
 };
 
 #endif // CHINT_H
