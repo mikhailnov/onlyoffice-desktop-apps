@@ -467,7 +467,8 @@ void CEditorWindow::setButtonsHint()
             const QString name = hbtns.contains(key) ? hbtns[key] : "?";
             CHint *hint = new CHint(btn, name, m_dpiRatio);
             connect(hint, &CHint::hintPressed, this, [=]() {
-                removeButtonsHint();
+                //removeButtonsHint();
+                AscAppManager::sendCommandTo(d_ptr->panel()->cef(), L"althints:show", L"false");
             });
             m_pHints.push_back(hint);
         }
@@ -486,9 +487,11 @@ bool CEditorWindow::eventFilter(QObject *obj, QEvent *e)
 {
     switch (e->type()) {
     case QEvent::MouseButtonPress:
-    case QEvent::Resize:
-        removeButtonsHint();
+        AscAppManager::sendCommandTo(d_ptr->panel()->cef(), L"althints:show", L"false");
         break;
+    /*case QEvent::Resize:
+        removeButtonsHint();
+        break;*/
     default:
         break;
     }

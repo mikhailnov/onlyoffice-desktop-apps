@@ -67,9 +67,9 @@ void CHint::showEvent(QShowEvent *e)
         QFont fnt = QApplication::font();
         const int pts = fnt.pointSize();
         setStyleSheet(QString("padding-bottom: 1px; padding-right: 1px; color: #454545; \
-                       background: #ffd938; border-right: 1px solid #505050; \
-                       border-bottom: 1px solid #505050; font: %1pt;")
-                        .arg(int(m_dpiRatio * pts)));
+                               background: #ffd938; border-right: 1px solid #505050; \
+                               border-bottom: 1px solid #505050; font: %1pt;")
+                                .arg(int(m_dpiRatio * pts)));
         setFixedSize(m_dpiRatio * HINTSIZE);
         move(m_pParent->mapToGlobal(HINTPOS*m_dpiRatio));
     }
