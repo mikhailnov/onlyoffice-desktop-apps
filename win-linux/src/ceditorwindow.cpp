@@ -381,8 +381,6 @@ void CEditorWindow::setScreenScalingFactor(double newfactor)
     adjustGeometry();
     recalculatePlaces();
     updateTitleCaption();
-    foreach (auto hint, m_pHints)
-        hint->updateScaleFactor(m_dpiRatio);
 }
 
 void CEditorWindow::recalculatePlaces()

@@ -42,13 +42,11 @@ class CHint : public QLabel
 public:
     explicit CHint(QWidget*, const QString&, double);
     ~CHint();
-    void updateScaleFactor(double);
 
 signals:
     void hintPressed();
 
 private:
-    void updateState();
     virtual void showEvent(QShowEvent*) final;
     virtual bool eventFilter(QObject*, QEvent*) final;
 

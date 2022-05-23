@@ -31,13 +31,13 @@
 */
 
 #include "components/chint.h"
+#include <QApplication>
 #include <QTimer>
 #include <QEvent>
 #include <QDebug>
 
 #define HINTPOS  QPoint(30,15)
 #define HINTSIZE QSize(19,19)
-#define FONTSIZE 9
 
 
 CHint::CHint(QWidget *parent, const QString& text, double dpiRatio) :
@@ -46,18 +46,12 @@ CHint::CHint(QWidget *parent, const QString& text, double dpiRatio) :
     m_dpiRatio(dpiRatio),
     m_activated(false)
 {
+    setObjectName("hintLabel");
     setAttribute(Qt::WA_DeleteOnClose);
-    QFont font;
-    font.setFamily("Arial");
-    setFont(font);
     setText(text);
     setAlignment(Qt::AlignCenter);
-
-    QTimer *timer = new QTimer(this);
-    timer->setInterval(25);
-    connect(timer, &QTimer::timeout, this, &CHint::updateState);
-    timer->start();
     installEventFilter(this);
+    parent->isEnabled() ? show() : hide();
 }
 
 CHint::~CHint()
@@ -65,30 +59,19 @@ CHint::~CHint()
 
 }
 
-void CHint::updateScaleFactor(double dpiRatio)
-{
-    m_dpiRatio = dpiRatio;
-    setFixedSize(m_dpiRatio * HINTSIZE);
-    QFont font = this->font();
-    font.setPointSizeF(m_dpiRatio * FONTSIZE);
-    setFont(font);
-}
-
-void CHint::updateState()
-{
-    move(m_pParent->mapToGlobal(HINTPOS*m_dpiRatio));
-    m_pParent->isEnabled() ? show() : hide();
-}
-
 void CHint::showEvent(QShowEvent *e)
 {
     QLabel::showEvent(e);
     if (!m_activated) {
         m_activated = true;
-        setStyleSheet("padding-bottom: 1px; padding-right: 1px; color: #101010; \
+        QFont fnt = QApplication::font();
+        const int pts = fnt.pointSize();
+        setStyleSheet(QString("padding-bottom: 1px; padding-right: 1px; color: #454545; \
                        background: #ffd938; border-right: 1px solid #505050; \
-                       border-bottom: 1px solid #505050;");
-        updateScaleFactor(m_dpiRatio);
+                       border-bottom: 1px solid #505050; font: %1pt;")
+                        .arg(int(m_dpiRatio * pts)));
+        setFixedSize(m_dpiRatio * HINTSIZE);
+        move(m_pParent->mapToGlobal(HINTPOS*m_dpiRatio));
     }
 }
 
