@@ -105,7 +105,9 @@ CEditorWindow::CEditorWindow(const QRect& rect, CTabPanel* panel)
     QTimer::singleShot(100, [=]{focus();});
 
     m_boxTitleBtns->installEventFilter(this);
-    QTimer::singleShot(2000, [this]{setButtonsHint();});
+    connect(&AscAppManager::getInstance(), &AscAppManager::onAltHintsShow, this, [=](bool visible){
+        visible ? setButtonsHint() : removeButtonsHint();
+    });
 }
 
 CEditorWindow::CEditorWindow(const QRect& r, const QString& s, QWidget * w)

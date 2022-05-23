@@ -53,7 +53,7 @@ CHint::CHint(QWidget *parent, const QString& text, double dpiRatio) :
     setAlignment(Qt::AlignCenter);
 
     QTimer *timer = new QTimer(this);
-    timer->setInterval(200);
+    timer->setInterval(25);
     connect(timer, &QTimer::timeout, this, &CHint::updateState);
     timer->start();
     installEventFilter(this);

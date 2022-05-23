@@ -301,6 +301,9 @@ bool CAscApplicationManagerWrapper::processCommonEvent(NSEditorApi::CAscCefMenuE
                 return true;
             }
         } else
+        if (cmd.compare(L"althints:show") == 0) {
+            emit onAltHintsShow(pData->get_Param() == L"true" ? true : false);
+        } else
 //        if ( cmd.compare(L"open:folder") == 0 ) {
 //            QString path = CEditorTools::getlocalfile(pData->get_Param());
 

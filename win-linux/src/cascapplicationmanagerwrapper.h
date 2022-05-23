@@ -141,6 +141,7 @@ public:
 
 signals:
     void coreEvent(void *);
+    void onAltHintsShow(bool is_visible);
 
 public slots:
     void onCoreEvent(void *);
