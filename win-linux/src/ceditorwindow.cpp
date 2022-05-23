@@ -463,15 +463,13 @@ void CEditorWindow::setButtonsHint()
         QMap<QString, QString> hbtns = {
             {"home", "?"}, {"save", "S"}, {"print", "P"}, {"undo", "Z"}, {"redo", "Y"}
         };
-        for (auto &key: d_ptr->getTitleBtns().keys()) {
+        auto keys = d_ptr->getTitleBtns().keys();
+        for (auto &key: keys) {
             auto btn = d_ptr->getTitleBtns().value(key);
             const QString name = hbtns.contains(key) ? hbtns[key] : "?";
             CHint *hint = new CHint(btn, name, m_dpiRatio);
             connect(hint, &CHint::hintPressed, this, [=]() {
-                foreach (auto hint, m_pHints)
-                    hint->deleteLater();
-                if (!m_pHints.isEmpty())
-                    m_pHints.clear();
+                removeButtonsHint();
             });
             m_pHints.push_back(hint);
         }
@@ -481,7 +479,7 @@ void CEditorWindow::setButtonsHint()
 void CEditorWindow::removeButtonsHint()
 {
     foreach (auto hint, m_pHints)
-        delete hint, hint = nullptr;
+        hint->close();
     if (!m_pHints.isEmpty())
         m_pHints.clear();
 }

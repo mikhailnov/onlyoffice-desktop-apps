@@ -46,6 +46,7 @@ CHint::CHint(QWidget *parent, const QString& text, double dpiRatio) :
     m_dpiRatio(dpiRatio),
     m_activated(false)
 {
+    setAttribute(Qt::WA_DeleteOnClose);
     QFont font;
     font.setFamily("Arial");
     setFont(font);
@@ -95,7 +96,7 @@ bool CHint::eventFilter(QObject *obj, QEvent *e)
 {
     switch (e->type()) {
     case QEvent::MouseButtonPress:
-        qDebug() << "Hint Pressed...";
+        //qDebug() << "Hint Pressed...";
         emit hintPressed();
         break;
     default:
