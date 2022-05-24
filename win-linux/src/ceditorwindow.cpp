@@ -112,7 +112,6 @@ CEditorWindow::CEditorWindow(const QRect& rect, CTabPanel* panel)
             onClickButtonHome();
             AscAppManager::sendCommandTo(d_ptr->panel()->cef(), L"althints:show", L"false");
         }
-        qDebug() << key_code;
     });
 }
 
@@ -333,7 +332,8 @@ void CEditorWindow::onSizeEvent(int type)
 {
     CSingleWindowPlatform::onSizeEvent(type);
     recalculatePlaces();
-    AscAppManager::sendCommandTo(d_ptr->panel()->cef(), L"althints:show", L"false");
+    if (windowState() == Qt::WindowMinimized)
+        AscAppManager::sendCommandTo(d_ptr->panel()->cef(), L"althints:show", L"false");
 }
 
 void CEditorWindow::onMoveEvent(const QRect&)
