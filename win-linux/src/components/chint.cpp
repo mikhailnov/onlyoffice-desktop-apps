@@ -79,7 +79,6 @@ bool CHint::eventFilter(QObject *obj, QEvent *e)
 {
     switch (e->type()) {
     case QEvent::MouseButtonPress:
-        //qDebug() << "Hint Pressed...";
         emit hintPressed();
         break;
     default:

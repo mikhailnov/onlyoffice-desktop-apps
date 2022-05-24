@@ -83,8 +83,7 @@ private:
     QWidget * createMainPanel(QWidget * parent, const QString& title) override;
     void recalculatePlaces();
     const QObject * receiver() override;
-    void setButtonsHint();
-    void removeButtonsHint();
+    void setButtonsHint(bool);
     virtual bool eventFilter(QObject*, QEvent*) final;
 
 protected:
@@ -105,7 +104,6 @@ private slots:
 private:
     friend class CEditorWindowPrivate;
     std::unique_ptr<CEditorWindowPrivate> d_ptr;
-    QVector<CHint*> m_pHints;
 };
 
 #endif // CEDITORWINDOW_H

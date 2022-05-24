@@ -58,7 +58,6 @@ CEditorWindow::CEditorWindow()
 CEditorWindow::CEditorWindow(const QRect& rect, CTabPanel* panel)
     : CSingleWindowPlatform(rect, panel->data()->title(), panel)
     , d_ptr(new CEditorWindowPrivate(this))
-    , m_pHints(QVector<CHint*>())
 {
     d_ptr.get()->init(panel);
 
@@ -105,9 +104,8 @@ CEditorWindow::CEditorWindow(const QRect& rect, CTabPanel* panel)
     QTimer::singleShot(100, [=]{focus();});
 
     m_boxTitleBtns->installEventFilter(this);
-    connect(&AscAppManager::getInstance(), &AscAppManager::onAltHintsShow, this, [=](bool visible){
-        visible ? setButtonsHint() : removeButtonsHint();
-    });
+    connect(&AscAppManager::getInstance(), &AscAppManager::onAltHintsShow,
+            this, &CEditorWindow::setButtonsHint);
 }
 
 CEditorWindow::CEditorWindow(const QRect& r, const QString& s, QWidget * w)
@@ -455,32 +453,26 @@ const QObject * CEditorWindow::receiver()
     return d_ptr.get();
 }
 
-void CEditorWindow::setButtonsHint()
+void CEditorWindow::setButtonsHint(bool enable)
 {
-    if (m_pHints.isEmpty()) {
-        QMap<QString, QString> hbtns = {
-            {"home", "?"}, {"save", "S"}, {"print", "P"}, {"undo", "Z"}, {"redo", "Y"}
-        };
-        auto keys = d_ptr->getTitleBtns().keys();
-        for (auto &key: keys) {
-            auto btn = d_ptr->getTitleBtns().value(key);
+    auto keys = d_ptr->getTitleBtns().keys();
+    for (auto &key: keys) {
+        auto btn = d_ptr->getTitleBtns().value(key);
+        CHint *ex_hint = btn->findChild<CHint*>();
+        if (enable && !ex_hint) {
+            QMap<QString, QString> hbtns = {
+                {"home", "?"}, {"save", "S"}, {"print", "P"}, {"undo", "Z"}, {"redo", "Y"}
+            };
             const QString name = hbtns.contains(key) ? hbtns[key] : "?";
             CHint *hint = new CHint(btn, name, m_dpiRatio);
             connect(hint, &CHint::hintPressed, this, [=]() {
-                //removeButtonsHint();
                 AscAppManager::sendCommandTo(d_ptr->panel()->cef(), L"althints:show", L"false");
             });
-            m_pHints.push_back(hint);
+        } else
+        if (!enable && ex_hint) {
+            ex_hint->close();
         }
     }
-}
-
-void CEditorWindow::removeButtonsHint()
-{
-    foreach (auto hint, m_pHints)
-        hint->close();
-    if (!m_pHints.isEmpty())
-        m_pHints.clear();
 }
 
 bool CEditorWindow::eventFilter(QObject *obj, QEvent *e)
@@ -489,9 +481,6 @@ bool CEditorWindow::eventFilter(QObject *obj, QEvent *e)
     case QEvent::MouseButtonPress:
         AscAppManager::sendCommandTo(d_ptr->panel()->cef(), L"althints:show", L"false");
         break;
-    /*case QEvent::Resize:
-        removeButtonsHint();
-        break;*/
     default:
         break;
     }
