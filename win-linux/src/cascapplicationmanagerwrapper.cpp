@@ -304,6 +304,10 @@ bool CAscApplicationManagerWrapper::processCommonEvent(NSEditorApi::CAscCefMenuE
         if (cmd.compare(L"althints:show") == 0) {
             emit onAltHintsShow(pData->get_Param() == L"true" ? true : false);
         } else
+        if (cmd.compare(L"althints:click") == 0) {
+            QJsonObject objRoot = Utils::parseJson(pData->get_Param());
+            emit onKeyEvent(!objRoot.isEmpty() ? objRoot["code"].toInt() : -1);
+        } else
 //        if ( cmd.compare(L"open:folder") == 0 ) {
 //            QString path = CEditorTools::getlocalfile(pData->get_Param());
 

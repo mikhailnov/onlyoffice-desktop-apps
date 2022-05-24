@@ -106,6 +106,14 @@ CEditorWindow::CEditorWindow(const QRect& rect, CTabPanel* panel)
     m_boxTitleBtns->installEventFilter(this);
     connect(&AscAppManager::getInstance(), &AscAppManager::onAltHintsShow,
             this, &CEditorWindow::setButtonsHint);
+    connect(&AscAppManager::getInstance(), &AscAppManager::onKeyEvent,
+            this, [=](const int key_code) {
+        if (key_code == Qt::Key_Q) {
+            onClickButtonHome();
+            AscAppManager::sendCommandTo(d_ptr->panel()->cef(), L"althints:show", L"false");
+        }
+        qDebug() << key_code;
+    });
 }
 
 CEditorWindow::CEditorWindow(const QRect& r, const QString& s, QWidget * w)
@@ -325,6 +333,7 @@ void CEditorWindow::onSizeEvent(int type)
 {
     CSingleWindowPlatform::onSizeEvent(type);
     recalculatePlaces();
+    AscAppManager::sendCommandTo(d_ptr->panel()->cef(), L"althints:show", L"false");
 }
 
 void CEditorWindow::onMoveEvent(const QRect&)
@@ -461,7 +470,7 @@ void CEditorWindow::setButtonsHint(bool enable)
         CHint *ex_hint = btn->findChild<CHint*>();
         if (enable && !ex_hint) {
             QMap<QString, QString> hbtns = {
-                {"home", "?"}, {"save", "S"}, {"print", "P"}, {"undo", "Z"}, {"redo", "Y"}
+                {"home", "Q"}, {"save", "S"}, {"print", "P"}, {"undo", "Z"}, {"redo", "Y"}
             };
             const QString name = hbtns.contains(key) ? hbtns[key] : "?";
             CHint *hint = new CHint(btn, name, m_dpiRatio);
