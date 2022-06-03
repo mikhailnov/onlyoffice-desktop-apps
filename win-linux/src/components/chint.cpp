@@ -65,10 +65,13 @@ void CHint::showEvent(QShowEvent *e)
     if (!m_activated) {
         m_activated = true;
         QFont fnt = QApplication::font();
-        const double k = (m_dpiRatio >= 2.0) ? 0.62 :
-                         (m_dpiRatio >= 1.5) ? 0.75 :
-                         (m_dpiRatio >= 1.25) ? 0.9 :
-                         (m_dpiRatio >= 1.0) ? 1.15 : 1.0;
+        double k = 1.0;
+#ifdef _WIN32
+        k = (m_dpiRatio >= 2.0) ? 0.62 :
+            (m_dpiRatio >= 1.5) ? 0.75 :
+            (m_dpiRatio >= 1.25) ? 0.9 :
+            (m_dpiRatio >= 1.0) ? 1.15 : 1.0;
+#endif
         const int pts = int(k * m_dpiRatio * fnt.pointSize());
         setStyleSheet(QString("padding-bottom: 1px; padding-right: 1px; color: #454545; \
                                background: #ffd938; border-right: 1px solid #505050; \
