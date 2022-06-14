@@ -479,6 +479,7 @@ bool CEditorWindow::event(QEvent * event)
     if (event->type() == QEvent::MouseButtonPress) {
         _flg_left_button = static_cast<QMouseEvent *>(event)->buttons().testFlag(Qt::LeftButton);
         AscAppManager::sendCommandTo(d_ptr->panel()->cef(), L"althints:show", L"false");
+        focus();
     } else
     if (event->type() == QEvent::MouseButtonRelease) {
         if ( _flg_left_button && _flg_motion ) {
