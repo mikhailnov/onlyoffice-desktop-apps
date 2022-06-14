@@ -67,12 +67,10 @@ CEditorWindow::CEditorWindow(const QRect& rect, CTabPanel* panel)
         CX11Decoration::setTitleWidget(m_boxTitleBtns);
         m_pMainPanel->setMouseTracking(true);
         setMouseTracking(true);
-        m_boxTitleBtns->installEventFilter(this);
     }
     connect(&AscAppManager::getInstance().commonEvents(), &CEventDriver::onModalDialog, this, &CEditorWindow::slot_modalDialog);
 #else
     recalculatePlaces();
-    m_boxTitleBtns->installEventFilter(this);
 #endif
 
     QTimer::singleShot(0, this, [=]{m_pMainView->show();});
@@ -352,8 +350,6 @@ void CEditorWindow::onSizeEvent(int type)
     Q_UNUSED(type)
     updateTitleCaption();
     recalculatePlaces();
-    if (windowState() == Qt::WindowMinimized)
-        AscAppManager::sendCommandTo(d_ptr->panel()->cef(), L"althints:show", L"false");
 }
 
 void CEditorWindow::onMoveEvent(const QRect&)
@@ -473,11 +469,16 @@ bool CEditorWindow::event(QEvent * event)
 {
     static bool _flg_motion = false;
     static bool _flg_left_button = false;
+    if (event->type() == QEvent::WindowStateChange) {
+        if (windowState().testFlag(Qt::WindowMinimized))
+            AscAppManager::sendCommandTo(d_ptr->panel()->cef(), L"althints:show", L"false");
+    } else
     if (event->type() == QEvent::Resize) {
         onSizeEvent(0);
     } else
     if (event->type() == QEvent::MouseButtonPress) {
         _flg_left_button = static_cast<QMouseEvent *>(event)->buttons().testFlag(Qt::LeftButton);
+        AscAppManager::sendCommandTo(d_ptr->panel()->cef(), L"althints:show", L"false");
     } else
     if (event->type() == QEvent::MouseButtonRelease) {
         if ( _flg_left_button && _flg_motion ) {
@@ -492,20 +493,6 @@ bool CEditorWindow::event(QEvent * event)
         onMoveEvent(QRect(_e->pos(), QSize(1,1)));
     }
     return CWindowPlatform::event(event);
-}
-
-bool CEditorWindow::eventFilter(QObject *obj, QEvent *e)
-{
-    if (obj == m_boxTitleBtns) {
-        switch (e->type()) {
-        case QEvent::MouseButtonPress:
-            AscAppManager::sendCommandTo(d_ptr->panel()->cef(), L"althints:show", L"false");
-            break;
-        default:
-            break;
-        }
-    }
-    return CWindowPlatform::eventFilter(obj, e);
 }
 
 void CEditorWindow::setScreenScalingFactor(double factor)

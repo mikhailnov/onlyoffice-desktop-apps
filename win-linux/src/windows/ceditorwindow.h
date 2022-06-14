@@ -81,7 +81,6 @@ private:
     virtual void onMinimizeEvent() final;
     virtual void onMaximizeEvent() final;
     virtual bool event(QEvent *) final;
-    virtual bool eventFilter(QObject*, QEvent*) final;
     virtual void setScreenScalingFactor(double) final;
 
     QMetaObject::Connection m_modalSlotConnection;

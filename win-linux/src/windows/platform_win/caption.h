@@ -33,10 +33,12 @@
 #ifndef CAPTION_H
 #define CAPTION_H
 
+#include <QApplication>
 #include <QWidget>
 #include <QWindow>
 #include <Windows.h>
 #include <QPushButton>
+#include <QMouseEvent>
 
 
 class Caption: public QWidget
@@ -47,6 +49,12 @@ public:
     {}
 
 private:
+    void sendMouseEvent(const QEvent::Type etype)
+    {
+        QMouseEvent event(etype, QCursor::pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QApplication::sendEvent(this, &event);
+    }
+
     bool nativeEvent(const QByteArray &eventType, void *message, long *result)
     {
     #if (QT_VERSION == QT_VERSION_CHECK(5, 11, 1))
@@ -63,6 +71,7 @@ private:
             QPoint pos = mapFromGlobal(QPoint(int(pt.x), int(pt.y)));
             QPushButton *pushButton = childAt(pos) ? qobject_cast<QPushButton*>(childAt(pos)) : nullptr;
             if (!pushButton) {
+                sendMouseEvent(QEvent::MouseButtonPress);
                 HWND hWnd = ::GetAncestor((HWND)(window()->windowHandle()->winId()), GA_ROOT);
                 ::ReleaseCapture();
                 ::PostMessage(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, POINTTOPOINTS(pt));
