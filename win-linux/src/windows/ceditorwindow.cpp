@@ -36,6 +36,7 @@
 #include "cascapplicationmanagerwrapper.h"
 #include "components/cfiledialog.h"
 #include "components/cmessage.h"
+#include "components/chint.h"
 #include "../Common/OfficeFileFormats.h"
 #include "common/Types.h"
 
@@ -66,10 +67,12 @@ CEditorWindow::CEditorWindow(const QRect& rect, CTabPanel* panel)
         CX11Decoration::setTitleWidget(m_boxTitleBtns);
         m_pMainPanel->setMouseTracking(true);
         setMouseTracking(true);
+        m_boxTitleBtns->installEventFilter(this);
     }
     connect(&AscAppManager::getInstance().commonEvents(), &CEventDriver::onModalDialog, this, &CEditorWindow::slot_modalDialog);
 #else
     recalculatePlaces();
+    m_boxTitleBtns->installEventFilter(this);
 #endif
 
     QTimer::singleShot(0, this, [=]{m_pMainView->show();});
@@ -80,6 +83,16 @@ CEditorWindow::CEditorWindow(const QRect& rect, CTabPanel* panel)
     if ( i.suffix() == "oform" || panel->data()->hasFeature(L"uitype\":\"fillform") ) {
         d_ptr->ffWindowCustomize();
     }
+
+    connect(&AscAppManager::getInstance(), &AscAppManager::onAltHintsShow,
+            this, &CEditorWindow::setButtonsHint);
+    connect(&AscAppManager::getInstance(), &AscAppManager::onKeyEvent,
+            this, [=](const int key_code) {
+        if (key_code == Qt::Key_Q) {
+            onClickButtonHome();
+            AscAppManager::sendCommandTo(d_ptr->panel()->cef(), L"althints:show", L"false");
+        }
+    });
 }
 
 CEditorWindow::~CEditorWindow()
@@ -339,6 +352,8 @@ void CEditorWindow::onSizeEvent(int type)
     Q_UNUSED(type)
     updateTitleCaption();
     recalculatePlaces();
+    if (windowState() == Qt::WindowMinimized)
+        AscAppManager::sendCommandTo(d_ptr->panel()->cef(), L"althints:show", L"false");
 }
 
 void CEditorWindow::onMoveEvent(const QRect&)
@@ -395,6 +410,28 @@ void CEditorWindow::captureMouse()
     _event = {QEvent::MouseMove, QCursor::pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier};
     CX11Decoration::dispatchMouseMove(&_event);
 #endif
+}
+
+void CEditorWindow::setButtonsHint(bool enable)
+{
+    auto keys = d_ptr->getTitleBtns().keys();
+    for (auto &key: keys) {
+        auto btn = d_ptr->getTitleBtns().value(key);
+        CHint *ex_hint = btn->findChild<CHint*>();
+        if (enable && !ex_hint) {
+            QMap<QString, QString> hbtns = {
+                {"home", "Q"}, {"save", "S"}, {"print", "P"}, {"undo", "Z"}, {"redo", "Y"}
+            };
+            const QString name = hbtns.contains(key) ? hbtns[key] : "?";
+            CHint *hint = new CHint(btn, name, m_dpiRatio);
+            connect(hint, &CHint::hintPressed, this, [=]() {
+                AscAppManager::sendCommandTo(d_ptr->panel()->cef(), L"althints:show", L"false");
+            });
+        } else
+        if (!enable && ex_hint) {
+            ex_hint->close();
+        }
+    }
 }
 
 int CEditorWindow::calcTitleCaptionWidth()
@@ -455,6 +492,20 @@ bool CEditorWindow::event(QEvent * event)
         onMoveEvent(QRect(_e->pos(), QSize(1,1)));
     }
     return CWindowPlatform::event(event);
+}
+
+bool CEditorWindow::eventFilter(QObject *obj, QEvent *e)
+{
+    if (obj == m_boxTitleBtns) {
+        switch (e->type()) {
+        case QEvent::MouseButtonPress:
+            AscAppManager::sendCommandTo(d_ptr->panel()->cef(), L"althints:show", L"false");
+            break;
+        default:
+            break;
+        }
+    }
+    return CWindowPlatform::eventFilter(obj, e);
 }
 
 void CEditorWindow::setScreenScalingFactor(double factor)

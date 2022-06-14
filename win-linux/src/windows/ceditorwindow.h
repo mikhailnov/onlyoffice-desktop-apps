@@ -74,12 +74,14 @@ private:
     void onMoveEvent(const QRect&);
     void onExitSizeMove();
     void captureMouse();
+    void setButtonsHint(bool);
     virtual int calcTitleCaptionWidth() final;
     virtual void focus() final;
     virtual void onCloseEvent() final;
     virtual void onMinimizeEvent() final;
     virtual void onMaximizeEvent() final;
     virtual bool event(QEvent *) final;
+    virtual bool eventFilter(QObject*, QEvent*) final;
     virtual void setScreenScalingFactor(double) final;
 
     QMetaObject::Connection m_modalSlotConnection;

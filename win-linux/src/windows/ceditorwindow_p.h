@@ -174,6 +174,7 @@ public:
 //        if ( false && !InputArgs::contains(L"--single-window-app") )
         {
             CSVGPushButton * btnHome = new CSVGPushButton;
+            btnHome->setObjectName("home");
             btnHome->setProperty("class", "normal");
             btnHome->setProperty("act", "tool");
             btnHome->setFixedSize(QSize(TOOLBTN_WIDTH,TOOLBTN_HEIGHT) * window->m_dpiRatio);
@@ -202,6 +203,7 @@ public:
         btn->setIconOpacity(AscAppManager::themes().current().color(CTheme::ColorRole::ecrButtonNormalOpacity));
 
         m_mapTitleButtons[action] = btn;
+         m_mapTitleButtons[action]->setObjectName(action);
 
         connect(btn, &QPushButton::clicked, [=]{
             if ( action == "home" ) {
@@ -217,6 +219,11 @@ public:
 
         btn->setToolTip(jsonobj["hint"].toString());
         return btn;
+    }
+
+    auto getTitleBtns()->QMap<QString, CSVGPushButton*>
+    {
+        return m_mapTitleButtons;
     }
 
     auto extendableTitleToSimple() -> void {

@@ -143,6 +143,8 @@ public:
 
 signals:
     void coreEvent(void *);
+    void onAltHintsShow(bool is_visible);
+    void onKeyEvent(const int key_code);
 
 public slots:
     void onCoreEvent(void *);
