@@ -316,7 +316,30 @@ bool CFileDialogWrapper::modalSaveAs(QString& fileName, int selected)
             _opts |= QFileDialog::DontUseNativeDialog;
 #else
 #endif
-        return QFileDialog::getSaveFileName(p, tr("Save As"), n, f, &sf, _opts);
+        QStringList result;
+        QFileDialog *dl = new QFileDialog(p, Qt::WindowType::Dialog);
+        dl->setWindowModality(Qt::WindowModal);
+        dl->setWindowTitle(tr("Save As"));
+        dl->setAcceptMode(QFileDialog::AcceptSave);
+        dl->setFileMode(QFileDialog::ExistingFiles);
+        dl->setOptions(_opts);
+        dl->selectFile(n);
+        dl->setNameFilter(f);
+        dl->selectNameFilter(sf);
+        if (WindowHelper::getEnvInfo() == "GNOME" && !_opts.testFlag(QFileDialog::DontUseNativeDialog)) {
+            QTimer *tmr = new QTimer(dl);
+            tmr->setInterval(300);
+            tmr->setSingleShot(false);
+            connect(tmr, &QTimer::timeout, [=]() {
+                if (!dl->isActiveWindow() && parent())
+                    static_cast<QWidget*>(parent())->lower();
+            });
+            tmr->start();
+        }
+        if (dl->exec() == QFileDialog::Accepted)
+            result = dl->selectedFiles();
+        dl->deleteLater();
+        return (result.size() > 0) ? result.at(0) : QString();
     };
 
 #ifdef FILEDIALOG_DONT_USE_MODAL
@@ -423,8 +446,31 @@ QStringList CFileDialogWrapper::modalOpen(const QString& path, const QString& fi
 #ifndef _WIN32
     WindowHelper::CParentDisable oDisabler(qobject_cast<QWidget*>(parent()));
 
-    return multi ? QFileDialog::getOpenFileNames(_parent, tr("Open Document"), path, _filter_, &_sel_filter, _opts) :
-                QStringList(QFileDialog::getOpenFileName(_parent, tr("Open Document"), path, _filter_, &_sel_filter, _opts));
+    QStringList res;
+    QFileDialog *dl = new QFileDialog(_parent, Qt::WindowType::Dialog);
+    dl->setWindowModality(Qt::WindowModal);
+    dl->setWindowTitle(tr("Open Document"));
+    dl->setAcceptMode(QFileDialog::AcceptOpen);
+    dl->setFileMode(multi ? QFileDialog::ExistingFiles : QFileDialog::ExistingFile);
+    dl->setOptions(_opts);
+    dl->setDirectory(path);
+    dl->setNameFilter(_filter_);
+    dl->selectNameFilter(_sel_filter);
+    if (WindowHelper::getEnvInfo() == "GNOME" && !_opts.testFlag(QFileDialog::DontUseNativeDialog)) {
+        QTimer *tmr = new QTimer(dl);
+        tmr->setInterval(300);
+        tmr->setSingleShot(false);
+        connect(tmr, &QTimer::timeout, [=]() {
+            if (!dl->isActiveWindow() && parent())
+                static_cast<QWidget*>(parent())->lower();
+        });
+        tmr->start();
+    }
+    if (dl->exec() == QFileDialog::Accepted)
+        res = dl->selectedFiles();
+    dl->deleteLater();
+    return res;
+
 #else
     /*CInAppEventModal event_(qobject_cast<QWidget*>(parent())->winId());
     CRunningEventHelper h_(&event_);*/
