@@ -326,6 +326,7 @@ bool CFileDialogWrapper::modalSaveAs(QString& fileName, int selected)
         dl->selectFile(n);
         dl->setNameFilter(f);
         dl->selectNameFilter(sf);
+#ifndef _WIN32
         if (WindowHelper::getEnvInfo() == "GNOME" && !_opts.testFlag(QFileDialog::DontUseNativeDialog)) {
             QTimer *tmr = new QTimer(dl);
             tmr->setInterval(300);
@@ -336,6 +337,7 @@ bool CFileDialogWrapper::modalSaveAs(QString& fileName, int selected)
             });
             tmr->start();
         }
+#endif
         if (dl->exec() == QFileDialog::Accepted)
             result = dl->selectedFiles();
         dl->deleteLater();
